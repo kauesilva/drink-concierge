@@ -1,10 +1,9 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, CheckCircle, MessageCircle, Star, ChevronDown } from 'lucide-react';
+import { ArrowRight, CheckCircle, Star, Sparkles, Zap, Shield, Users } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { eventTypes } from '@/data/mockData';
-import heroImage from '@/assets/hero-bartender.jpg';
 import {
   Accordion,
   AccordionContent,
@@ -13,15 +12,15 @@ import {
 } from "@/components/ui/accordion";
 
 const fadeInUp = {
-  initial: { opacity: 0, y: 20 },
+  initial: { opacity: 0, y: 30 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.5 },
+  transition: { duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] },
 };
 
 const staggerContainer = {
   animate: {
     transition: {
-      staggerChildren: 0.1,
+      staggerChildren: 0.12,
     },
   },
 };
@@ -29,19 +28,19 @@ const staggerContainer = {
 const Index = () => {
   const steps = [
     {
-      number: '01',
-      title: 'Conte sobre seu evento',
-      description: 'Tipo de evento, quantidade de pessoas, local e data.',
+      icon: Sparkles,
+      title: 'Descreva seu evento',
+      description: 'Tipo de evento, quantidade de pessoas, local e data — tudo em minutos.',
     },
     {
-      number: '02',
+      icon: Zap,
       title: 'Compare opções',
-      description: 'Veja empresas parceiras, cardápios e valores estimados.',
+      description: 'Receba propostas de empresas parceiras verificadas com cardápios e valores.',
     },
     {
-      number: '03',
-      title: 'Solicite contratação',
-      description: 'Escolha sua opção favorita e um agente finaliza tudo.',
+      icon: Shield,
+      title: 'Contrate com segurança',
+      description: 'Escolha a melhor opção e nosso concierge cuida do resto.',
     },
   ];
 
@@ -60,7 +59,7 @@ const Index = () => {
     },
     {
       name: 'Ana Paula R.',
-      event: 'Aniversário 40 anos',
+      event: 'Aniversário',
       rating: 5,
       text: 'Prático e transparente. Adorei poder ver os cardápios e valores antes de decidir.',
     },
@@ -89,124 +88,153 @@ const Index = () => {
     },
   ];
 
+  const stats = [
+    { value: '500+', label: 'Eventos realizados' },
+    { value: '98%', label: 'Clientes satisfeitos' },
+    { value: '50+', label: 'Empresas parceiras' },
+  ];
+
   return (
     <Layout>
-      {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center">
-        {/* Background Image */}
-        <div className="absolute inset-0 z-0">
-          <img
-            src={heroImage}
-            alt="Bartender profissional preparando drinks"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/95 to-background/60" />
-        </div>
+      {/* Hero Section — Apple / Linear inspired */}
+      <section className="relative min-h-[100vh] flex items-center justify-center overflow-hidden">
+        {/* Subtle gradient background */}
+        <div className="absolute inset-0 bg-background" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-primary/8 rounded-full blur-[120px] animate-glow-pulse" />
+        <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[100px]" />
 
-        <div className="container relative z-10 py-16 md:py-24">
+        <div className="container relative z-10 py-24 md:py-32">
           <motion.div
             initial="initial"
             animate="animate"
             variants={staggerContainer}
-            className="max-w-2xl"
+            className="max-w-4xl mx-auto text-center"
           >
-            <motion.span
-              variants={fadeInUp}
-              className="inline-block badge-premium mb-6"
-            >
-              ✨ O iFood dos drinks para eventos
-            </motion.span>
-            
+            {/* Badge */}
+            <motion.div variants={fadeInUp} className="mb-8">
+              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-sm font-medium text-foreground">
+                <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                Marketplace de drinks para eventos
+              </span>
+            </motion.div>
+
+            {/* Headline */}
             <motion.h1
               variants={fadeInUp}
               className="heading-display text-foreground mb-6"
             >
-              Seu bar de drinks para eventos, em{' '}
-              <span className="text-primary">poucos cliques</span>
+              Seu bar de drinks
+              <br />
+              <span className="text-primary">em poucos cliques</span>
             </motion.h1>
-            
+
+            {/* Subheadline */}
             <motion.p
               variants={fadeInUp}
-              className="text-body text-lg text-muted-foreground mb-8 max-w-lg"
+              className="text-body text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto"
             >
-              Escolha o tipo de evento, número de pessoas, local e data. 
-              Compare empresas e cardápios. Solicite contratação sem complicação.
+              Compare empresas de coquetelaria, veja cardápios e valores. 
+              Solicite contratação sem complicação para qualquer tipo de evento.
             </motion.p>
 
-            <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4">
+            {/* CTAs */}
+            <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
               <Button asChild variant="gold" size="xl">
                 <Link to="/orcamento">
-                  Receber orçamento
-                  <ArrowRight className="w-5 h-5" />
+                  Receber orçamento grátis
+                  <ArrowRight className="w-4 h-4" />
                 </Link>
               </Button>
               <Button asChild variant="outline" size="xl">
                 <a href="#como-funciona">
                   Como funciona
-                  <ChevronDown className="w-5 h-5" />
                 </a>
               </Button>
             </motion.div>
 
-            {/* Trust Badges */}
+            {/* Trust signals */}
             <motion.div
               variants={fadeInUp}
-              className="flex items-center gap-6 mt-12 pt-8 border-t border-border/50"
+              className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3"
             >
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-primary" />
-                <span className="text-sm text-muted-foreground">100% gratuito</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-primary" />
-                <span className="text-sm text-muted-foreground">Sem compromisso</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-primary" />
-                <span className="text-sm text-muted-foreground">Empresas verificadas</span>
-              </div>
+              {['100% gratuito', 'Sem compromisso', 'Empresas verificadas'].map((text) => (
+                <div key={text} className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-primary" />
+                  <span className="text-sm text-muted-foreground">{text}</span>
+                </div>
+              ))}
             </motion.div>
           </motion.div>
         </div>
       </section>
 
-      {/* How it Works */}
-      <section id="como-funciona" className="py-16 md:py-24 bg-secondary/30">
+      {/* Stats band */}
+      <section className="border-y border-border bg-secondary/30">
+        <div className="container py-12 md:py-16">
+          <div className="grid grid-cols-3 gap-8">
+            {stats.map((stat, i) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="text-center"
+              >
+                <p className="font-display text-3xl md:text-5xl font-bold text-foreground mb-1">
+                  {stat.value}
+                </p>
+                <p className="text-sm text-muted-foreground">{stat.label}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How it Works — Stripe inspired */}
+      <section id="como-funciona" className="py-24 md:py-32">
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-12 md:mb-16"
+            className="max-w-2xl mb-16"
           >
-            <h2 className="heading-section text-foreground mb-4">
+            <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-3">
               Como funciona
+            </p>
+            <h2 className="heading-section text-foreground mb-4">
+              Três passos para o bar perfeito
             </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Em 3 passos simples, você encontra o bar perfeito para seu evento
+            <p className="text-lg text-muted-foreground">
+              Um processo simples e transparente do início ao fim.
             </p>
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-6 md:gap-8">
             {steps.map((step, index) => (
               <motion.div
-                key={step.number}
+                key={step.title}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.15 }}
-                className="card-premium p-6 md:p-8 text-center relative"
+                className="group relative p-8 rounded-2xl border border-border bg-card hover:border-primary/30 hover:shadow-gold transition-all duration-300"
               >
-                <span className="font-display text-6xl font-bold text-primary/10 absolute top-4 right-4">
-                  {step.number}
+                {/* Step number */}
+                <span className="absolute top-8 right-8 font-display text-7xl font-bold text-secondary group-hover:text-primary/10 transition-colors">
+                  {String(index + 1).padStart(2, '0')}
                 </span>
-                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-amber-600 flex items-center justify-center mx-auto mb-6">
-                  <span className="text-xl font-bold text-primary-foreground">{index + 1}</span>
+
+                {/* Icon */}
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors">
+                  <step.icon className="w-6 h-6 text-primary" />
                 </div>
-                <h3 className="font-display text-xl font-semibold text-foreground mb-3">
+
+                <h3 className="font-display text-xl font-bold text-foreground mb-3">
                   {step.title}
                 </h3>
-                <p className="text-muted-foreground">
+                <p className="text-muted-foreground leading-relaxed">
                   {step.description}
                 </p>
               </motion.div>
@@ -215,35 +243,35 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Event Types */}
-      <section className="py-16 md:py-24">
+      {/* Event Types — Minimal grid */}
+      <section className="py-24 md:py-32 bg-secondary/30">
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            className="text-center mb-16"
           >
-            <h2 className="heading-section text-foreground mb-4">
+            <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-3">
+              Eventos
+            </p>
+            <h2 className="heading-section text-foreground">
               Para todos os tipos de evento
             </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Casamentos, aniversários, eventos corporativos e muito mais
-            </p>
           </motion.div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 md:gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3">
             {eventTypes.map((event, index) => (
               <motion.div
                 key={event.value}
                 initial={{ opacity: 0, scale: 0.95 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
-                transition={{ delay: index * 0.05 }}
-                whileHover={{ scale: 1.05 }}
-                className="card-premium p-4 md:p-5 text-center cursor-pointer"
+                transition={{ delay: index * 0.04 }}
+                whileHover={{ scale: 1.05, y: -4 }}
+                className="p-5 rounded-2xl border border-border bg-card text-center cursor-pointer hover:border-primary/30 hover:shadow-gold transition-all duration-300"
               >
-                <span className="text-3xl md:text-4xl mb-2 block">{event.icon}</span>
+                <span className="text-3xl mb-3 block">{event.icon}</span>
                 <p className="text-sm font-medium text-foreground">{event.label}</p>
               </motion.div>
             ))}
@@ -251,20 +279,23 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-16 md:py-24 bg-foreground text-background">
+      {/* Testimonials — Dark section, Linear style */}
+      <section className="py-24 md:py-32 bg-foreground text-background">
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            className="text-center mb-16"
           >
+            <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-3">
+              Depoimentos
+            </p>
             <h2 className="heading-section mb-4">
-              O que nossos clientes dizem
+              Clientes satisfeitos
             </h2>
-            <p className="text-background/70 max-w-2xl mx-auto">
-              Milhares de eventos bem sucedidos através da nossa plataforma
+            <p className="text-background/60 max-w-xl mx-auto">
+              Veja o que dizem os organizadores de eventos que usaram nossa plataforma.
             </p>
           </motion.div>
 
@@ -276,23 +307,28 @@ const Index = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-background/5 backdrop-blur-sm rounded-xl p-6 border border-background/10"
+                className="rounded-2xl p-7 border border-background/10 bg-background/5 backdrop-blur-sm"
               >
-                <div className="flex gap-1 mb-4">
+                {/* Stars */}
+                <div className="flex gap-0.5 mb-5">
                   {[...Array(testimonial.rating)].map((_, i) => (
                     <Star key={i} className="w-4 h-4 fill-primary text-primary" />
                   ))}
                 </div>
-                <p className="text-background/90 mb-4">"{testimonial.text}"</p>
+
+                <p className="text-background/85 mb-6 leading-relaxed">
+                  "{testimonial.text}"
+                </p>
+
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                    <span className="text-sm font-semibold text-primary">
+                    <span className="text-sm font-bold text-primary">
                       {testimonial.name.charAt(0)}
                     </span>
                   </div>
                   <div>
-                    <p className="font-medium">{testimonial.name}</p>
-                    <p className="text-sm text-background/60">{testimonial.event}</p>
+                    <p className="font-semibold text-sm">{testimonial.name}</p>
+                    <p className="text-xs text-background/50">{testimonial.event}</p>
                   </div>
                 </div>
               </motion.div>
@@ -301,25 +337,25 @@ const Index = () => {
         </div>
       </section>
 
-      {/* FAQ */}
-      <section id="faq" className="py-16 md:py-24">
+      {/* FAQ — Notion minimal style */}
+      <section id="faq" className="py-24 md:py-32">
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            className="text-center mb-16"
           >
-            <h2 className="heading-section text-foreground mb-4">
+            <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-3">
+              FAQ
+            </p>
+            <h2 className="heading-section text-foreground">
               Perguntas frequentes
             </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Tire suas dúvidas sobre nosso serviço
-            </p>
           </motion.div>
 
-          <div className="max-w-3xl mx-auto">
-            <Accordion type="single" collapsible className="space-y-4">
+          <div className="max-w-2xl mx-auto">
+            <Accordion type="single" collapsible className="space-y-3">
               {faqs.map((faq, index) => (
                 <motion.div
                   key={index}
@@ -328,11 +364,14 @@ const Index = () => {
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.05 }}
                 >
-                  <AccordionItem value={`item-${index}`} className="card-premium px-6 border-none">
-                    <AccordionTrigger className="text-left font-display text-lg hover:no-underline py-5">
+                  <AccordionItem
+                    value={`item-${index}`}
+                    className="rounded-xl border border-border px-6 bg-card hover:border-primary/20 transition-colors"
+                  >
+                    <AccordionTrigger className="text-left font-display text-base font-semibold hover:no-underline py-5">
                       {faq.question}
                     </AccordionTrigger>
-                    <AccordionContent className="text-muted-foreground pb-5">
+                    <AccordionContent className="text-muted-foreground pb-5 leading-relaxed">
                       {faq.answer}
                     </AccordionContent>
                   </AccordionItem>
@@ -343,25 +382,27 @@ const Index = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-16 md:py-24 bg-gradient-to-br from-primary/10 via-secondary to-accent">
+      {/* Final CTA — bold and clean */}
+      <section className="py-24 md:py-32 border-t border-border">
         <div className="container text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
+            className="max-w-2xl mx-auto"
           >
-            <h2 className="heading-section text-foreground mb-4">
-              Pronto para surpreender seus convidados?
+            <h2 className="heading-section text-foreground mb-6">
+              Pronto para surpreender
+              <br />
+              seus convidados?
             </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto mb-8">
-              Compare opções, veja valores e solicite contratação em minutos. 
-              Seu evento merece um bar de drinks inesquecível.
+            <p className="text-lg text-muted-foreground mb-10">
+              Compare opções, veja valores e solicite contratação em minutos.
             </p>
             <Button asChild variant="gold" size="xl">
               <Link to="/orcamento">
-                Receber orçamento grátis
-                <ArrowRight className="w-5 h-5" />
+                Começar agora — é grátis
+                <ArrowRight className="w-4 h-4" />
               </Link>
             </Button>
           </motion.div>
