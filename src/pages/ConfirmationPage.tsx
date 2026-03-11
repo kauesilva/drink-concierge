@@ -1,46 +1,43 @@
-import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { CheckCircle, Calendar, MapPin, MessageCircle, Home } from 'lucide-react';
+import { CheckCircle, Calendar, MapPin, Home, Mail } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
-import { getCompanyById, getMenuById } from '@/data/mockData';
+import { mockCompanies, getMenusByCompany } from '@/data/mockData';
 import { useQuoteStore } from '@/store/quoteStore';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import RatingStars from '@/components/shared/RatingStars';
+import BadgePremium from '@/components/shared/BadgePremium';
+import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 const ConfirmationPage = () => {
-  const { briefing, selectedCompanyId, selectedMenuId, resetQuote } = useQuoteStore();
-
-  const company = getCompanyById(selectedCompanyId || '');
-  const menu = getMenuById(selectedMenuId || '');
-
-  const people = briefing.people || 50;
-  const baseTotal = menu ? menu.pricePerPerson * people : 0;
-  const travelFee = 150;
-  const estimatedTotal = baseTotal + travelFee;
-
-  const whatsappNumber = '5511999999999';
-  const whatsappMessage = encodeURIComponent(
-    `Olá! Acabei de solicitar um orçamento pelo Bartender Stones.\n\nEvento: ${briefing.eventType}\nData: ${briefing.eventDate ? format(new Date(briefing.eventDate), "dd/MM/yyyy") : 'A definir'}\nPessoas: ${briefing.people}\nEmpresa: ${company?.name}\nCardápio: ${menu?.name}\n\nPode me ajudar com os próximos passos?`
-  );
-  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
-
-  // Reset quote after unmount (user leaves page)
-  useEffect(() => {
-    return () => {
-      // Don't reset immediately - only if user goes home
-    };
-  }, []);
+  const { briefing, resetQuote } = useQuoteStore();
+  const { toast } = useToast();
+  const [sendingEmail, setSendingEmail] = useState<string | null>(null);
 
   const handleGoHome = () => {
     resetQuote();
   };
 
+  const handleHireCompany = async (companyId: string, companyName: string) => {
+    setSendingEmail(companyId);
+    // Simulate sending email to service provider
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
+    toast({
+      title: '📧 Solicitação enviada!',
+      description: `A empresa ${companyName} receberá seu pedido e entrará em contato para agendar.`,
+    });
+
+    setSendingEmail(null);
+  };
+
   return (
-    <Layout showFooter={false}>
-      <div className="min-h-[calc(100vh-5rem)] bg-gradient-to-b from-secondary/30 to-background flex items-center py-8 md:py-12">
-        <div className="container max-w-lg text-center">
+    <Layout>
+      <div className="min-h-screen bg-gradient-to-b from-secondary/30 to-background py-8 md:py-12">
+        <div className="container max-w-3xl">
           {/* Success Icon */}
           <motion.div
             initial={{ scale: 0 }}
@@ -55,84 +52,147 @@ const ConfirmationPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
+            className="text-center mb-8"
           >
             <h1 className="font-display text-2xl md:text-3xl font-semibold text-foreground mb-4">
               Pedido recebido!
             </h1>
-            <p className="text-muted-foreground mb-8">
-              Um agente entrará em contato em breve para finalizar a contratação do seu evento.
+            <p className="text-muted-foreground max-w-lg mx-auto">
+              Veja abaixo as empresas disponíveis para seu evento. 
+              Clique em <strong>"Contratar"</strong> para enviar um email ao prestador, 
+              que entrará em contato para agendar sua festa.
             </p>
           </motion.div>
 
-          {/* Summary Card */}
+          {/* Briefing Summary */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25 }}
+            className="card-premium p-5 mb-8"
+          >
+            <h2 className="font-display text-lg font-semibold mb-3">Resumo do seu evento</h2>
+            <div className="flex flex-wrap gap-3 text-sm">
+              {briefing.eventDate && (
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary rounded-full">
+                  <Calendar className="w-4 h-4 text-primary" />
+                  <span>{format(new Date(briefing.eventDate), "dd/MM/yyyy", { locale: ptBR })}</span>
+                </div>
+              )}
+              {briefing.city && (
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary rounded-full">
+                  <MapPin className="w-4 h-4 text-primary" />
+                  <span>{briefing.city}, {briefing.state}</span>
+                </div>
+              )}
+              {briefing.people && (
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary rounded-full">
+                  <span>👥</span>
+                  <span>{briefing.people} pessoas</span>
+                </div>
+              )}
+            </div>
+          </motion.div>
+
+          {/* Companies List */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="card-premium p-6 text-left mb-8"
           >
-            <h2 className="font-display text-lg font-semibold mb-4 text-center">
-              Resumo do pedido
+            <h2 className="font-display text-xl font-semibold mb-6 text-center">
+              Escolha uma empresa para contratar
             </h2>
 
             <div className="space-y-4">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Empresa</span>
-                <span className="font-medium text-foreground">{company?.name}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Cardápio</span>
-                <span className="font-medium text-foreground">{menu?.name}</span>
-              </div>
+              {mockCompanies.map((company, index) => {
+                const menus = getMenusByCompany(company.id);
+                const minPrice = Math.min(...menus.map(m => m.pricePerPerson));
+                const people = briefing.people || 50;
+                const estimatedTotal = minPrice * people;
 
-              <div className="pt-4 border-t border-border/50 space-y-2">
-                {briefing.eventDate && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <Calendar className="w-4 h-4 text-primary" />
-                    <span>
-                      {format(new Date(briefing.eventDate), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
-                    </span>
-                  </div>
-                )}
-                <div className="flex items-center gap-2 text-sm">
-                  <MapPin className="w-4 h-4 text-primary" />
-                  <span>{briefing.city}, {briefing.state}</span>
-                </div>
-              </div>
+                return (
+                  <motion.div
+                    key={company.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.35 + index * 0.1 }}
+                    className="card-premium p-5 md:p-6"
+                  >
+                    <div className="flex flex-col md:flex-row gap-4">
+                      {/* Company Image */}
+                      <div className="w-20 h-20 md:w-24 md:h-24 rounded-lg bg-muted flex-shrink-0 overflow-hidden">
+                        <img
+                          src={company.image}
+                          alt={company.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
 
-              <div className="pt-4 border-t border-border/50 flex justify-between">
-                <span className="text-muted-foreground">Total estimado</span>
-                <span className="text-xl font-bold text-primary">
-                  R$ {estimatedTotal.toLocaleString('pt-BR')}
-                </span>
-              </div>
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2 mb-1">
+                          <h3 className="font-display text-lg md:text-xl font-semibold text-foreground">
+                            {company.name}
+                          </h3>
+                          {company.badge && (
+                            <BadgePremium type={company.badge} className="flex-shrink-0" />
+                          )}
+                        </div>
+
+                        <RatingStars rating={company.rating} totalReviews={company.totalReviews} size="sm" />
+
+                        <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+                          {company.description}
+                        </p>
+
+                        {/* Pricing & CTA */}
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-4 pt-3 border-t border-border/50 gap-3">
+                          <div>
+                            <p className="text-xs text-muted-foreground">Estimado a partir de</p>
+                            <p className="text-lg font-semibold text-foreground">
+                              R$ {estimatedTotal.toLocaleString('pt-BR')}
+                              <span className="text-xs font-normal text-muted-foreground ml-1">
+                                (R$ {minPrice}/pessoa)
+                              </span>
+                            </p>
+                          </div>
+
+                          <Button
+                            variant="gold"
+                            onClick={() => handleHireCompany(company.id, company.name)}
+                            disabled={sendingEmail !== null}
+                            className="w-full sm:w-auto"
+                          >
+                            {sendingEmail === company.id ? (
+                              'Enviando...'
+                            ) : (
+                              <>
+                                <Mail className="w-4 h-4" />
+                                Contratar
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
             </div>
           </motion.div>
 
-          {/* Actions */}
+          {/* Bottom Actions */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="space-y-4"
+            transition={{ delay: 0.6 }}
+            className="mt-8 text-center"
           >
-            <Button
-              asChild
-              variant="gold"
-              size="xl"
-              className="w-full"
-            >
-              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-                <MessageCircle className="w-5 h-5" />
-                Falar no WhatsApp agora
-              </a>
-            </Button>
-
             <Button
               asChild
               variant="outline"
               size="lg"
-              className="w-full"
               onClick={handleGoHome}
             >
               <Link to="/">
@@ -140,16 +200,13 @@ const ConfirmationPage = () => {
                 Voltar ao início
               </Link>
             </Button>
-          </motion.div>
 
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="text-xs text-muted-foreground mt-8"
-          >
-            Uma confirmação foi enviada para {briefing.email}
-          </motion.p>
+            {briefing.email && (
+              <p className="text-xs text-muted-foreground mt-4">
+                Uma confirmação será enviada para {briefing.email}
+              </p>
+            )}
+          </motion.div>
         </div>
       </div>
     </Layout>
