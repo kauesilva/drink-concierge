@@ -103,7 +103,7 @@ const Index = () => {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-primary/8 rounded-full blur-[120px] animate-glow-pulse" />
         <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[100px]" />
 
-        <div className="container relative z-10 md:py-32 py-[60px]">
+        <div className="container relative z-10 md:py-32 py-[64px]">
           <motion.div
             initial="initial"
             animate="animate"
