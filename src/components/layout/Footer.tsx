@@ -87,7 +87,7 @@ const Footer = () => {
 
         {/* Bottom */}
         <div className="border-t border-background/10 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-background/50">
-          <p>© 2024 Bartender Stones. Todos os direitos reservados.</p>
+          <p>© 2024 Bartender Store. Todos os direitos reservados.</p>
           <div className="flex gap-6">
             <a href="#" className="hover:text-background transition-colors">
               Termos de Uso

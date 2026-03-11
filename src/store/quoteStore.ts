@@ -35,7 +35,7 @@ export const useQuoteStore = create<QuoteStore>()(
       }),
     }),
     {
-      name: 'bartender-stones-quote',
+      name: 'bartender-store-quote',
     }
   )
 );
