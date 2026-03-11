@@ -10,18 +10,15 @@ interface ProgressStepsProps {
 const ProgressSteps = ({ steps, currentStep, className }: ProgressStepsProps) => {
   return (
     <div className={cn('w-full', className)}>
-      {/* Progress Bar */}
       <div className="relative mb-4">
-        <div className="h-1 bg-muted rounded-full overflow-hidden">
+        <div className="h-1 bg-secondary rounded-full overflow-hidden">
           <motion.div
-            className="h-full bg-gradient-to-r from-primary to-amber-600 rounded-full"
+            className="h-full bg-primary rounded-full"
             initial={{ width: 0 }}
             animate={{ width: `${((currentStep - 1) / (steps.length - 1)) * 100}%` }}
             transition={{ duration: 0.3 }}
           />
         </div>
-        
-        {/* Step Dots */}
         <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 flex justify-between">
           {steps.map((_, index) => (
             <motion.div
@@ -30,23 +27,22 @@ const ProgressSteps = ({ steps, currentStep, className }: ProgressStepsProps) =>
                 'w-3 h-3 rounded-full border-2 transition-colors duration-300',
                 index + 1 <= currentStep
                   ? 'bg-primary border-primary'
-                  : 'bg-background border-muted-foreground/30'
+                  : 'bg-background border-muted-foreground/20'
               )}
               initial={{ scale: 1 }}
-              animate={{ scale: index + 1 === currentStep ? 1.2 : 1 }}
+              animate={{ scale: index + 1 === currentStep ? 1.3 : 1 }}
             />
           ))}
         </div>
       </div>
 
-      {/* Step Labels - Mobile: show only current */}
       <div className="hidden md:flex justify-between text-xs text-muted-foreground">
         {steps.map((step, index) => (
           <span
             key={index}
             className={cn(
               'transition-colors',
-              index + 1 === currentStep && 'text-foreground font-medium'
+              index + 1 === currentStep && 'text-foreground font-semibold'
             )}
           >
             {step}
@@ -54,9 +50,8 @@ const ProgressSteps = ({ steps, currentStep, className }: ProgressStepsProps) =>
         ))}
       </div>
       
-      {/* Mobile: Current step name */}
       <p className="md:hidden text-center text-sm text-muted-foreground">
-        Etapa {currentStep} de {steps.length}: <span className="font-medium text-foreground">{steps[currentStep - 1]}</span>
+        Etapa {currentStep}/{steps.length} · <span className="font-semibold text-foreground">{steps[currentStep - 1]}</span>
       </p>
     </div>
   );

@@ -8,15 +8,15 @@ interface BadgePremiumProps {
 const badgeConfig = {
   'most-chosen': {
     label: 'Mais escolhido',
-    className: 'bg-primary/10 text-primary border-primary/20',
+    className: 'bg-primary/10 text-foreground border-primary/20',
   },
   'best-value': {
     label: 'Melhor custo',
-    className: 'bg-green-500/10 text-green-700 border-green-500/20',
+    className: 'bg-emerald-500/10 text-emerald-700 border-emerald-500/20',
   },
   'premium': {
     label: 'Premium',
-    className: 'bg-amber-500/10 text-amber-700 border-amber-500/20',
+    className: 'bg-primary/10 text-foreground border-primary/20',
   },
 };
 
@@ -25,7 +25,7 @@ const BadgePremium = ({ type, className }: BadgePremiumProps) => {
   
   return (
     <span className={cn(
-      'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border',
+      'inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold border tracking-wide uppercase',
       config.className,
       className
     )}>

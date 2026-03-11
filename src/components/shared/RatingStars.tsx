@@ -10,7 +10,7 @@ interface RatingStarsProps {
 
 const RatingStars = ({ rating, totalReviews, size = 'md', showCount = true }: RatingStarsProps) => {
   const sizeClasses = {
-    sm: 'w-3 h-3',
+    sm: 'w-3.5 h-3.5',
     md: 'w-4 h-4',
     lg: 'w-5 h-5',
   };
@@ -22,8 +22,8 @@ const RatingStars = ({ rating, totalReviews, size = 'md', showCount = true }: Ra
   };
 
   return (
-    <div className="flex items-center gap-1">
-      <div className="flex">
+    <div className="flex items-center gap-1.5">
+      <div className="flex gap-0.5">
         {[1, 2, 3, 4, 5].map((star) => (
           <Star
             key={star}
@@ -31,14 +31,12 @@ const RatingStars = ({ rating, totalReviews, size = 'md', showCount = true }: Ra
               sizeClasses[size],
               star <= Math.floor(rating)
                 ? 'fill-primary text-primary'
-                : star <= rating
-                ? 'fill-primary/50 text-primary'
                 : 'fill-muted text-muted'
             )}
           />
         ))}
       </div>
-      <span className={cn('font-medium text-foreground', textSizeClasses[size])}>
+      <span className={cn('font-semibold text-foreground', textSizeClasses[size])}>
         {rating.toFixed(1)}
       </span>
       {showCount && totalReviews !== undefined && (
