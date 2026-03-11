@@ -99,7 +99,7 @@ const Index = () => {
       {/* Hero Section — Apple / Linear inspired */}
       <section className="relative min-h-[100vh] flex items-center justify-center overflow-hidden">
         {/* Subtle gradient background */}
-        <div className="absolute inset-0 bg-background" />
+        <div className="absolute inset-0 bg-destructive-foreground" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-primary/8 rounded-full blur-[120px] animate-glow-pulse" />
         <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[100px]" />
 
