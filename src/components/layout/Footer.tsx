@@ -13,7 +13,7 @@ const Footer = () => {
                 <Wine className="w-5 h-5 text-primary-foreground" />
               </div>
               <span className="font-display text-xl font-semibold">
-                Bartender Stones
+                Bartender Store
               </span>
             </Link>
             <p className="text-background/70 text-sm max-w-sm mb-6">
