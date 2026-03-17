@@ -12,7 +12,7 @@ import Layout from '@/components/layout/Layout';
 const PartnerRegisterPage = () => {
   const navigate = useNavigate();
   const { register, isRegistered } = usePartnerStore();
-  const [form, setForm] = useState({ name: '', email: '', whatsapp: '', type: 'empresa' as const });
+  const [form, setForm] = useState<{ name: string; email: string; whatsapp: string; type: 'empresa' | 'autonomo' }>({ name: '', email: '', whatsapp: '', type: 'empresa' });
 
   if (isRegistered) {
     navigate('/parceiro/painel/perfil');

@@ -28,6 +28,7 @@ const Header = () => {
               { to: '/', label: 'Início' },
               { to: '/orcamento', label: 'Orçamento' },
               { to: '/#como-funciona', label: 'Como funciona' },
+              { to: '/parceiro/cadastro', label: 'Área do Parceiro' },
             ].map((link) => (
               <Link
                 key={link.to}
