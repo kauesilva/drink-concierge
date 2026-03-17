@@ -12,6 +12,10 @@ import PricingPage from "./pages/PricingPage";
 import SchedulingPage from "./pages/SchedulingPage";
 import ConfirmationPage from "./pages/ConfirmationPage";
 import NotFound from "./pages/NotFound";
+import PartnerRegisterPage from "./pages/partner/PartnerRegisterPage";
+import PartnerDashboardPage from "./pages/partner/PartnerDashboardPage";
+import PartnerProfilePage from "./pages/partner/PartnerProfilePage";
+import PartnerPackagesPage from "./pages/partner/PartnerPackagesPage";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +34,11 @@ const App = () => (
           <Route path="/empresas/:companyId/cardapios/:menuId/valores" element={<PricingPage />} />
           <Route path="/agendamento" element={<SchedulingPage />} />
           <Route path="/confirmacao" element={<ConfirmationPage />} />
+          <Route path="/parceiro/cadastro" element={<PartnerRegisterPage />} />
+          <Route path="/parceiro/painel" element={<PartnerDashboardPage />}>
+            <Route path="perfil" element={<PartnerProfilePage />} />
+            <Route path="pacotes" element={<PartnerPackagesPage />} />
+          </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
