@@ -13,13 +13,12 @@ const PartnerRegisterPage = () => {
   const navigate = useNavigate();
   const { register, isRegistered } = usePartnerStore();
   const [form, setForm] = useState<{ name: string; email: string; whatsapp: string; type: 'empresa' | 'autonomo' }>({ name: '', email: '', whatsapp: '', type: 'empresa' });
+  const [loading, setLoading] = useState(false);
 
   if (isRegistered) {
     navigate('/parceiro/painel/perfil');
     return null;
   }
-
-  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
