@@ -19,10 +19,19 @@ const PartnerRegisterPage = () => {
     return null;
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    register(form);
-    navigate('/parceiro/painel/perfil');
+    setLoading(true);
+    try {
+      await register(form);
+      navigate('/parceiro/painel/perfil');
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -96,8 +105,8 @@ const PartnerRegisterPage = () => {
                     ))}
                   </div>
                 </div>
-                <Button type="submit" variant="gold" size="lg" className="w-full">
-                  Criar Conta
+                <Button type="submit" variant="gold" size="lg" className="w-full" disabled={loading}>
+                  {loading ? 'Cadastrando...' : 'Criar Conta'}
                 </Button>
               </form>
             </CardContent>
