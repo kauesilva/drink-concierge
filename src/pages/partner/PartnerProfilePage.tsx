@@ -36,9 +36,19 @@ const PartnerProfilePage = () => {
     setForm({ ...form, areasServed: form.areasServed.filter((a) => a !== area) });
   };
 
-  const handleSave = () => {
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    setSaving(true);
     updateProfile(form);
-    toast({ title: 'Perfil salvo!', description: 'Suas informações foram atualizadas.' });
+    try {
+      await usePartnerStore.getState().syncProfile();
+      toast({ title: 'Perfil salvo!', description: 'Suas informações foram atualizadas e sincronizadas.' });
+    } catch {
+      toast({ title: 'Perfil salvo localmente', description: 'Não foi possível sincronizar com o servidor.', variant: 'destructive' });
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -168,9 +178,9 @@ const PartnerProfilePage = () => {
             )}
           </div>
 
-          <Button variant="gold" size="lg" className="w-full" onClick={handleSave}>
+          <Button variant="gold" size="lg" className="w-full" onClick={handleSave} disabled={saving}>
             <Save className="w-4 h-4 mr-2" />
-            Salvar Perfil
+            {saving ? 'Salvando...' : 'Salvar Perfil'}
           </Button>
         </CardContent>
       </Card>
