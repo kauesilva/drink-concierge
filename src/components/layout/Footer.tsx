@@ -1,7 +1,22 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Wine } from 'lucide-react';
 
 const Footer = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleHashLink = (hash: string) => (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (location.pathname === '/') {
+      document.getElementById(hash)?.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      navigate('/');
+      setTimeout(() => {
+        document.getElementById(hash)?.scrollIntoView({ behavior: 'smooth' });
+      }, 300);
+    }
+  };
+
   return (
     <footer className="border-t border-border">
       <div className="container mx-auto px-6 py-16 md:py-20">
@@ -28,18 +43,10 @@ const Footer = () => {
               Produto
             </h4>
             <ul className="space-y-3 text-sm text-muted-foreground">
-              {[
-                { to: '/', label: 'Início' },
-                { to: '/orcamento', label: 'Pedir Orçamento' },
-                { to: '/#como-funciona', label: 'Como Funciona' },
-                { to: '/#faq', label: 'FAQ' },
-              ].map((link) => (
-                <li key={link.to}>
-                  <Link to={link.to} className="hover:text-foreground transition-colors">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
+              <li><Link to="/" className="hover:text-foreground transition-colors">Início</Link></li>
+              <li><Link to="/orcamento" className="hover:text-foreground transition-colors">Pedir Orçamento</Link></li>
+              <li><a href="#como-funciona" onClick={handleHashLink('como-funciona')} className="hover:text-foreground transition-colors cursor-pointer">Como Funciona</a></li>
+              <li><a href="#faq" onClick={handleHashLink('faq')} className="hover:text-foreground transition-colors cursor-pointer">FAQ</a></li>
             </ul>
           </div>
 
