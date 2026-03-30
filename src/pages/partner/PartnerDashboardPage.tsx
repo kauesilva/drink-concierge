@@ -1,13 +1,17 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { PartnerSidebar } from '@/components/partner/PartnerSidebar';
-import { usePartnerStore } from '@/store/partnerStore';
+import { useAuthStore } from '@/store/authStore';
 
 const PartnerDashboardPage = () => {
-  const { isRegistered } = usePartnerStore();
+  const { isAuthenticated, user } = useAuthStore();
 
-  if (!isRegistered) {
-    return <Navigate to="/parceiro/cadastro" replace />;
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (user?.role !== 'parceiro') {
+    return <Navigate to="/" replace />;
   }
 
   return (
