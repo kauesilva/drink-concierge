@@ -45,6 +45,8 @@ const App = () => (
             <Route path="perfil" element={<PartnerProfilePage />} />
             <Route path="pacotes" element={<PartnerPackagesPage />} />
           </Route>
+          <Route path="/admin" element={<AdminLoginPage />} />
+          <Route path="/admin/painel" element={<AdminDashboardPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
