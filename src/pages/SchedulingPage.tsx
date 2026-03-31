@@ -8,6 +8,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { getCompanyById, getMenuById } from '@/data/mockData';
 import { useQuoteStore } from '@/store/quoteStore';
+import { apiCreateLead } from '@/services/api';
+import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -30,11 +32,35 @@ const SchedulingPage = () => {
   const travelFee = 150;
   const estimatedTotal = baseTotal + travelFee;
 
+  const { toast } = useToast();
+
   const handleSubmit = async () => {
     setIsSubmitting(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    navigate('/confirmacao');
+    try {
+      await apiCreateLead({
+        tipo_evento: briefing.eventType || '',
+        quantidade_pessoas: people,
+        cidade: briefing.city || '',
+        estado: briefing.state || '',
+        bairro: briefing.neighborhood,
+        endereco: briefing.address,
+        data_evento: briefing.eventDate || '',
+        nome_cliente: briefing.clientName || '',
+        whatsapp: briefing.whatsapp || '',
+        email: briefing.email || '',
+        observacoes: observations || undefined,
+        valor_estimado: estimatedTotal,
+      });
+      navigate('/confirmacao');
+    } catch (err: any) {
+      toast({
+        title: 'Erro ao enviar orçamento',
+        description: err.message || 'Tente novamente.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

@@ -172,6 +172,43 @@ export async function apiCreateLead(data: {
 }
 
 // =============================================
+// ADMIN
+// =============================================
+
+export interface ApiLead {
+  id: number;
+  parceiro_id: number | null;
+  pacote_id: number | null;
+  tipo_evento: string;
+  quantidade_pessoas: number;
+  cidade: string;
+  estado: string;
+  bairro: string | null;
+  endereco: string | null;
+  data_evento: string;
+  nome_cliente: string;
+  whatsapp: string;
+  email: string;
+  observacoes: string | null;
+  valor_estimado: number | null;
+  status: string;
+  criado_em: string;
+}
+
+export async function apiAdminLogin(email: string, senha: string): Promise<{ token: string }> {
+  return request('admin_login', {
+    method: 'POST',
+    body: JSON.stringify({ email, senha }),
+  });
+}
+
+export async function apiListLeads(token: string): Promise<ApiLead[]> {
+  return request('admin_list_leads', {
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+  });
+}
+
+// =============================================
 // LISTAGEM PÚBLICA
 // =============================================
 
