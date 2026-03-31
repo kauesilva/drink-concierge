@@ -8,6 +8,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { getCompanyById, getMenuById } from '@/data/mockData';
 import { useQuoteStore } from '@/store/quoteStore';
+import { apiCreateLead } from '@/services/api';
+import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
