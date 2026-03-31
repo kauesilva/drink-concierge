@@ -18,6 +18,8 @@ import PartnerRegisterPage from "./pages/partner/PartnerRegisterPage";
 import PartnerDashboardPage from "./pages/partner/PartnerDashboardPage";
 import PartnerProfilePage from "./pages/partner/PartnerProfilePage";
 import PartnerPackagesPage from "./pages/partner/PartnerPackagesPage";
+import AdminLoginPage from "./pages/admin/AdminLoginPage";
+import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
 
 const queryClient = new QueryClient();
 
