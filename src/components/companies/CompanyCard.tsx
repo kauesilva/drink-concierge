@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { MapPin, ChevronRight } from 'lucide-react';
 import { Company } from '@/types';
-import { getMenusByCompany } from '@/data/mockData';
 import { Button } from '@/components/ui/button';
 import RatingStars from '@/components/shared/RatingStars';
 import BadgePremium from '@/components/shared/BadgePremium';
@@ -13,9 +12,6 @@ interface CompanyCardProps {
 }
 
 const CompanyCard = ({ company, index = 0 }: CompanyCardProps) => {
-  const menus = getMenusByCompany(company.id);
-  const minPrice = Math.min(...menus.map(m => m.pricePerPerson));
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -49,10 +45,14 @@ const CompanyCard = ({ company, index = 0 }: CompanyCardProps) => {
 
         <div className="flex items-center justify-between pt-4 border-t border-border">
           <div>
-            <p className="text-xs text-muted-foreground">A partir de</p>
-            <p className="text-lg font-bold text-foreground">
-              R$ {minPrice}<span className="text-sm font-normal text-muted-foreground">/pessoa</span>
-            </p>
+            {company.minPrice > 0 && (
+              <>
+                <p className="text-xs text-muted-foreground">A partir de</p>
+                <p className="text-lg font-bold text-foreground">
+                  R$ {company.minPrice}<span className="text-sm font-normal text-muted-foreground">/pessoa</span>
+                </p>
+              </>
+            )}
           </div>
           <Button asChild variant="gold" size="sm">
             <Link to={`/empresas/${company.id}`}>

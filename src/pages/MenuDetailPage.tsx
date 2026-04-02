@@ -1,9 +1,9 @@
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Clock, Users, Check, Wine, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Clock, Users, Check, Wine, ChevronRight, Loader2 } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
-import { getCompanyById, getMenuById } from '@/data/mockData';
+import { useCompanyDetail, useCompanyMenus } from '@/hooks/useCompanies';
 import { useQuoteStore } from '@/store/quoteStore';
 
 const MenuDetailPage = () => {
@@ -11,8 +11,21 @@ const MenuDetailPage = () => {
   const navigate = useNavigate();
   const { briefing, setSelectedCompany, setSelectedMenu } = useQuoteStore();
 
-  const company = getCompanyById(companyId || '');
-  const menu = getMenuById(menuId || '');
+  const { data: company, isLoading: loadingCompany } = useCompanyDetail(companyId);
+  const { data: menus, isLoading: loadingMenus } = useCompanyMenus(companyId);
+
+  const menu = menus?.find(m => m.id === menuId);
+
+  if (loadingCompany || loadingMenus) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center min-h-screen gap-3">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <p className="text-muted-foreground">Carregando...</p>
+        </div>
+      </Layout>
+    );
+  }
 
   if (!company || !menu) {
     return (
@@ -41,7 +54,6 @@ const MenuDetailPage = () => {
     <Layout>
       <div className="min-h-screen bg-gradient-to-b from-secondary/30 to-background py-8 md:py-12">
         <div className="container max-w-4xl">
-          {/* Navigation */}
           <Button
             variant="ghost"
             size="sm"
@@ -53,9 +65,7 @@ const MenuDetailPage = () => {
           </Button>
 
           <div className="grid lg:grid-cols-3 gap-6 md:gap-8">
-            {/* Main Content */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Header */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -71,7 +81,6 @@ const MenuDetailPage = () => {
                   {menu.description}
                 </p>
 
-                {/* Meta */}
                 <div className="flex flex-wrap gap-4 pb-6 border-b border-border/50">
                   <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary rounded-full">
                     <Clock className="w-4 h-4 text-primary" />
@@ -84,54 +93,55 @@ const MenuDetailPage = () => {
                 </div>
               </motion.div>
 
-              {/* What's Included */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="card-premium p-6 md:p-8"
-              >
-                <h2 className="font-display text-xl font-semibold mb-4 flex items-center gap-2">
-                  <Check className="w-5 h-5 text-primary" />
-                  O que inclui
-                </h2>
-                <ul className="grid md:grid-cols-2 gap-3">
-                  {menu.includes.map((item, idx) => (
-                    <li key={idx} className="flex items-start gap-3">
-                      <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <Check className="w-3 h-3 text-primary" />
-                      </div>
-                      <span className="text-foreground">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </motion.div>
+              {menu.includes.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="card-premium p-6 md:p-8"
+                >
+                  <h2 className="font-display text-xl font-semibold mb-4 flex items-center gap-2">
+                    <Check className="w-5 h-5 text-primary" />
+                    O que inclui
+                  </h2>
+                  <ul className="grid md:grid-cols-2 gap-3">
+                    {menu.includes.map((item, idx) => (
+                      <li key={idx} className="flex items-start gap-3">
+                        <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <Check className="w-3 h-3 text-primary" />
+                        </div>
+                        <span className="text-foreground">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </motion.div>
+              )}
 
-              {/* Drinks */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="card-premium p-6 md:p-8"
-              >
-                <h2 className="font-display text-xl font-semibold mb-4 flex items-center gap-2">
-                  <Wine className="w-5 h-5 text-primary" />
-                  Drinks servidos
-                </h2>
-                <div className="flex flex-wrap gap-2">
-                  {menu.drinks.map((drink, idx) => (
-                    <span
-                      key={idx}
-                      className="px-4 py-2 bg-gradient-to-r from-primary/5 to-amber-500/5 border border-primary/20 rounded-full text-sm text-foreground"
-                    >
-                      {drink}
-                    </span>
-                  ))}
-                </div>
-              </motion.div>
+              {menu.drinks.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="card-premium p-6 md:p-8"
+                >
+                  <h2 className="font-display text-xl font-semibold mb-4 flex items-center gap-2">
+                    <Wine className="w-5 h-5 text-primary" />
+                    Drinks servidos
+                  </h2>
+                  <div className="flex flex-wrap gap-2">
+                    {menu.drinks.map((drink, idx) => (
+                      <span
+                        key={idx}
+                        className="px-4 py-2 bg-gradient-to-r from-primary/5 to-amber-500/5 border border-primary/20 rounded-full text-sm text-foreground"
+                      >
+                        {drink}
+                      </span>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
             </div>
 
-            {/* Sidebar - Pricing */}
             <div className="lg:col-span-1">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}

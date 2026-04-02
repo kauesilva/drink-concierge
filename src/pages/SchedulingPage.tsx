@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Calendar, MapPin, User, Phone, Mail, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Calendar, MapPin, User, Phone, Mail, MessageSquare, Loader2 } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { getCompanyById, getMenuById } from '@/data/mockData';
+import { useCompanyDetail, useCompanyMenus } from '@/hooks/useCompanies';
 import { useQuoteStore } from '@/store/quoteStore';
 import { apiCreateLead } from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
@@ -18,9 +18,21 @@ const SchedulingPage = () => {
   const { briefing, selectedCompanyId, selectedMenuId } = useQuoteStore();
   const [observations, setObservations] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
 
-  const company = getCompanyById(selectedCompanyId || '');
-  const menu = getMenuById(selectedMenuId || '');
+  const { data: company, isLoading: lc } = useCompanyDetail(selectedCompanyId || undefined);
+  const { data: menus, isLoading: lm } = useCompanyMenus(selectedCompanyId || undefined);
+  const menu = menus?.find(m => m.id === selectedMenuId);
+
+  if (lc || lm) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center min-h-screen gap-3">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </Layout>
+    );
+  }
 
   if (!company || !menu) {
     navigate('/resultados');
@@ -32,12 +44,12 @@ const SchedulingPage = () => {
   const travelFee = 150;
   const estimatedTotal = baseTotal + travelFee;
 
-  const { toast } = useToast();
-
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
       await apiCreateLead({
+        parceiro_id: Number(selectedCompanyId),
+        pacote_id: Number(selectedMenuId),
         tipo_evento: briefing.eventType || '',
         quantidade_pessoas: people,
         cidade: briefing.city || '',
@@ -67,70 +79,35 @@ const SchedulingPage = () => {
     <Layout>
       <div className="min-h-screen bg-gradient-to-b from-secondary/30 to-background py-8 md:py-12">
         <div className="container max-w-2xl">
-          {/* Navigation */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate(-1)}
-            className="mb-6"
-          >
+          <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="mb-6">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Voltar
           </Button>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-8"
-          >
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-8">
             <h1 className="font-display text-2xl md:text-3xl font-semibold text-foreground mb-2">
               Confirmar agendamento
             </h1>
-            <p className="text-muted-foreground">
-              Revise os dados antes de solicitar a contratação
-            </p>
+            <p className="text-muted-foreground">Revise os dados antes de solicitar a contratação</p>
           </motion.div>
 
-          {/* Company & Menu Summary */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="card-premium p-6 mb-6"
-          >
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="card-premium p-6 mb-6">
             <div className="flex items-center gap-4 pb-4 border-b border-border/50 mb-4">
               <div className="w-16 h-16 rounded-lg bg-muted flex-shrink-0 overflow-hidden">
-                <img
-                  src={company.image}
-                  alt={company.name}
-                  className="w-full h-full object-cover"
-                />
+                <img src={company.image} alt={company.name} className="w-full h-full object-cover" />
               </div>
               <div>
-                <h2 className="font-display text-lg font-semibold text-foreground">
-                  {company.name}
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  Cardápio: {menu.name}
-                </p>
+                <h2 className="font-display text-lg font-semibold text-foreground">{company.name}</h2>
+                <p className="text-sm text-muted-foreground">Cardápio: {menu.name}</p>
               </div>
             </div>
-
             <div className="flex justify-between text-lg">
               <span className="text-muted-foreground">Total estimado</span>
-              <span className="font-bold text-primary">
-                R$ {estimatedTotal.toLocaleString('pt-BR')}
-              </span>
+              <span className="font-bold text-primary">R$ {estimatedTotal.toLocaleString('pt-BR')}</span>
             </div>
           </motion.div>
 
-          {/* Event Details */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-            className="card-premium p-6 mb-6"
-          >
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="card-premium p-6 mb-6">
             <h3 className="font-display text-lg font-semibold mb-4">Dados do evento</h3>
             <div className="space-y-3">
               {briefing.eventDate && (
@@ -144,7 +121,6 @@ const SchedulingPage = () => {
                   </div>
                 </div>
               )}
-
               <div className="flex items-center gap-3">
                 <MapPin className="w-5 h-5 text-primary" />
                 <div>
@@ -158,13 +134,7 @@ const SchedulingPage = () => {
             </div>
           </motion.div>
 
-          {/* Contact Details */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="card-premium p-6 mb-6"
-          >
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="card-premium p-6 mb-6">
             <h3 className="font-display text-lg font-semibold mb-4">Seus dados</h3>
             <div className="space-y-3">
               <div className="flex items-center gap-3">
@@ -174,7 +144,6 @@ const SchedulingPage = () => {
                   <p className="font-medium text-foreground">{briefing.clientName}</p>
                 </div>
               </div>
-
               <div className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-primary" />
                 <div>
@@ -182,7 +151,6 @@ const SchedulingPage = () => {
                   <p className="font-medium text-foreground">{briefing.whatsapp}</p>
                 </div>
               </div>
-
               <div className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-primary" />
                 <div>
@@ -193,13 +161,7 @@ const SchedulingPage = () => {
             </div>
           </motion.div>
 
-          {/* Observations */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25 }}
-            className="card-premium p-6 mb-8"
-          >
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="card-premium p-6 mb-8">
             <Label htmlFor="observations" className="flex items-center gap-2 mb-3">
               <MessageSquare className="w-4 h-4 text-primary" />
               Observações (opcional)
@@ -213,19 +175,8 @@ const SchedulingPage = () => {
             />
           </motion.div>
 
-          {/* Submit */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <Button
-              variant="gold"
-              size="xl"
-              className="w-full"
-              onClick={handleSubmit}
-              disabled={isSubmitting}
-            >
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+            <Button variant="gold" size="xl" className="w-full" onClick={handleSubmit} disabled={isSubmitting}>
               {isSubmitting ? 'Enviando...' : 'Solicitar contratação'}
             </Button>
             <p className="text-center text-xs text-muted-foreground mt-4">

@@ -18,6 +18,7 @@ import PartnerRegisterPage from "./pages/partner/PartnerRegisterPage";
 import PartnerDashboardPage from "./pages/partner/PartnerDashboardPage";
 import PartnerProfilePage from "./pages/partner/PartnerProfilePage";
 import PartnerPackagesPage from "./pages/partner/PartnerPackagesPage";
+import PartnerLeadsPage from "./pages/partner/PartnerLeadsPage";
 import AdminLoginPage from "./pages/admin/AdminLoginPage";
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
 
@@ -42,6 +43,7 @@ const App = () => (
           <Route path="/confirmacao" element={<ConfirmationPage />} />
           <Route path="/parceiro/cadastro" element={<PartnerRegisterPage />} />
           <Route path="/parceiro/painel" element={<PartnerDashboardPage />}>
+            <Route path="solicitacoes" element={<PartnerLeadsPage />} />
             <Route path="perfil" element={<PartnerProfilePage />} />
             <Route path="pacotes" element={<PartnerPackagesPage />} />
           </Route>
