@@ -1,4 +1,4 @@
-import { User, Package, LogOut, Wine } from 'lucide-react';
+import { User, Package, LogOut, Wine, Inbox } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -17,6 +17,7 @@ import { usePartnerStore } from '@/store/partnerStore';
 import { Button } from '@/components/ui/button';
 
 const items = [
+  { title: 'Solicitações', url: '/parceiro/painel/solicitacoes', icon: Inbox },
   { title: 'Meu Perfil', url: '/parceiro/painel/perfil', icon: User },
   { title: 'Meus Pacotes', url: '/parceiro/painel/pacotes', icon: Package },
 ];
