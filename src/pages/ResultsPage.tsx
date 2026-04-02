@@ -1,12 +1,13 @@
 import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Users, MapPin, Calendar } from 'lucide-react';
+import { ArrowLeft, Users, MapPin, Calendar, Loader2 } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import CompanyCard from '@/components/companies/CompanyCard';
 import { useQuoteStore } from '@/store/quoteStore';
-import { mockCompanies, eventTypes } from '@/data/mockData';
+import { eventTypes } from '@/data/mockData';
+import { useCompanies } from '@/hooks/useCompanies';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -14,12 +15,16 @@ const ResultsPage = () => {
   const navigate = useNavigate();
   const { briefing } = useQuoteStore();
 
-  // Redirect if no briefing
   useEffect(() => {
     if (!briefing.eventType || !briefing.people) {
       navigate('/orcamento');
     }
   }, [briefing, navigate]);
+
+  const { data: companies, isLoading } = useCompanies({
+    cidade: briefing.city,
+    estado: briefing.state,
+  });
 
   const eventLabel = eventTypes.find(e => e.value === briefing.eventType)?.label || briefing.eventType;
 
@@ -27,7 +32,6 @@ const ResultsPage = () => {
     <Layout>
       <div className="min-h-screen bg-gradient-to-b from-secondary/30 to-background py-8 md:py-12">
         <div className="container max-w-4xl">
-          {/* Header */}
           <div className="mb-8">
             <Button asChild variant="ghost" size="sm" className="mb-4">
               <Link to="/orcamento">
@@ -44,7 +48,6 @@ const ResultsPage = () => {
                 Empresas disponíveis para seu evento
               </h1>
 
-              {/* Briefing Summary */}
               <div className="flex flex-wrap gap-3 text-sm">
                 <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary rounded-full">
                   <span>🎉</span>
@@ -70,14 +73,28 @@ const ResultsPage = () => {
             </motion.div>
           </div>
 
-          {/* Companies List */}
-          <div className="space-y-4 md:space-y-6">
-            {mockCompanies.map((company, index) => (
-              <CompanyCard key={company.id} company={company} index={index} />
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center py-16 gap-3">
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              <p className="text-muted-foreground">Buscando empresas...</p>
+            </div>
+          ) : companies && companies.length > 0 ? (
+            <div className="space-y-4 md:space-y-6">
+              {companies.map((company, index) => (
+                <CompanyCard key={company.id} company={company} index={index} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-16">
+              <p className="text-lg text-muted-foreground mb-4">
+                Nenhuma empresa encontrada para sua região.
+              </p>
+              <Button asChild variant="gold">
+                <Link to="/orcamento">Alterar busca</Link>
+              </Button>
+            </div>
+          )}
 
-          {/* Help Text */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
