@@ -23,7 +23,7 @@ async function request<T>(action: string, options?: RequestInit & { params?: Rec
 }
 
 // =============================================
-// TYPES (respostas da API)
+// TYPES
 // =============================================
 
 export interface ApiParceiro {
@@ -57,6 +57,28 @@ export interface ApiPacote {
   drinks: string[];
   criado_em: string;
   atualizado_em: string;
+}
+
+export interface ApiLead {
+  id: number;
+  parceiro_id: number | null;
+  pacote_id: number | null;
+  tipo_evento: string;
+  quantidade_pessoas: number;
+  cidade: string;
+  estado: string;
+  bairro: string | null;
+  endereco: string | null;
+  data_evento: string;
+  nome_cliente: string;
+  whatsapp: string;
+  email: string;
+  observacoes: string | null;
+  valor_estimado: number | null;
+  status: string;
+  criado_em: string;
+  // Dados do pacote (join no backend)
+  pacote_nome?: string;
 }
 
 // =============================================
@@ -171,29 +193,24 @@ export async function apiCreateLead(data: {
   });
 }
 
+export async function apiGetPartnerLeads(parceiroId: number): Promise<ApiLead[]> {
+  return request('get_partner_leads', { params: { parceiro_id: String(parceiroId) } });
+}
+
+export async function apiUpdateLeadStatus(data: {
+  lead_id: number;
+  status: string;
+  parceiro_id: number;
+}): Promise<{ message: string }> {
+  return request('update_lead_status', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
 // =============================================
 // ADMIN
 // =============================================
-
-export interface ApiLead {
-  id: number;
-  parceiro_id: number | null;
-  pacote_id: number | null;
-  tipo_evento: string;
-  quantidade_pessoas: number;
-  cidade: string;
-  estado: string;
-  bairro: string | null;
-  endereco: string | null;
-  data_evento: string;
-  nome_cliente: string;
-  whatsapp: string;
-  email: string;
-  observacoes: string | null;
-  valor_estimado: number | null;
-  status: string;
-  criado_em: string;
-}
 
 export async function apiAdminLogin(email: string, senha: string): Promise<{ token: string }> {
   return request('admin_login', {
@@ -220,4 +237,12 @@ export async function apiListCompanies(filters?: {
   if (filters?.cidade) params.cidade = filters.cidade;
   if (filters?.estado) params.estado = filters.estado;
   return request('list_companies', { params });
+}
+
+export async function apiGetCompanyDetail(id: number): Promise<ApiParceiro> {
+  return request('get_profile', { params: { id: String(id) } });
+}
+
+export async function apiGetCompanyPackages(parceiroId: number): Promise<ApiPacote[]> {
+  return request('get_packages', { params: { id: String(parceiroId) } });
 }
