@@ -35,7 +35,7 @@ const API_BASE = 'https://bartenderstore.com.br/servicos/api.php';
 async function authRequest<T>(action: string, body: Record<string, unknown>): Promise<T> {
   const res = await fetch(`${API_BASE}?action=${action}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'text/plain;charset=UTF-8', Accept: 'application/json' },
     body: JSON.stringify(body),
   });
 

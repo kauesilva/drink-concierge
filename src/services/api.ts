@@ -9,7 +9,7 @@ async function request<T>(action: string, options?: RequestInit & { params?: Rec
   }
 
   const res = await fetch(url.toString(), {
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'text/plain;charset=UTF-8', Accept: 'application/json' },
     ...fetchOptions,
   });
 
@@ -221,7 +221,7 @@ export async function apiAdminLogin(email: string, senha: string): Promise<{ tok
 
 export async function apiListLeads(token: string): Promise<ApiLead[]> {
   return request('admin_list_leads', {
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
   });
 }
 
