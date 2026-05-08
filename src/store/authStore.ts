@@ -39,10 +39,20 @@ async function authRequest<T>(action: string, body: Record<string, unknown>): Pr
     body: JSON.stringify(body),
   });
 
-  const data = await res.json();
+  const text = await res.text();
+  let data: any = null;
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch {
+    throw new Error(
+      `Resposta inválida do servidor (HTTP ${res.status}). ` +
+      `Verifique se a action "${action}" existe no api.php. ` +
+      `Conteúdo recebido: ${text.slice(0, 200) || '(vazio)'}`
+    );
+  }
 
-  if (!res.ok || data.error) {
-    throw new Error(data.error || `Erro: ${res.status}`);
+  if (!res.ok || (data && data.error)) {
+    throw new Error((data && data.error) || `Erro: ${res.status}`);
   }
 
   return data as T;
