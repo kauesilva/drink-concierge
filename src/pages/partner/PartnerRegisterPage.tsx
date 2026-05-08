@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Wine, Building2, User } from 'lucide-react';
@@ -15,10 +15,9 @@ const PartnerRegisterPage = () => {
   const [form, setForm] = useState<{ name: string; email: string; whatsapp: string; type: 'empresa' | 'autonomo' }>({ name: '', email: '', whatsapp: '', type: 'empresa' });
   const [loading, setLoading] = useState(false);
 
-  if (isRegistered) {
-    navigate('/parceiro/painel/perfil');
-    return null;
-  }
+  useEffect(() => {
+    if (isRegistered) navigate('/parceiro/painel/perfil');
+  }, [isRegistered, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
