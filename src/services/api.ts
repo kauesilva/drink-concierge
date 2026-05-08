@@ -9,7 +9,7 @@ async function request<T>(action: string, options?: RequestInit & { params?: Rec
   }
 
   const res = await fetch(url.toString(), {
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'text/plain;charset=UTF-8', Accept: 'application/json' },
     ...fetchOptions,
   });
 
