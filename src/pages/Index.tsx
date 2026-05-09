@@ -286,10 +286,19 @@ const Index = () => {
               viewport={{ once: true }}
               transition={{ delay: index * 0.04 }}
               whileHover={{ scale: 1.05, y: -4 }}
-              className="p-5 rounded-2xl border border-border bg-card text-center cursor-pointer hover:border-primary/30 hover:shadow-gold transition-all duration-300">
+              className="group overflow-hidden rounded-2xl border border-border bg-card text-center cursor-pointer hover:border-primary/30 hover:shadow-gold transition-all duration-300">
               
-                <span className="text-3xl mb-3 block">{event.icon}</span>
-                <p className="text-sm font-medium text-foreground">{event.label}</p>
+                <div className="aspect-square overflow-hidden">
+                  <img
+                    src={EVENT_IMAGES[event.value]}
+                    alt={event.label}
+                    loading="lazy"
+                    width={640}
+                    height={640}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                </div>
+                <p className="text-sm font-medium text-foreground py-3 px-2">{event.label}</p>
               </motion.div>
             )}
           </div>
