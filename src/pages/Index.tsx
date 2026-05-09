@@ -5,6 +5,23 @@ import Layout from '@/components/layout/Layout';
 import RotatingHeadline from '@/components/RotatingHeadline';
 import { Button } from '@/components/ui/button';
 import { eventTypes } from '@/data/mockData';
+import imgCasamento from '@/assets/events/casamento.jpg';
+import imgAniversario from '@/assets/events/aniversario.jpg';
+import imgCorporativo from '@/assets/events/corporativo.jpg';
+import imgComemoracao from '@/assets/events/comemoracao.jpg';
+import img15Anos from '@/assets/events/15-anos.jpg';
+import imgAtivacao from '@/assets/events/ativacao-marca.jpg';
+import imgOutro from '@/assets/events/outro.jpg';
+
+const EVENT_IMAGES: Record<string, string> = {
+  'casamento': imgCasamento,
+  'aniversario': imgAniversario,
+  'corporativo': imgCorporativo,
+  'comemoracao': imgComemoracao,
+  '15-anos': img15Anos,
+  'ativacao-marca': imgAtivacao,
+  'outro': imgOutro,
+};
 import {
   Accordion,
   AccordionContent,
