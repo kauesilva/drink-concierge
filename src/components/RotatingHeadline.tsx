@@ -15,7 +15,7 @@ const RotatingHeadline = () => {
   useEffect(() => {
     const id = setInterval(() => {
       setIndex((i) => (i + 1) % PHRASES.length);
-    }, 2000);
+    }, 1000);
     return () => clearInterval(id);
   }, []);
 
