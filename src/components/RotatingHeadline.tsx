@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 
-const PHRASES = [
-  'Seu bar de drinks',
-  'Seu bartender',
-  'Seu consultor de bar',
-  'Seu bar de casamento',
-  'Seu bar não alcoólico',
+const WORDS = [
+  'bar de drinks',
+  'bartender',
+  'consultor de bar',
+  'bar de casamento',
+  'bar não alcoólico',
 ];
 
 const RotatingHeadline = () => {
@@ -14,7 +14,7 @@ const RotatingHeadline = () => {
 
   useEffect(() => {
     const id = setInterval(() => {
-      setIndex((i) => (i + 1) % PHRASES.length);
+      setIndex((i) => (i + 1) % WORDS.length);
     }, 1000);
     return () => clearInterval(id);
   }, []);
@@ -30,7 +30,7 @@ const RotatingHeadline = () => {
           transition={{ y: { type: 'spring', stiffness: 300, damping: 30 }, opacity: { duration: 0.2 } }}
           className="block whitespace-nowrap"
         >
-          {PHRASES[index]}
+          {WORDS[index]}
         </motion.span>
       </AnimatePresence>
     </span>
