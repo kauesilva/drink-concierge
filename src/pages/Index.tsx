@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, CheckCircle, Star, Sparkles, Zap, Shield, Users } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
+import RotatingHeadline from '@/components/RotatingHeadline';
 import { Button } from '@/components/ui/button';
 import { eventTypes } from '@/data/mockData';
 import {
@@ -122,8 +123,7 @@ const Index = () => {
             <motion.h1
               variants={fadeInUp}
               className="heading-display text-foreground mb-6">
-              
-              Seu bar de drinks
+              <RotatingHeadline />
               <br />
               <span className="text-primary">em poucos cliques</span>
             </motion.h1>
