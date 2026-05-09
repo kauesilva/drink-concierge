@@ -20,19 +20,22 @@ const RotatingHeadline = () => {
   }, []);
 
   return (
-    <span className="relative inline-block align-baseline overflow-hidden leading-[1.1] h-[1.1em]">
-      <AnimatePresence mode="popLayout" initial={false}>
-        <motion.span
-          key={index}
-          initial={{ y: '100%', opacity: 0 }}
-          animate={{ y: '0%', opacity: 1 }}
-          exit={{ y: '-100%', opacity: 0 }}
-          transition={{ y: { type: 'spring', stiffness: 300, damping: 30 }, opacity: { duration: 0.2 } }}
-          className="block whitespace-nowrap"
-        >
-          {WORDS[index]}
-        </motion.span>
-      </AnimatePresence>
+    <span className="inline-flex items-baseline gap-[0.25em]">
+      <span className="text-foreground">Seu</span>
+      <span className="relative inline-block align-baseline overflow-hidden leading-[1.1] h-[1.1em]">
+        <AnimatePresence mode="popLayout" initial={false}>
+          <motion.span
+            key={index}
+            initial={{ y: '100%', opacity: 0 }}
+            animate={{ y: '0%', opacity: 1 }}
+            exit={{ y: '-100%', opacity: 0 }}
+            transition={{ y: { type: 'spring', stiffness: 300, damping: 30 }, opacity: { duration: 0.2 } }}
+            className="block whitespace-nowrap"
+          >
+            {WORDS[index]}
+          </motion.span>
+        </AnimatePresence>
+      </span>
     </span>
   );
 };
