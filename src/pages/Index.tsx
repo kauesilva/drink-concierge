@@ -122,8 +122,7 @@ const Index = () => {
             <motion.h1
               variants={fadeInUp}
               className="heading-display text-foreground mb-6">
-              
-              Seu bar de drinks
+              <RotatingHeadline />
               <br />
               <span className="text-primary">em poucos cliques</span>
             </motion.h1>
