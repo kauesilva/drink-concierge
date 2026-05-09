@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, CheckCircle, Star, Sparkles, Zap, Shield, Users } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
+import RotatingHeadline from '@/components/RotatingHeadline';
 import { Button } from '@/components/ui/button';
 import { eventTypes } from '@/data/mockData';
 import {
