@@ -120,8 +120,56 @@ const QuotePage = () => {
           {/* Form Steps */}
           <div className="card-premium p-6 md:p-8">
             <AnimatePresence mode="wait">
-              {/* Step 1: Event Type */}
+              {/* Step 1: Service Category */}
               {currentStep === 1 && (
+                <motion.div
+                  key="step-service"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-6"
+                >
+                  <div>
+                    <h2 className="font-display text-xl font-semibold mb-2">
+                      Qual tipo de serviço você precisa?
+                    </h2>
+                    <p className="text-sm text-muted-foreground">
+                      Escolha a modalidade ideal para o seu evento
+                    </p>
+                  </div>
+
+                  <div className="grid gap-3">
+                    {serviceCategories.map((cat) => (
+                      <button
+                        key={cat.value}
+                        onClick={() => {
+                          setBriefing({ serviceCategory: cat.value });
+                          setErrors({});
+                        }}
+                        className={cn(
+                          'relative p-4 rounded-xl border-2 text-left transition-all duration-200',
+                          briefing.serviceCategory === cat.value
+                            ? 'border-primary bg-primary/5 shadow-gold'
+                            : 'border-border hover:border-primary/50 hover:bg-secondary/50'
+                        )}
+                      >
+                        <span className="font-semibold text-foreground block">{cat.label}</span>
+                        <span className="text-sm text-muted-foreground block mt-1">{cat.description}</span>
+                        {briefing.serviceCategory === cat.value && (
+                          <Check className="w-5 h-5 text-primary absolute top-4 right-4" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+
+                  {errors.serviceCategory && (
+                    <p className="text-sm text-destructive">{errors.serviceCategory}</p>
+                  )}
+                </motion.div>
+              )}
+
+              {/* Step 2: Event Type */}
+              {currentStep === 2 && (
                 <motion.div
                   key="step1"
                   initial={{ opacity: 0, x: 20 }}
