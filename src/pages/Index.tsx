@@ -219,6 +219,64 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Service Categories */}
+      <section className="py-24 md:py-32">
+        <div className="container">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16">
+
+            <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-3">
+              Modalidades
+            </p>
+            <h2 className="heading-section text-foreground mb-4">
+              Escolha o tipo de serviço
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Da contratação só do bartender ao serviço completo com bar e estrutura.
+            </p>
+          </motion.div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {serviceCategories.map((cat, index) => (
+              <motion.div
+                key={cat.value}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}>
+
+                <Link
+                  to="/orcamento"
+                  className="group block overflow-hidden rounded-2xl border border-border bg-card hover:border-primary/30 hover:shadow-gold transition-all duration-300">
+
+                  <div className="aspect-[4/3] overflow-hidden">
+                    <img
+                      src={SERVICE_IMAGES[cat.value]}
+                      alt={cat.label}
+                      loading="lazy"
+                      width={800}
+                      height={600}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  </div>
+                  <div className="p-6">
+                    <h3 className="font-display text-xl font-bold text-foreground mb-2">
+                      {cat.label}
+                    </h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {cat.description}
+                    </p>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* How it Works — Stripe inspired */}
       <section id="como-funciona" className="py-24 md:py-32">
         <div className="container">
