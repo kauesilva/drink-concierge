@@ -34,7 +34,7 @@ const Header = () => {
               <Wine className="w-4 h-4 text-primary-foreground" />
             </div>
             <span className="font-display text-lg font-bold text-foreground tracking-tight">
-              Bartender Store
+              Meu Bartender Pro
             </span>
           </Link>
 
