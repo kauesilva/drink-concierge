@@ -78,13 +78,12 @@ const QuotePage = () => {
 
   const handleNext = () => {
     if (validateStep()) {
-      if (currentStep === 4 && date) {
+      if (currentStep === 5 && date) {
         setBriefing({ eventDate: date.toISOString() });
       }
       if (currentStep < steps.length) {
         setCurrentStep(currentStep + 1);
       } else {
-        // Submit and navigate to results
         navigate('/resultados');
       }
     }
