@@ -4,14 +4,18 @@ import { ArrowRight, CheckCircle, Star, Sparkles, Zap, Shield, Users } from 'luc
 import Layout from '@/components/layout/Layout';
 import RotatingHeadline from '@/components/RotatingHeadline';
 import { Button } from '@/components/ui/button';
-import { eventTypes } from '@/data/mockData';
+import { eventTypes, serviceCategories } from '@/data/mockData';
 import imgCasamento from '@/assets/events/casamento.jpg';
 import imgAniversario from '@/assets/events/aniversario.jpg';
 import imgCorporativo from '@/assets/events/corporativo.jpg';
 import imgComemoracao from '@/assets/events/comemoracao.jpg';
 import img15Anos from '@/assets/events/15-anos.jpg';
 import imgAtivacao from '@/assets/events/ativacao-marca.jpg';
+import imgFreelancer from '@/assets/events/freelancer-bar.jpg';
 import imgOutro from '@/assets/events/outro.jpg';
+import imgMaoDeObra from '@/assets/services/mao-de-obra.jpg';
+import imgServicoCompleto from '@/assets/services/servico-completo.jpg';
+import imgConsultoria from '@/assets/services/consultoria.jpg';
 
 const EVENT_IMAGES: Record<string, string> = {
   'casamento': imgCasamento,
@@ -20,7 +24,14 @@ const EVENT_IMAGES: Record<string, string> = {
   'comemoracao': imgComemoracao,
   '15-anos': img15Anos,
   'ativacao-marca': imgAtivacao,
+  'freelancer-bar': imgFreelancer,
   'outro': imgOutro,
+};
+
+const SERVICE_IMAGES: Record<string, string> = {
+  'mao-de-obra': imgMaoDeObra,
+  'servico-completo': imgServicoCompleto,
+  'consultoria': imgConsultoria,
 };
 import {
   Accordion,
