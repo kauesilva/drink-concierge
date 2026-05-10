@@ -21,7 +21,7 @@ const RotatingHeadline = () => {
 
   return (
     <span className="inline-flex items-baseline gap-[0.25em]">
-      <span className="text-foreground">Seu</span>
+      <span className="text-foreground">Meu</span>
       <span className="relative inline-block align-baseline overflow-hidden leading-[1.1] h-[1.1em]">
         <AnimatePresence mode="popLayout" initial={false}>
           <motion.span
