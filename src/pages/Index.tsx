@@ -4,14 +4,18 @@ import { ArrowRight, CheckCircle, Star, Sparkles, Zap, Shield, Users } from 'luc
 import Layout from '@/components/layout/Layout';
 import RotatingHeadline from '@/components/RotatingHeadline';
 import { Button } from '@/components/ui/button';
-import { eventTypes } from '@/data/mockData';
+import { eventTypes, serviceCategories } from '@/data/mockData';
 import imgCasamento from '@/assets/events/casamento.jpg';
 import imgAniversario from '@/assets/events/aniversario.jpg';
 import imgCorporativo from '@/assets/events/corporativo.jpg';
 import imgComemoracao from '@/assets/events/comemoracao.jpg';
 import img15Anos from '@/assets/events/15-anos.jpg';
 import imgAtivacao from '@/assets/events/ativacao-marca.jpg';
+import imgFreelancer from '@/assets/events/freelancer-bar.jpg';
 import imgOutro from '@/assets/events/outro.jpg';
+import imgMaoDeObra from '@/assets/services/mao-de-obra.jpg';
+import imgServicoCompleto from '@/assets/services/servico-completo.jpg';
+import imgConsultoria from '@/assets/services/consultoria.jpg';
 
 const EVENT_IMAGES: Record<string, string> = {
   'casamento': imgCasamento,
@@ -20,7 +24,14 @@ const EVENT_IMAGES: Record<string, string> = {
   'comemoracao': imgComemoracao,
   '15-anos': img15Anos,
   'ativacao-marca': imgAtivacao,
+  'freelancer-bar': imgFreelancer,
   'outro': imgOutro,
+};
+
+const SERVICE_IMAGES: Record<string, string> = {
+  'mao-de-obra': imgMaoDeObra,
+  'servico-completo': imgServicoCompleto,
+  'consultoria': imgConsultoria,
 };
 import {
   Accordion,
@@ -204,6 +215,64 @@ const Index = () => {
                 <p className="text-sm text-muted-foreground">{stat.label}</p>
               </motion.div>
             )}
+          </div>
+        </div>
+      </section>
+
+      {/* Service Categories */}
+      <section className="py-24 md:py-32">
+        <div className="container">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16">
+
+            <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-3">
+              Modalidades
+            </p>
+            <h2 className="heading-section text-foreground mb-4">
+              Escolha o tipo de serviço
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Da contratação só do bartender ao serviço completo com bar e estrutura.
+            </p>
+          </motion.div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {serviceCategories.map((cat, index) => (
+              <motion.div
+                key={cat.value}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}>
+
+                <Link
+                  to="/orcamento"
+                  className="group block overflow-hidden rounded-2xl border border-border bg-card hover:border-primary/30 hover:shadow-gold transition-all duration-300">
+
+                  <div className="aspect-[4/3] overflow-hidden">
+                    <img
+                      src={SERVICE_IMAGES[cat.value]}
+                      alt={cat.label}
+                      loading="lazy"
+                      width={800}
+                      height={600}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  </div>
+                  <div className="p-6">
+                    <h3 className="font-display text-xl font-bold text-foreground mb-2">
+                      {cat.label}
+                    </h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {cat.description}
+                    </p>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>

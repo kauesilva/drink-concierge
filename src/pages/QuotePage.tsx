@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import ProgressSteps from '@/components/shared/ProgressSteps';
 import { useQuoteStore } from '@/store/quoteStore';
-import { eventTypes, brazilianStates } from '@/data/mockData';
+import { eventTypes, brazilianStates, serviceCategories } from '@/data/mockData';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const steps = ['Tipo de Evento', 'Pessoas', 'Local', 'Data', 'Contato'];
+const steps = ['Tipo de Serviço', 'Tipo de Evento', 'Pessoas', 'Local', 'Data', 'Contato'];
 
 const QuotePage = () => {
   const navigate = useNavigate();
@@ -38,26 +38,31 @@ const QuotePage = () => {
 
     switch (currentStep) {
       case 1:
+        if (!briefing.serviceCategory) {
+          newErrors.serviceCategory = 'Selecione o tipo de serviço';
+        }
+        break;
+      case 2:
         if (!briefing.eventType) {
           newErrors.eventType = 'Selecione o tipo de evento';
         }
         break;
-      case 2:
+      case 3:
         if (!briefing.people || briefing.people < 10) {
           newErrors.people = 'Mínimo de 10 pessoas';
         }
         break;
-      case 3:
+      case 4:
         if (!briefing.city) newErrors.city = 'Informe a cidade';
         if (!briefing.state) newErrors.state = 'Selecione o estado';
         if (!briefing.neighborhood) newErrors.neighborhood = 'Informe o bairro';
         break;
-      case 4:
+      case 5:
         if (!date) {
           newErrors.eventDate = 'Selecione a data do evento';
         }
         break;
-      case 5:
+      case 6:
         if (!briefing.clientName) newErrors.clientName = 'Informe seu nome';
         if (!briefing.whatsapp) newErrors.whatsapp = 'Informe seu WhatsApp';
         if (!briefing.email) newErrors.email = 'Informe seu email';
@@ -73,13 +78,12 @@ const QuotePage = () => {
 
   const handleNext = () => {
     if (validateStep()) {
-      if (currentStep === 4 && date) {
+      if (currentStep === 5 && date) {
         setBriefing({ eventDate: date.toISOString() });
       }
       if (currentStep < steps.length) {
         setCurrentStep(currentStep + 1);
       } else {
-        // Submit and navigate to results
         navigate('/resultados');
       }
     }
@@ -116,8 +120,56 @@ const QuotePage = () => {
           {/* Form Steps */}
           <div className="card-premium p-6 md:p-8">
             <AnimatePresence mode="wait">
-              {/* Step 1: Event Type */}
+              {/* Step 1: Service Category */}
               {currentStep === 1 && (
+                <motion.div
+                  key="step-service"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-6"
+                >
+                  <div>
+                    <h2 className="font-display text-xl font-semibold mb-2">
+                      Qual tipo de serviço você precisa?
+                    </h2>
+                    <p className="text-sm text-muted-foreground">
+                      Escolha a modalidade ideal para o seu evento
+                    </p>
+                  </div>
+
+                  <div className="grid gap-3">
+                    {serviceCategories.map((cat) => (
+                      <button
+                        key={cat.value}
+                        onClick={() => {
+                          setBriefing({ serviceCategory: cat.value });
+                          setErrors({});
+                        }}
+                        className={cn(
+                          'relative p-4 rounded-xl border-2 text-left transition-all duration-200',
+                          briefing.serviceCategory === cat.value
+                            ? 'border-primary bg-primary/5 shadow-gold'
+                            : 'border-border hover:border-primary/50 hover:bg-secondary/50'
+                        )}
+                      >
+                        <span className="font-semibold text-foreground block">{cat.label}</span>
+                        <span className="text-sm text-muted-foreground block mt-1">{cat.description}</span>
+                        {briefing.serviceCategory === cat.value && (
+                          <Check className="w-5 h-5 text-primary absolute top-4 right-4" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+
+                  {errors.serviceCategory && (
+                    <p className="text-sm text-destructive">{errors.serviceCategory}</p>
+                  )}
+                </motion.div>
+              )}
+
+              {/* Step 2: Event Type */}
+              {currentStep === 2 && (
                 <motion.div
                   key="step1"
                   initial={{ opacity: 0, x: 20 }}
@@ -161,8 +213,8 @@ const QuotePage = () => {
                 </motion.div>
               )}
 
-              {/* Step 2: People Count */}
-              {currentStep === 2 && (
+              {/* Step 3: People Count */}
+              {currentStep === 3 && (
                 <motion.div
                   key="step2"
                   initial={{ opacity: 0, x: 20 }}
@@ -217,8 +269,8 @@ const QuotePage = () => {
                 </motion.div>
               )}
 
-              {/* Step 3: Location */}
-              {currentStep === 3 && (
+              {/* Step 4: Location */}
+              {currentStep === 4 && (
                 <motion.div
                   key="step3"
                   initial={{ opacity: 0, x: 20 }}
@@ -301,8 +353,8 @@ const QuotePage = () => {
                 </motion.div>
               )}
 
-              {/* Step 4: Date */}
-              {currentStep === 4 && (
+              {/* Step 5: Date */}
+              {currentStep === 5 && (
                 <motion.div
                   key="step4"
                   initial={{ opacity: 0, x: 20 }}
@@ -353,8 +405,8 @@ const QuotePage = () => {
                 </motion.div>
               )}
 
-              {/* Step 5: Contact */}
-              {currentStep === 5 && (
+              {/* Step 6: Contact */}
+              {currentStep === 6 && (
                 <motion.div
                   key="step5"
                   initial={{ opacity: 0, x: 20 }}

@@ -328,7 +328,26 @@ export const eventTypes = [
   { value: 'comemoracao', label: 'Comemoração', icon: '🎉' },
   { value: '15-anos', label: '15 Anos', icon: '👑' },
   { value: 'ativacao-marca', label: 'Ativação de Marca', icon: '🎯' },
+  { value: 'freelancer-bar', label: 'Freelancer em Bar', icon: '🍸' },
   { value: 'outro', label: 'Outro', icon: '✨' },
+];
+
+export const serviceCategories = [
+  {
+    value: 'mao-de-obra',
+    label: 'Mão de obra',
+    description: 'Apenas o bartender profissional para o seu evento.',
+  },
+  {
+    value: 'servico-completo',
+    label: 'Serviço completo',
+    description: 'Bar, bartenders, insumos e estrutura — tudo incluso.',
+  },
+  {
+    value: 'consultoria',
+    label: 'Consultoria e cardápio',
+    description: 'Curadoria de drinks e consultoria especializada.',
+  },
 ];
 
 export const brazilianStates = [

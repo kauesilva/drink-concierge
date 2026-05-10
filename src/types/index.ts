@@ -45,6 +45,7 @@ export interface Lead {
 }
 
 export interface QuoteBriefing {
+  serviceCategory: string;
   eventType: string;
   people: number;
   city: string;
