@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import ProgressSteps from '@/components/shared/ProgressSteps';
 import { useQuoteStore } from '@/store/quoteStore';
-import { eventTypes, brazilianStates } from '@/data/mockData';
+import { eventTypes, brazilianStates, serviceCategories } from '@/data/mockData';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const steps = ['Tipo de Evento', 'Pessoas', 'Local', 'Data', 'Contato'];
+const steps = ['Tipo de Serviço', 'Tipo de Evento', 'Pessoas', 'Local', 'Data', 'Contato'];
 
 const QuotePage = () => {
   const navigate = useNavigate();
@@ -38,26 +38,31 @@ const QuotePage = () => {
 
     switch (currentStep) {
       case 1:
+        if (!briefing.serviceCategory) {
+          newErrors.serviceCategory = 'Selecione o tipo de serviço';
+        }
+        break;
+      case 2:
         if (!briefing.eventType) {
           newErrors.eventType = 'Selecione o tipo de evento';
         }
         break;
-      case 2:
+      case 3:
         if (!briefing.people || briefing.people < 10) {
           newErrors.people = 'Mínimo de 10 pessoas';
         }
         break;
-      case 3:
+      case 4:
         if (!briefing.city) newErrors.city = 'Informe a cidade';
         if (!briefing.state) newErrors.state = 'Selecione o estado';
         if (!briefing.neighborhood) newErrors.neighborhood = 'Informe o bairro';
         break;
-      case 4:
+      case 5:
         if (!date) {
           newErrors.eventDate = 'Selecione a data do evento';
         }
         break;
-      case 5:
+      case 6:
         if (!briefing.clientName) newErrors.clientName = 'Informe seu nome';
         if (!briefing.whatsapp) newErrors.whatsapp = 'Informe seu WhatsApp';
         if (!briefing.email) newErrors.email = 'Informe seu email';
