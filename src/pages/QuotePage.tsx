@@ -213,8 +213,8 @@ const QuotePage = () => {
                 </motion.div>
               )}
 
-              {/* Step 2: People Count */}
-              {currentStep === 2 && (
+              {/* Step 3: People Count */}
+              {currentStep === 3 && (
                 <motion.div
                   key="step2"
                   initial={{ opacity: 0, x: 20 }}
@@ -269,8 +269,8 @@ const QuotePage = () => {
                 </motion.div>
               )}
 
-              {/* Step 3: Location */}
-              {currentStep === 3 && (
+              {/* Step 4: Location */}
+              {currentStep === 4 && (
                 <motion.div
                   key="step3"
                   initial={{ opacity: 0, x: 20 }}
@@ -353,8 +353,8 @@ const QuotePage = () => {
                 </motion.div>
               )}
 
-              {/* Step 4: Date */}
-              {currentStep === 4 && (
+              {/* Step 5: Date */}
+              {currentStep === 5 && (
                 <motion.div
                   key="step4"
                   initial={{ opacity: 0, x: 20 }}
@@ -405,8 +405,8 @@ const QuotePage = () => {
                 </motion.div>
               )}
 
-              {/* Step 5: Contact */}
-              {currentStep === 5 && (
+              {/* Step 6: Contact */}
+              {currentStep === 6 && (
                 <motion.div
                   key="step5"
                   initial={{ opacity: 0, x: 20 }}
