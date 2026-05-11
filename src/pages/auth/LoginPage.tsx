@@ -18,14 +18,10 @@ const LoginPage = () => {
   const [senha, setSenha] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  // Redireciona se já está logado
+  // Redireciona se já está logado (sem chamar navigate durante o render)
   if (isAuthenticated && user) {
-    if (user.role === 'parceiro') {
-      navigate('/parceiro/painel/perfil', { replace: true });
-    } else {
-      navigate('/', { replace: true });
-    }
-    return null;
+    const target = user.role === 'parceiro' ? '/parceiro/painel/perfil' : '/';
+    return <Navigate to={target} replace />;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
