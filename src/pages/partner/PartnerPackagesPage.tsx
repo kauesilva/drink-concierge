@@ -201,6 +201,11 @@ const PartnerPackagesPage = () => {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3 text-sm">
+                  {pkg.serviceCategory && (
+                    <Badge variant="outline" className="text-xs">
+                      {serviceCategories.find((c) => c.value === pkg.serviceCategory)?.label}
+                    </Badge>
+                  )}
                   {pkg.description && <p className="text-muted-foreground">{pkg.description}</p>}
                   <div className="flex flex-wrap gap-3 text-muted-foreground">
                     <span className="flex items-center gap-1">
@@ -216,6 +221,16 @@ const PartnerPackagesPage = () => {
                       Mín. {pkg.minPeople}
                     </span>
                   </div>
+                  {pkg.coverage && pkg.coverage.length > 0 && (
+                    <div className="flex items-start gap-1.5 text-xs text-muted-foreground">
+                      <MapPin className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                      <span>
+                        {pkg.coverage
+                          .map((c) => `${c.state}: ${c.cities.slice(0, 3).join(', ')}${c.cities.length > 3 ? '...' : ''}`)
+                          .join(' • ')}
+                      </span>
+                    </div>
+                  )}
                   {pkg.drinks.length > 0 && (
                     <div className="flex flex-wrap gap-1.5">
                       {pkg.drinks.map((d) => (
