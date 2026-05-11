@@ -48,6 +48,7 @@ interface PartnerStore {
   register: (data: Pick<PartnerProfile, 'name' | 'email' | 'whatsapp' | 'type'>) => Promise<void>;
   updateProfile: (data: Partial<PartnerProfile>) => void;
   syncProfile: () => Promise<void>;
+  loadFromApi: (parceiroId: number) => Promise<void>;
   addPackage: (pkg: Omit<DrinkPackage, 'id'>) => Promise<boolean>;
   updatePackage: (id: string, pkg: Partial<DrinkPackage>) => void;
   deletePackage: (id: string) => void;
