@@ -90,10 +90,12 @@ export interface ApiPacote {
   duracao_horas: number;
   preco_por_pessoa: number;
   minimo_pessoas: number;
+  maximo_pessoas?: number | null;
   itens: string[];
   drinks: string[];
   categoria_servico?: string | null;
   cobertura?: ApiCoverage[];
+  tipos_evento?: string[];
   criado_em: string;
   atualizado_em: string;
 }
@@ -176,10 +178,12 @@ export async function apiAddPackage(data: {
   duracao_horas?: number;
   preco_por_pessoa: number;
   minimo_pessoas: number;
+  maximo_pessoas?: number;
   itens?: string[];
   drinks?: string[];
   categoria_servico?: string;
   cobertura?: ApiCoverage[];
+  tipos_evento?: string[];
 }): Promise<{ id: number; message: string }> {
   return request('add_package', {
     method: 'POST',
@@ -195,10 +199,12 @@ export async function apiUpdatePackage(data: {
   duracao_horas?: number;
   preco_por_pessoa?: number;
   minimo_pessoas?: number;
+  maximo_pessoas?: number;
   itens?: string[];
   drinks?: string[];
   categoria_servico?: string;
   cobertura?: ApiCoverage[];
+  tipos_evento?: string[];
 }): Promise<{ message: string }> {
   return request('update_package', {
     method: 'POST',

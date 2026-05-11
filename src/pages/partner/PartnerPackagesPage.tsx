@@ -26,7 +26,7 @@ import {
 } from '@/components/ui/select';
 import { usePartnerStore, type DrinkPackage } from '@/store/partnerStore';
 import { toast } from '@/hooks/use-toast';
-import { serviceCategories } from '@/data/mockData';
+import { serviceCategories, eventTypes } from '@/data/mockData';
 import { brazilianStates, getCitiesByUF } from '@/data/brazilLocations';
 import type { CoverageArea, ServiceCategory } from '@/types';
 
@@ -38,8 +38,10 @@ const emptyPkg = {
   durationHours: 4,
   pricePerPerson: 0,
   minPeople: 30,
+  maxPeople: undefined as number | undefined,
   serviceCategory: undefined as ServiceCategory | undefined,
   coverage: [] as CoverageArea[],
+  eventTypes: [] as string[],
 };
 
 const PartnerPackagesPage = () => {
@@ -66,8 +68,10 @@ const PartnerPackagesPage = () => {
       durationHours: pkg.durationHours,
       pricePerPerson: pkg.pricePerPerson,
       minPeople: pkg.minPeople,
+      maxPeople: pkg.maxPeople,
       serviceCategory: pkg.serviceCategory,
       coverage: pkg.coverage ? [...pkg.coverage] : [],
+      eventTypes: pkg.eventTypes ? [...pkg.eventTypes] : [],
     });
     setDialogOpen(true);
   };
@@ -122,6 +126,10 @@ const PartnerPackagesPage = () => {
     }
     if (!form.serviceCategory) {
       toast({ title: 'Selecione a categoria do pacote', variant: 'destructive' });
+      return;
+    }
+    if (form.maxPeople && form.maxPeople < form.minPeople) {
+      toast({ title: 'O máximo de pessoas deve ser maior ou igual ao mínimo', variant: 'destructive' });
       return;
     }
     if (!form.coverage || form.coverage.length === 0) {
@@ -218,7 +226,7 @@ const PartnerPackagesPage = () => {
                     </span>
                     <span className="flex items-center gap-1">
                       <Users className="w-3.5 h-3.5" />
-                      Mín. {pkg.minPeople}
+                      {pkg.maxPeople ? `${pkg.minPeople}–${pkg.maxPeople} pessoas` : `Mín. ${pkg.minPeople}`}
                     </span>
                   </div>
                   {pkg.coverage && pkg.coverage.length > 0 && (
@@ -297,7 +305,7 @@ const PartnerPackagesPage = () => {
                 ))}
               </RadioGroup>
             </div>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <div className="space-y-2">
                 <Label>Preço/pessoa *</Label>
                 <Input
@@ -325,6 +333,53 @@ const PartnerPackagesPage = () => {
                   value={form.minPeople}
                   onChange={(e) => setForm({ ...form, minPeople: Number(e.target.value) })}
                 />
+              </div>
+              <div className="space-y-2">
+                <Label>Máx. pessoas</Label>
+                <Input
+                  type="number"
+                  min={1}
+                  value={form.maxPeople ?? ''}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      maxPeople: e.target.value ? Number(e.target.value) : undefined,
+                    })
+                  }
+                  placeholder="Sem limite"
+                />
+              </div>
+            </div>
+
+            {/* Tipos de evento atendidos */}
+            <div className="space-y-2">
+              <Label>Tipos de evento atendidos</Label>
+              <p className="text-xs text-muted-foreground">
+                Marque os tipos compatíveis. Se nenhum for marcado, o pacote será considerado para qualquer tipo de evento.
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                {eventTypes.map((ev) => {
+                  const checked = form.eventTypes.includes(ev.value);
+                  return (
+                    <label
+                      key={ev.value}
+                      className="flex items-center gap-2 text-sm cursor-pointer p-2 rounded-md border border-border hover:bg-secondary/40"
+                    >
+                      <Checkbox
+                        checked={checked}
+                        onCheckedChange={() =>
+                          setForm((prev) => ({
+                            ...prev,
+                            eventTypes: checked
+                              ? prev.eventTypes.filter((t) => t !== ev.value)
+                              : [...prev.eventTypes, ev.value],
+                          }))
+                        }
+                      />
+                      <span>{ev.icon} {ev.label}</span>
+                    </label>
+                  );
+                })}
               </div>
             </div>
 

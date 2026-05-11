@@ -1,13 +1,14 @@
 import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Users, MapPin, Calendar, Loader2 } from 'lucide-react';
+import { ArrowLeft, Users, MapPin, Calendar, Loader2, Sparkles } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import CompanyCard from '@/components/companies/CompanyCard';
 import { useQuoteStore } from '@/store/quoteStore';
 import { eventTypes } from '@/data/mockData';
-import { useCompanies } from '@/hooks/useCompanies';
+import { useMatchingPackages } from '@/hooks/useCompanies';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -21,11 +22,7 @@ const ResultsPage = () => {
     }
   }, [briefing, navigate]);
 
-  const { data: companies, isLoading } = useCompanies({
-    cidade: briefing.city,
-    estado: briefing.state,
-    categoria: briefing.serviceCategory,
-  });
+  const { data: matches, isLoading } = useMatchingPackages(briefing);
 
   const eventLabel = eventTypes.find(e => e.value === briefing.eventType)?.label || briefing.eventType;
 
@@ -46,7 +43,7 @@ const ResultsPage = () => {
               animate={{ opacity: 1, y: 0 }}
             >
               <h1 className="font-display text-2xl md:text-3xl font-semibold text-foreground mb-4">
-                Empresas disponíveis para seu evento
+                Empresas compatíveis com seu evento
               </h1>
 
               <div className="flex flex-wrap gap-3 text-sm">
@@ -77,18 +74,34 @@ const ResultsPage = () => {
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-16 gap-3">
               <Loader2 className="w-8 h-8 animate-spin text-primary" />
-              <p className="text-muted-foreground">Buscando empresas...</p>
+              <p className="text-muted-foreground">Buscando empresas compatíveis...</p>
             </div>
-          ) : companies && companies.length > 0 ? (
+          ) : matches && matches.length > 0 ? (
             <div className="space-y-4 md:space-y-6">
-              {companies.map((company, index) => (
-                <CompanyCard key={company.id} company={company} index={index} />
+              {matches.map(({ company, matchedPackages }, index) => (
+                <div key={company.id} className="space-y-2">
+                  <CompanyCard company={company} index={index} />
+                  <div className="flex items-center gap-2 px-2 text-xs text-muted-foreground">
+                    <Sparkles className="w-3.5 h-3.5 text-primary" />
+                    <span>
+                      {matchedPackages.length} pacote{matchedPackages.length > 1 ? 's' : ''} compatível{matchedPackages.length > 1 ? 'eis' : ''}
+                    </span>
+                    {matchedPackages[0]?.match.reasons.slice(0, 2).map((r) => (
+                      <Badge key={r} variant="secondary" className="text-xs font-normal">
+                        {r}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
           ) : (
             <div className="text-center py-16">
-              <p className="text-lg text-muted-foreground mb-4">
-                Nenhuma empresa encontrada para sua região.
+              <p className="text-lg text-muted-foreground mb-2">
+                Nenhum pacote compatível com seu briefing.
+              </p>
+              <p className="text-sm text-muted-foreground mb-6">
+                Tente ajustar a quantidade de pessoas, a cidade ou o tipo de serviço.
               </p>
               <Button asChild variant="gold">
                 <Link to="/orcamento">Alterar busca</Link>
@@ -103,7 +116,7 @@ const ResultsPage = () => {
             className="mt-8 p-4 bg-accent/50 rounded-xl text-center"
           >
             <p className="text-sm text-muted-foreground">
-              💡 Compare os cardápios e valores de cada empresa. 
+              💡 Compare os cardápios e valores de cada empresa.
               <br className="hidden md:block" />
               Após escolher, um agente entrará em contato para finalizar a contratação.
             </p>

@@ -1,13 +1,16 @@
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, MapPin, Star, Check, Shield, Loader2 } from 'lucide-react';
+import { ArrowLeft, MapPin, Star, Check, Shield, Loader2, Sparkles } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import MenuCard from '@/components/menus/MenuCard';
 import RatingStars from '@/components/shared/RatingStars';
 import BadgePremium from '@/components/shared/BadgePremium';
 import { useCompanyDetail, useCompanyMenus } from '@/hooks/useCompanies';
 import { useQuoteStore } from '@/store/quoteStore';
+import { scorePackage } from '@/lib/matching';
+import { useMemo } from 'react';
 
 const CompanyDetailPage = () => {
   const { companyId } = useParams();
@@ -15,10 +18,17 @@ const CompanyDetailPage = () => {
   const { briefing } = useQuoteStore();
 
   const { data: company, isLoading: loadingCompany } = useCompanyDetail(companyId);
-  const { data: menus, isLoading: loadingMenus } = useCompanyMenus(companyId, {
-    categoria: briefing.serviceCategory,
-    cidade: briefing.city,
-  });
+  const { data: menus, isLoading: loadingMenus } = useCompanyMenus(companyId);
+
+  const sortedMenus = useMemo(() => {
+    if (!menus) return [];
+    return [...menus]
+      .map((m) => ({ menu: m, match: scorePackage(m, briefing) }))
+      .sort((a, b) => {
+        if (a.match.matches !== b.match.matches) return a.match.matches ? -1 : 1;
+        return b.match.score - a.match.score;
+      });
+  }, [menus, briefing]);
 
   if (loadingCompany || loadingMenus) {
     return (
@@ -155,15 +165,22 @@ const CompanyDetailPage = () => {
             <h2 className="font-display text-xl font-semibold mb-6">
               Cardápios disponíveis
             </h2>
-            {menus && menus.length > 0 ? (
+            {sortedMenus.length > 0 ? (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                {menus.map((menu, index) => (
-                  <MenuCard
-                    key={menu.id}
-                    menu={menu}
-                    companyId={company.id}
-                    index={index}
-                  />
+                {sortedMenus.map(({ menu, match }, index) => (
+                  <div key={menu.id} className="relative">
+                    {match.matches && briefing.serviceCategory && (
+                      <Badge className="absolute -top-2 left-3 z-10 bg-primary text-primary-foreground gap-1">
+                        <Sparkles className="w-3 h-3" />
+                        Compatível
+                      </Badge>
+                    )}
+                    <MenuCard
+                      menu={menu}
+                      companyId={company.id}
+                      index={index}
+                    />
+                  </div>
                 ))}
               </div>
             ) : (

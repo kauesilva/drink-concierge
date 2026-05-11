@@ -23,8 +23,10 @@ export interface DrinkPackage {
   durationHours: number;
   pricePerPerson: number;
   minPeople: number;
+  maxPeople?: number;
   serviceCategory?: ServiceCategory;
   coverage?: CoverageArea[];
+  eventTypes?: string[];
 }
 
 export interface PartnerProfile {
@@ -156,10 +158,12 @@ export const usePartnerStore = create<PartnerStore>()(
               duracao_horas: pkg.durationHours,
               preco_por_pessoa: pkg.pricePerPerson,
               minimo_pessoas: pkg.minPeople,
+              maximo_pessoas: pkg.maxPeople,
               itens: pkg.includes,
               drinks: pkg.drinks,
               categoria_servico: pkg.serviceCategory,
               cobertura: pkg.coverage,
+              tipos_evento: pkg.eventTypes,
             });
             set((s) => ({
               packages: s.packages.map((p) =>
@@ -190,10 +194,12 @@ export const usePartnerStore = create<PartnerStore>()(
             duracao_horas: updated.durationHours,
             preco_por_pessoa: updated.pricePerPerson,
             minimo_pessoas: updated.minPeople,
+            maximo_pessoas: updated.maxPeople,
             itens: updated.includes,
             drinks: updated.drinks,
             categoria_servico: updated.serviceCategory,
             cobertura: updated.coverage,
+            tipos_evento: updated.eventTypes,
           }).catch((err) => console.error('Erro ao atualizar pacote na API:', err));
         }
       },
@@ -227,8 +233,10 @@ export const usePartnerStore = create<PartnerStore>()(
             durationHours: Number(p.duracao_horas),
             pricePerPerson: Number(p.preco_por_pessoa),
             minPeople: Number(p.minimo_pessoas),
+            maxPeople: p.maximo_pessoas ? Number(p.maximo_pessoas) : undefined,
             serviceCategory: (p.categoria_servico as any) || undefined,
             coverage: p.cobertura || [],
+            eventTypes: p.tipos_evento || [],
           }));
           set({ packages });
         } catch (err) {

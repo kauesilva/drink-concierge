@@ -1,6 +1,7 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueries } from '@tanstack/react-query';
 import { apiListCompanies, apiGetCompanyDetail, apiGetCompanyPackages, ApiParceiro, ApiPacote } from '@/services/api';
-import { Company, Menu, ServiceCategory } from '@/types';
+import { Company, Menu, ServiceCategory, QuoteBriefing } from '@/types';
+import { scorePackage, PackageMatch } from '@/lib/matching';
 
 function mapCompany(p: ApiParceiro & { preco_minimo?: number }): Company {
   return {
@@ -29,8 +30,10 @@ export function mapPackageToMenu(p: ApiPacote, companyId: string): Menu {
     durationHours: Number(p.duracao_horas) || 0,
     pricePerPerson: Number(p.preco_por_pessoa) || 0,
     minPeople: Number(p.minimo_pessoas) || 0,
+    maxPeople: p.maximo_pessoas ? Number(p.maximo_pessoas) : undefined,
     serviceCategory: (p.categoria_servico as ServiceCategory) || undefined,
     coverage: p.cobertura || [],
+    eventTypes: p.tipos_evento || [],
   };
 }
 
@@ -90,7 +93,7 @@ export function useCompanyMenus(
       if (filters?.cidade) {
         const city = filters.cidade.toLowerCase();
         const matching = menus.filter((m) => {
-          if (!m.coverage || m.coverage.length === 0) return true; // legacy
+          if (!m.coverage || m.coverage.length === 0) return true;
           return m.coverage.some((c) =>
             c.cities.some((cc) => cc.toLowerCase() === city),
           );
@@ -102,4 +105,51 @@ export function useCompanyMenus(
     },
     enabled: !!companyId,
   });
+}
+
+export interface CompanyMatch {
+  company: Company;
+  matchedPackages: Array<Menu & { match: PackageMatch }>;
+  bestScore: number;
+}
+
+export function useMatchingPackages(briefing: Partial<QuoteBriefing>) {
+  // Busca todas as empresas (sem filtro server-side rígido)
+  const companiesQ = useQuery({
+    queryKey: ['companies', 'all-for-matching'],
+    queryFn: async () => {
+      const data = await apiListCompanies();
+      return data.map(mapCompany);
+    },
+  });
+
+  const companies = companiesQ.data ?? [];
+
+  const packagesQs = useQueries({
+    queries: companies.map((c) => ({
+      queryKey: ['companyMenus', c.id],
+      queryFn: async () => {
+        const data = await apiGetCompanyPackages(Number(c.id));
+        return data.map((p) => mapPackageToMenu(p, c.id));
+      },
+      enabled: !!companies.length,
+    })),
+  });
+
+  const isLoading = companiesQ.isLoading || packagesQs.some((q) => q.isLoading);
+
+  const results: CompanyMatch[] = companies
+    .map((c, idx) => {
+      const pkgs = packagesQs[idx]?.data ?? [];
+      const scored = pkgs
+        .map((p) => ({ ...p, match: scorePackage(p, briefing) }))
+        .filter((p) => p.match.matches)
+        .sort((a, b) => b.match.score - a.match.score);
+      const bestScore = scored[0]?.match.score ?? 0;
+      return { company: c, matchedPackages: scored, bestScore };
+    })
+    .filter((r) => r.matchedPackages.length > 0)
+    .sort((a, b) => b.bestScore - a.bestScore);
+
+  return { data: results, isLoading };
 }
