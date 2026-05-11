@@ -24,6 +24,7 @@ const ResultsPage = () => {
   const { data: companies, isLoading } = useCompanies({
     cidade: briefing.city,
     estado: briefing.state,
+    categoria: briefing.serviceCategory,
   });
 
   const eventLabel = eventTypes.find(e => e.value === briefing.eventType)?.label || briefing.eventType;

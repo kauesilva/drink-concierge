@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Pencil, Trash2, X, GlassWater, Clock, Users, DollarSign } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, GlassWater, Clock, Users, DollarSign, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Dialog,
   DialogContent,
@@ -15,8 +17,18 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { usePartnerStore, type DrinkPackage } from '@/store/partnerStore';
 import { toast } from '@/hooks/use-toast';
+import { serviceCategories } from '@/data/mockData';
+import { brazilianStates, getCitiesByUF } from '@/data/brazilLocations';
+import type { CoverageArea, ServiceCategory } from '@/types';
 
 const emptyPkg = {
   name: '',
@@ -26,6 +38,8 @@ const emptyPkg = {
   durationHours: 4,
   pricePerPerson: 0,
   minPeople: 30,
+  serviceCategory: undefined as ServiceCategory | undefined,
+  coverage: [] as CoverageArea[],
 };
 
 const PartnerPackagesPage = () => {
@@ -44,7 +58,17 @@ const PartnerPackagesPage = () => {
 
   const openEdit = (pkg: DrinkPackage) => {
     setEditingId(pkg.id);
-    setForm({ ...pkg });
+    setForm({
+      name: pkg.name,
+      description: pkg.description,
+      includes: [...pkg.includes],
+      drinks: [...pkg.drinks],
+      durationHours: pkg.durationHours,
+      pricePerPerson: pkg.pricePerPerson,
+      minPeople: pkg.minPeople,
+      serviceCategory: pkg.serviceCategory,
+      coverage: pkg.coverage ? [...pkg.coverage] : [],
+    });
     setDialogOpen(true);
   };
 
@@ -60,9 +84,48 @@ const PartnerPackagesPage = () => {
     setForm({ ...form, [field]: form[field].filter((i) => i !== item) });
   };
 
+  // Coverage helpers
+  const [coverageState, setCoverageState] = useState<string>('');
+  const coverageCities = coverageState ? getCitiesByUF(coverageState) : [];
+
+  const toggleCoverageCity = (city: string) => {
+    if (!coverageState) return;
+    const existing = form.coverage.find((c) => c.state === coverageState);
+    let next: CoverageArea[];
+    if (existing) {
+      const has = existing.cities.includes(city);
+      const cities = has
+        ? existing.cities.filter((c) => c !== city)
+        : [...existing.cities, city];
+      next = cities.length === 0
+        ? form.coverage.filter((c) => c.state !== coverageState)
+        : form.coverage.map((c) => (c.state === coverageState ? { ...c, cities } : c));
+    } else {
+      next = [...form.coverage, { state: coverageState, cities: [city] }];
+    }
+    setForm({ ...form, coverage: next });
+  };
+
+  const removeCoverageState = (uf: string) => {
+    setForm({ ...form, coverage: form.coverage.filter((c) => c.state !== uf) });
+  };
+
+  const isCityInCoverage = (city: string) => {
+    const c = form.coverage.find((c) => c.state === coverageState);
+    return !!c?.cities.includes(city);
+  };
+
   const handleSave = async () => {
     if (!form.name || form.pricePerPerson <= 0) {
       toast({ title: 'Preencha os campos obrigatórios', variant: 'destructive' });
+      return;
+    }
+    if (!form.serviceCategory) {
+      toast({ title: 'Selecione a categoria do pacote', variant: 'destructive' });
+      return;
+    }
+    if (!form.coverage || form.coverage.length === 0) {
+      toast({ title: 'Adicione ao menos uma cidade de atendimento', variant: 'destructive' });
       return;
     }
     if (editingId) {
@@ -138,6 +201,11 @@ const PartnerPackagesPage = () => {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3 text-sm">
+                  {pkg.serviceCategory && (
+                    <Badge variant="outline" className="text-xs">
+                      {serviceCategories.find((c) => c.value === pkg.serviceCategory)?.label}
+                    </Badge>
+                  )}
                   {pkg.description && <p className="text-muted-foreground">{pkg.description}</p>}
                   <div className="flex flex-wrap gap-3 text-muted-foreground">
                     <span className="flex items-center gap-1">
@@ -153,6 +221,16 @@ const PartnerPackagesPage = () => {
                       Mín. {pkg.minPeople}
                     </span>
                   </div>
+                  {pkg.coverage && pkg.coverage.length > 0 && (
+                    <div className="flex items-start gap-1.5 text-xs text-muted-foreground">
+                      <MapPin className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                      <span>
+                        {pkg.coverage
+                          .map((c) => `${c.state}: ${c.cities.slice(0, 3).join(', ')}${c.cities.length > 3 ? '...' : ''}`)
+                          .join(' • ')}
+                      </span>
+                    </div>
+                  )}
                   {pkg.drinks.length > 0 && (
                     <div className="flex flex-wrap gap-1.5">
                       {pkg.drinks.map((d) => (
@@ -194,6 +272,30 @@ const PartnerPackagesPage = () => {
                 placeholder="Descreva o que está incluído..."
                 rows={3}
               />
+            </div>
+
+            {/* Categoria */}
+            <div className="space-y-2">
+              <Label>Categoria do pacote *</Label>
+              <RadioGroup
+                value={form.serviceCategory || ''}
+                onValueChange={(v) => setForm({ ...form, serviceCategory: v as ServiceCategory })}
+                className="grid gap-2"
+              >
+                {serviceCategories.map((cat) => (
+                  <label
+                    key={cat.value}
+                    htmlFor={`cat-${cat.value}`}
+                    className="flex items-start gap-3 p-3 rounded-lg border border-border hover:bg-secondary/40 cursor-pointer transition-colors"
+                  >
+                    <RadioGroupItem value={cat.value} id={`cat-${cat.value}`} className="mt-0.5" />
+                    <div>
+                      <span className="font-medium text-foreground block">{cat.label}</span>
+                      <span className="text-xs text-muted-foreground">{cat.description}</span>
+                    </div>
+                  </label>
+                ))}
+              </RadioGroup>
             </div>
             <div className="grid grid-cols-3 gap-3">
               <div className="space-y-2">
@@ -273,6 +375,69 @@ const PartnerPackagesPage = () => {
                       {item}
                       <button onClick={() => removeItem('drinks', item)}><X className="w-3 h-3" /></button>
                     </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Coverage / Region */}
+            <div className="space-y-2">
+              <Label>Cidades atendidas por este pacote *</Label>
+              <p className="text-xs text-muted-foreground">
+                Escolha o estado e marque as cidades. Repita para adicionar outros estados.
+              </p>
+
+              <Select value={coverageState} onValueChange={setCoverageState}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione um estado" />
+                </SelectTrigger>
+                <SelectContent className="max-h-72">
+                  {brazilianStates.map((s) => (
+                    <SelectItem key={s.uf} value={s.uf}>
+                      {s.uf} — {s.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {coverageState && (
+                <div className="border border-border rounded-lg p-3 max-h-48 overflow-y-auto">
+                  <div className="grid grid-cols-2 gap-2">
+                    {coverageCities.map((city) => (
+                      <label
+                        key={city}
+                        className="flex items-center gap-2 text-sm cursor-pointer hover:text-foreground"
+                      >
+                        <Checkbox
+                          checked={isCityInCoverage(city)}
+                          onCheckedChange={() => toggleCoverageCity(city)}
+                        />
+                        <span>{city}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {form.coverage.length > 0 && (
+                <div className="space-y-2 mt-2">
+                  {form.coverage.map((c) => (
+                    <div key={c.state} className="border border-border rounded-lg p-2">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-semibold">{c.state}</span>
+                        <button
+                          onClick={() => removeCoverageState(c.state)}
+                          className="text-xs text-destructive hover:underline"
+                        >
+                          Remover
+                        </button>
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {c.cities.map((city) => (
+                          <Badge key={city} variant="secondary" className="text-xs">{city}</Badge>
+                        ))}
+                      </div>
+                    </div>
                   ))}
                 </div>
               )}

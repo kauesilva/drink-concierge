@@ -57,6 +57,11 @@ async function request<T>(
 // TYPES
 // =============================================
 
+export interface ApiCoverage {
+  state: string;
+  cities: string[];
+}
+
 export interface ApiParceiro {
   id: number;
   nome: string;
@@ -72,6 +77,7 @@ export interface ApiParceiro {
   total_avaliacoes: number;
   ativo: number;
   areas_atendidas: string[];
+  categorias_servico?: string[];
   criado_em: string;
   atualizado_em: string;
 }
@@ -86,6 +92,8 @@ export interface ApiPacote {
   minimo_pessoas: number;
   itens: string[];
   drinks: string[];
+  categoria_servico?: string | null;
+  cobertura?: ApiCoverage[];
   criado_em: string;
   atualizado_em: string;
 }
@@ -138,6 +146,7 @@ export async function apiUpdateProfile(
     whatsapp?: string;
     email?: string;
     areas_atendidas?: string[];
+    categorias_servico?: string[];
   }
 ): Promise<{ message: string }> {
   return request('update_profile', {
@@ -169,6 +178,8 @@ export async function apiAddPackage(data: {
   minimo_pessoas: number;
   itens?: string[];
   drinks?: string[];
+  categoria_servico?: string;
+  cobertura?: ApiCoverage[];
 }): Promise<{ id: number; message: string }> {
   return request('add_package', {
     method: 'POST',
@@ -186,6 +197,8 @@ export async function apiUpdatePackage(data: {
   minimo_pessoas?: number;
   itens?: string[];
   drinks?: string[];
+  categoria_servico?: string;
+  cobertura?: ApiCoverage[];
 }): Promise<{ message: string }> {
   return request('update_package', {
     method: 'POST',
@@ -269,10 +282,12 @@ export async function apiListLeads(token: string): Promise<ApiLead[]> {
 export async function apiListCompanies(filters?: {
   cidade?: string;
   estado?: string;
+  categoria?: string;
 }): Promise<(ApiParceiro & { preco_minimo: number })[]> {
   const params: Record<string, string> = {};
   if (filters?.cidade) params.cidade = filters.cidade;
   if (filters?.estado) params.estado = filters.estado;
+  if (filters?.categoria) params.categoria = filters.categoria;
   return request('list_companies', { params });
 }
 

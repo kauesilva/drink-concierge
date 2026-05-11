@@ -7,13 +7,18 @@ import MenuCard from '@/components/menus/MenuCard';
 import RatingStars from '@/components/shared/RatingStars';
 import BadgePremium from '@/components/shared/BadgePremium';
 import { useCompanyDetail, useCompanyMenus } from '@/hooks/useCompanies';
+import { useQuoteStore } from '@/store/quoteStore';
 
 const CompanyDetailPage = () => {
   const { companyId } = useParams();
   const navigate = useNavigate();
+  const { briefing } = useQuoteStore();
 
   const { data: company, isLoading: loadingCompany } = useCompanyDetail(companyId);
-  const { data: menus, isLoading: loadingMenus } = useCompanyMenus(companyId);
+  const { data: menus, isLoading: loadingMenus } = useCompanyMenus(companyId, {
+    categoria: briefing.serviceCategory,
+    cidade: briefing.city,
+  });
 
   if (loadingCompany || loadingMenus) {
     return (
