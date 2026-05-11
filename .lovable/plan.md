@@ -1,70 +1,64 @@
-# Matching por compatibilidade
+# Teste de ponta a ponta: cadastro de parceiro → consulta de pacotes via briefing
 
-Hoje a busca usa filtros rígidos por empresa (cidade/estado/categoria) e nem considera capacidade do pacote nem tipo de evento. Vamos passar a fazer **match no nível do pacote**, com critérios obrigatórios e secundários, e mostrar resultados ordenados por relevância.
+Objetivo: validar fluxo completo no preview, identificar erros (já há um conhecido: `get_partner_leads` retorna "Ação inválida") e mapear correções.
 
-## Critérios
+## Erros já detectados pelos logs
 
-**Obrigatórios (bloqueiam):**
-- `serviceCategory` do pacote == `briefing.serviceCategory`
-- `briefing.state` + `briefing.city` ∈ `pkg.coverage` (qualquer estado da cobertura cuja lista de cidades contenha a cidade — comparado normalizado)
-- `briefing.people` dentro de `[pkg.minPeople, pkg.maxPeople]` (com `maxPeople` opcional; sem teto = aceita qualquer)
+1. `**GET get_partner_leads` → 400 "Ação inválida"** (em `/parceiro/leads`). O backend `api.php` não reconhece a action. Precisa ser corrigido no backend OU o frontend deve usar a action correta.
+2. **Pacote existente (id 3) sem `cobertura`, `categoria_servico`, `maximo_pessoas`, `tipos_evento**` na resposta de `get_packages`. Significa que o backend ainda não persiste esses campos novos — todo match cairá no fallback (sem categoria → não bate filtro obrigatório de `serviceCategory`, então o pacote some dos resultados).
+3. **Parceiro id 12 sem `cidade_base`/`estado`/`categorias_servico**` preenchidos — perfil incompleto.
 
-**Secundários (ranqueiam, não bloqueiam):**
-- `briefing.eventType` ∈ `pkg.eventTypes` → +score (relevância alta)
-- Pacote sem `eventTypes` definido → considerado "geral", entra com score neutro
-- Se pacote tem `eventTypes` e nenhum bate → ainda aparece, mas com score baixo (a menos que o parceiro marque restrição forte — fora de escopo nesta fase)
+## Plano de execução do teste
 
-## Mudanças
+### Fase 1 — Cadastro/Setup do parceiro (browser automation)
 
-### 1. Tipos e store (`src/types/index.ts`, `src/store/partnerStore.ts`)
-- Adicionar em `Menu` / `DrinkPackage`:
-  - `maxPeople?: number`
-  - `eventTypes?: string[]` (chaves dos `eventTypes` de `mockData`)
+1. `navigate_to_sandbox /login`, logar como `empresa2@empresa2.com.br / 123456` (já existente).
+2. Ir em `/parceiro/perfil`: preencher cidade base SP/São Paulo, escolher categorias de serviço, salvar. Capturar request `update_profile` (payload + status).
+3. Ir em `/parceiro/pacotes`: criar pacote "Teste E2E" com:
+  - categoria: serviço completo
+  - min 20 / max 100 pessoas
+  - cobertura: SP → [São Paulo, Campinas]
+  - tipos de evento: casamento, corporativo
+  - preço/duração quaisquer
+   Capturar request `add_package`.
+4. Recarregar `/parceiro/pacotes` → confirmar via `get_packages` se os novos campos voltaram persistidos.
 
-### 2. Cadastro de pacote (`src/pages/partner/PartnerPackagesPage.tsx`)
-- Trocar campo único "Mín. pessoas" por dois campos: **Mínimo** e **Máximo** (máx opcional, vazio = sem limite).
-- Nova seção "Tipos de evento atendidos" com checkboxes a partir de `eventTypes` de `mockData` (ex.: casamento, aniversário, corporativo, confraternização, geral). Vazio = "atende qualquer tipo".
-- Validação: `maxPeople`, se preenchido, deve ser ≥ `minPeople`.
+### Fase 2 — Consulta como cliente
 
-### 3. API layer (`src/services/api.ts`)
-- Incluir `maximo_pessoas` e `tipos_evento` em `ApiPacote`, `apiAddPackage`, `apiUpdatePackage`.
-- Mapper em `useCompanies.ts` lê esses campos com fallback (`maxPeople = undefined`, `eventTypes = []`).
+5. `navigate_to_sandbox /orcamento`, preencher briefing: serviço completo, casamento, 30 pessoas, São Paulo/SP, data futura.
+6. Ir até `/resultados`. Capturar requests `list_companies` + `get_packages` para cada empresa.
+7. Verificar se a empresa do parceiro aparece e se o pacote de teste é listado como compatível.
+8. Abrir detalhe da empresa, conferir badge "Compatível".
 
-### 4. Util de matching (novo `src/lib/matching.ts`)
-Funções puras, testáveis:
-- `normalize(s)` → minúsculo, sem acento, sem espaços extras (para comparar cidades/UF).
-- `matchesCoverage(pkg, state, city)` → bool.
-- `matchesCapacity(pkg, people)` → bool.
-- `matchesCategory(pkg, category)` → bool.
-- `scorePackage(pkg, briefing)` → `{ matches: boolean, score: number, reasons: string[] }`. `matches` = todos obrigatórios; `score` soma bônus por `eventType` e por capacidade folgada.
+### Fase 3 — Rastreio e diagnóstico
 
-### 5. Página de resultados (`src/pages/ResultsPage.tsx`)
-- Substituir lógica atual (lista de empresas filtrada server-side) por:
-  1. Buscar todas as empresas ativas (sem filtro server-side rígido — apenas `categoria` como dica).
-  2. Para cada empresa, buscar seus pacotes (já existe `useCompanyMenus`; usar batch via novo hook `useAllPackages` ou um endpoint que liste pacotes públicos).
-  3. Aplicar `scorePackage` em cada pacote; manter os que `matches === true`.
-  4. Agrupar por empresa, ordenar empresas pelo melhor score de pacote.
-  5. Mostrar empresas + indicar quantos pacotes compatíveis cada uma tem; se nenhum pacote bater, esconder a empresa.
-- Mensagem "nenhum resultado" mantém-se quando vazio, com sugestão de ajustar pessoas/cidade.
+Para cada falha observada, registrar:
 
-### 6. Hook auxiliar (`src/hooks/useCompanies.ts`)
-- Novo `useMatchingPackages(briefing)`: combina lista de empresas + pacotes + matching. Retorna `Array<{ company, matchedPackages, bestScore }>`.
-- Manter `useCompanies` puro para outros usos.
+- URL/action chamada, payload enviado, resposta do backend.
+- Onde no código frontend a falha se origina (ex.: mapper em `useCompanies.mapPackageToMenu`, filtros em `useMatchingPackages`, validações em `PartnerPackagesPage`).
+- Causa provável: backend não persiste / frontend envia campo errado / matching descarta indevidamente.
 
-### 7. Detalhe da empresa (`src/pages/CompanyDetailPage.tsx`)
-- Ao listar pacotes, marcar visualmente os pacotes compatíveis com o briefing atual (badge "Compatível com seu evento") e empurrá-los para o topo.
+### Fase 4 — Relatório
 
-## Detalhes técnicos
+Entregar tabela com: passo, esperado, obtido, causa raiz, correção sugerida (frontend vs backend `api.php`).
 
-- Normalização: `s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim()`. Comparar `state` por UF (já estruturado) e `city` por nome normalizado.
-- `eventTypes` reutiliza `value` de `src/data/mockData.ts` `eventTypes` (já existe). Adicionar opção `geral` se não existir.
-- O `api.php` precisará persistir `maximo_pessoas` e `tipos_evento` (JSON). Enquanto não persiste, o matching ainda funciona com fallback (sem máximo = passa; sem `eventTypes` = neutro). Sinalizar isso ao final.
-- Não mexer em autenticação, leads ou pagamentos.
+## Hipóteses já formuladas (a confirmar no teste)
 
-## Verificação
+- `add_package` provavelmente ignora `cobertura`, `maximo_pessoas`, `categoria_servico`, `tipos_evento` → pacote nunca passa nos filtros obrigatórios de matching → resultados sempre vazios.
+- `get_partner_leads` action ausente no backend → painel de leads quebrado.
+- `update_profile` pode não persistir `categorias_servico`/`areas_atendidas` estruturado.
 
-1. Cadastrar pacote em `/parceiro/pacotes` com min=20, max=100, tipos=[casamento, corporativo], cobertura SP/Campinas+São Paulo.
-2. Fazer briefing: casamento, 30 pessoas, São Paulo/SP, serviço completo → o pacote aparece como compatível, score alto.
-3. Mudar briefing para 150 pessoas → pacote não aparece.
-4. Mudar tipo para "aniversário" → pacote ainda aparece (score menor) se `eventTypes` não inclui aniversário, ou some apenas se também não houver "geral".
-5. Confirmar normalização: digitando cidade com/sem acento via dropdown estruturado já garante consistência.
+## O que NÃO faço neste plano
+
+- Não altero `api.php` (fora do projeto Lovable). Para correções no backend, listo o que precisa mudar mas a aplicação é manual pelo usuário.
+- Não mexo em auth, pagamentos ou layout.
+
+## Saída esperada
+
+Relatório em chat com:
+
+1. Lista de bugs confirmados + reprodução.
+2. Para cada um: correção no frontend (quando possível) ou gere o arquivo `api.php`completo.
+3. Recomendação de próximos passos priorizados.
+
+Aprovando, executo o teste no browser e devolvo o diagnóstico.
