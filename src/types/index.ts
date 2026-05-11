@@ -30,8 +30,10 @@ export interface Menu {
   durationHours: number;
   pricePerPerson: number;
   minPeople: number;
+  maxPeople?: number;
   serviceCategory?: ServiceCategory;
   coverage?: CoverageArea[];
+  eventTypes?: string[];
 }
 
 export interface Lead {
