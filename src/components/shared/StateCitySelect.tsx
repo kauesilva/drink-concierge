@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import {
   Select,
   SelectContent,
@@ -34,6 +34,16 @@ const StateCitySelect = ({
 }: StateCitySelectProps) => {
   const cities = useMemo(() => getCitiesByUF(state), [state]);
 
+  // Limpa cidade quando o estado muda e a cidade atual não pertence à nova lista.
+  // Feito em useEffect (e não no onValueChange) para evitar race condition com setState
+  // não-funcional do componente pai (dois setForm seguidos sobre o mesmo snapshot).
+  useEffect(() => {
+    if (city && !cities.includes(city)) {
+      onCityChange('');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state, cities]);
+
   const containerCls =
     layout === 'horizontal'
       ? 'grid grid-cols-3 gap-3'
@@ -47,11 +57,7 @@ const StateCitySelect = ({
         </Label>
         <Select
           value={state || ''}
-          onValueChange={(v) => {
-            onStateChange(v);
-            // limpa cidade ao trocar estado
-            if (v !== state) onCityChange('');
-          }}
+          onValueChange={(v) => onStateChange(v)}
         >
           <SelectTrigger className="mt-2">
             <SelectValue placeholder="UF" />
