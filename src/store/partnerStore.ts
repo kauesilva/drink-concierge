@@ -11,6 +11,8 @@ import {
   type ApiParceiro,
 } from '@/services/api';
 
+import type { CoverageArea, ServiceCategory } from '@/types';
+
 export interface DrinkPackage {
   id: string;
   apiId?: number; // ID no banco MySQL
@@ -21,6 +23,8 @@ export interface DrinkPackage {
   durationHours: number;
   pricePerPerson: number;
   minPeople: number;
+  serviceCategory?: ServiceCategory;
+  coverage?: CoverageArea[];
 }
 
 export interface PartnerProfile {
@@ -35,6 +39,7 @@ export interface PartnerProfile {
   cityBase: string;
   state: string;
   areasServed: string[];
+  serviceCategories: ServiceCategory[];
   rating: number;
   totalReviews: number;
 }
