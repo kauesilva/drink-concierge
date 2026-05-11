@@ -165,15 +165,22 @@ const CompanyDetailPage = () => {
             <h2 className="font-display text-xl font-semibold mb-6">
               Cardápios disponíveis
             </h2>
-            {menus && menus.length > 0 ? (
+            {sortedMenus.length > 0 ? (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                {menus.map((menu, index) => (
-                  <MenuCard
-                    key={menu.id}
-                    menu={menu}
-                    companyId={company.id}
-                    index={index}
-                  />
+                {sortedMenus.map(({ menu, match }, index) => (
+                  <div key={menu.id} className="relative">
+                    {match.matches && briefing.serviceCategory && (
+                      <Badge className="absolute -top-2 left-3 z-10 bg-primary text-primary-foreground gap-1">
+                        <Sparkles className="w-3 h-3" />
+                        Compatível
+                      </Badge>
+                    )}
+                    <MenuCard
+                      menu={menu}
+                      companyId={company.id}
+                      index={index}
+                    />
+                  </div>
                 ))}
               </div>
             ) : (
