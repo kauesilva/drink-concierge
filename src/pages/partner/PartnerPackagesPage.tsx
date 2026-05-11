@@ -58,7 +58,17 @@ const PartnerPackagesPage = () => {
 
   const openEdit = (pkg: DrinkPackage) => {
     setEditingId(pkg.id);
-    setForm({ ...pkg });
+    setForm({
+      name: pkg.name,
+      description: pkg.description,
+      includes: [...pkg.includes],
+      drinks: [...pkg.drinks],
+      durationHours: pkg.durationHours,
+      pricePerPerson: pkg.pricePerPerson,
+      minPeople: pkg.minPeople,
+      serviceCategory: pkg.serviceCategory,
+      coverage: pkg.coverage ? [...pkg.coverage] : [],
+    });
     setDialogOpen(true);
   };
 
@@ -74,9 +84,48 @@ const PartnerPackagesPage = () => {
     setForm({ ...form, [field]: form[field].filter((i) => i !== item) });
   };
 
+  // Coverage helpers
+  const [coverageState, setCoverageState] = useState<string>('');
+  const coverageCities = coverageState ? getCitiesByUF(coverageState) : [];
+
+  const toggleCoverageCity = (city: string) => {
+    if (!coverageState) return;
+    const existing = form.coverage.find((c) => c.state === coverageState);
+    let next: CoverageArea[];
+    if (existing) {
+      const has = existing.cities.includes(city);
+      const cities = has
+        ? existing.cities.filter((c) => c !== city)
+        : [...existing.cities, city];
+      next = cities.length === 0
+        ? form.coverage.filter((c) => c.state !== coverageState)
+        : form.coverage.map((c) => (c.state === coverageState ? { ...c, cities } : c));
+    } else {
+      next = [...form.coverage, { state: coverageState, cities: [city] }];
+    }
+    setForm({ ...form, coverage: next });
+  };
+
+  const removeCoverageState = (uf: string) => {
+    setForm({ ...form, coverage: form.coverage.filter((c) => c.state !== uf) });
+  };
+
+  const isCityInCoverage = (city: string) => {
+    const c = form.coverage.find((c) => c.state === coverageState);
+    return !!c?.cities.includes(city);
+  };
+
   const handleSave = async () => {
     if (!form.name || form.pricePerPerson <= 0) {
       toast({ title: 'Preencha os campos obrigatórios', variant: 'destructive' });
+      return;
+    }
+    if (!form.serviceCategory) {
+      toast({ title: 'Selecione a categoria do pacote', variant: 'destructive' });
+      return;
+    }
+    if (!form.coverage || form.coverage.length === 0) {
+      toast({ title: 'Adicione ao menos uma cidade de atendimento', variant: 'destructive' });
       return;
     }
     if (editingId) {
