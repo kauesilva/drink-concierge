@@ -1,37 +1,17 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { CheckCircle, Calendar, MapPin, Home, Mail } from 'lucide-react';
+import { CheckCircle, Calendar, MapPin, Home } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
-import { mockCompanies, getMenusByCompany } from '@/data/mockData';
 import { useQuoteStore } from '@/store/quoteStore';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import RatingStars from '@/components/shared/RatingStars';
-import BadgePremium from '@/components/shared/BadgePremium';
-import { useState } from 'react';
-import { useToast } from '@/hooks/use-toast';
 
 const ConfirmationPage = () => {
   const { briefing, resetQuote } = useQuoteStore();
-  const { toast } = useToast();
-  const [sendingEmail, setSendingEmail] = useState<string | null>(null);
 
   const handleGoHome = () => {
     resetQuote();
-  };
-
-  const handleHireCompany = async (companyId: string, companyName: string) => {
-    setSendingEmail(companyId);
-    // Simulate sending email to service provider
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    toast({
-      title: '📧 Solicitação enviada!',
-      description: `A empresa ${companyName} receberá seu pedido e entrará em contato para agendar.`,
-    });
-
-    setSendingEmail(null);
   };
 
   return (
