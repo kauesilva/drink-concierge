@@ -12,7 +12,7 @@ import imgComemoracao from '@/assets/events/comemoracao.jpg';
 import img15Anos from '@/assets/events/15-anos.jpg';
 import imgAtivacao from '@/assets/events/ativacao-marca.jpg';
 import imgFreelancer from '@/assets/events/freelancer-bar.jpg';
-import imgOutro from '@/assets/events/outro.jpg';
+
 import imgMaoDeObra from '@/assets/services/mao-de-obra.jpg';
 import imgServicoCompleto from '@/assets/services/servico-completo.jpg';
 import imgConsultoria from '@/assets/services/consultoria.jpg';
@@ -25,7 +25,6 @@ const EVENT_IMAGES: Record<string, string> = {
   '15-anos': img15Anos,
   'ativacao-marca': imgAtivacao,
   'freelancer-bar': imgFreelancer,
-  'outro': imgOutro,
 };
 
 const SERVICE_IMAGES: Record<string, string> = {
