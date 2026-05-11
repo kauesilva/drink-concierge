@@ -44,15 +44,21 @@ async function authRequest<T>(action: string, body: Record<string, unknown>): Pr
   try {
     data = text ? JSON.parse(text) : null;
   } catch {
-    throw new Error(
-      `Resposta inválida do servidor (HTTP ${res.status}). ` +
-      `Verifique se a action "${action}" existe no api.php. ` +
-      `Conteúdo recebido: ${text.slice(0, 200) || '(vazio)'}`
-    );
+    // Log details only to console for developers; show generic message to user
+    if (typeof console !== 'undefined') {
+      console.error('[auth] resposta inválida', { status: res.status, action });
+    }
+    throw new Error('Erro de comunicação com o servidor. Tente novamente.');
   }
 
   if (!res.ok || (data && data.error)) {
-    throw new Error((data && data.error) || `Erro: ${res.status}`);
+    const serverMsg = data && data.error;
+    // Allow short, user-safe messages from the server (e.g. "Senha inválida"),
+    // but never echo long payloads or stack traces.
+    const safe = typeof serverMsg === 'string' && serverMsg.length > 0 && serverMsg.length <= 120
+      ? serverMsg
+      : 'Não foi possível concluir a operação. Tente novamente.';
+    throw new Error(safe);
   }
 
   return data as T;
