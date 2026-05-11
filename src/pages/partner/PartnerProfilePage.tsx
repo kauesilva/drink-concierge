@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Camera, Plus, X, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,12 @@ const PartnerProfilePage = () => {
   const [form, setForm] = useState({ ...profile });
   const [areaInput, setAreaInput] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // Hidrata o formulário quando o profile é carregado da API
+  useEffect(() => {
+    setForm((prev) => ({ ...prev, ...profile }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile.apiId]);
 
   const handleCoverUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
