@@ -7,8 +7,12 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { usePartnerStore } from '@/store/partnerStore';
 import { toast } from '@/hooks/use-toast';
+import StateCitySelect from '@/components/shared/StateCitySelect';
+import { serviceCategories } from '@/data/mockData';
+import type { ServiceCategory } from '@/types';
 
 const PartnerProfilePage = () => {
   const { profile, updateProfile } = usePartnerStore();
@@ -44,7 +48,19 @@ const PartnerProfilePage = () => {
 
   const [saving, setSaving] = useState(false);
 
+  const toggleCategory = (cat: ServiceCategory) => {
+    const has = form.serviceCategories?.includes(cat);
+    const next = has
+      ? form.serviceCategories.filter((c) => c !== cat)
+      : [...(form.serviceCategories || []), cat];
+    setForm({ ...form, serviceCategories: next });
+  };
+
   const handleSave = async () => {
+    if (!form.serviceCategories || form.serviceCategories.length === 0) {
+      toast({ title: 'Selecione ao menos um tipo de serviço', variant: 'destructive' });
+      return;
+    }
     setSaving(true);
     updateProfile(form);
     try {
@@ -127,24 +143,16 @@ const PartnerProfilePage = () => {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Cidade base</Label>
-              <Input
-                value={form.cityBase}
-                onChange={(e) => setForm({ ...form, cityBase: e.target.value })}
-                placeholder="São Paulo"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Estado</Label>
-              <Input
-                value={form.state}
-                onChange={(e) => setForm({ ...form, state: e.target.value })}
-                placeholder="SP"
-                maxLength={2}
-              />
-            </div>
+          <div className="space-y-2">
+            <Label>Localização base</Label>
+            <StateCitySelect
+              state={form.state}
+              city={form.cityBase}
+              onStateChange={(uf) => setForm({ ...form, state: uf })}
+              onCityChange={(c) => setForm({ ...form, cityBase: c })}
+              stateLabel="Estado"
+              cityLabel="Cidade base"
+            />
           </div>
 
           <div className="space-y-2">
@@ -154,6 +162,35 @@ const PartnerProfilePage = () => {
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
             />
+          </div>
+
+          {/* Tipos de serviço */}
+          <div className="space-y-2">
+            <Label>Tipos de serviço que ofereço *</Label>
+            <p className="text-xs text-muted-foreground">
+              Selecione um ou mais. Clientes só verão você nas categorias marcadas.
+            </p>
+            <div className="grid gap-2 mt-2">
+              {serviceCategories.map((cat) => {
+                const checked = form.serviceCategories?.includes(cat.value as ServiceCategory);
+                return (
+                  <label
+                    key={cat.value}
+                    className="flex items-start gap-3 p-3 rounded-lg border border-border hover:bg-secondary/40 cursor-pointer transition-colors"
+                  >
+                    <Checkbox
+                      checked={!!checked}
+                      onCheckedChange={() => toggleCategory(cat.value as ServiceCategory)}
+                      className="mt-0.5"
+                    />
+                    <div>
+                      <span className="font-medium text-foreground block">{cat.label}</span>
+                      <span className="text-sm text-muted-foreground">{cat.description}</span>
+                    </div>
+                  </label>
+                );
+              })}
+            </div>
           </div>
 
           {/* Areas Served */}
