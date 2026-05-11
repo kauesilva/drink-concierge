@@ -329,7 +329,6 @@ export const eventTypes = [
   { value: '15-anos', label: '15 Anos', icon: '👑' },
   { value: 'ativacao-marca', label: 'Ativação de Marca', icon: '🎯' },
   { value: 'freelancer-bar', label: 'Freelancer em Bar', icon: '🍸' },
-  { value: 'outro', label: 'Outro', icon: '✨' },
 ];
 
 export const serviceCategories = [
