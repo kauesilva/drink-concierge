@@ -1,9 +1,17 @@
+export type ServiceCategory = 'mao-de-obra' | 'servico-completo' | 'consultoria';
+
+export interface CoverageArea {
+  state: string; // UF
+  cities: string[];
+}
+
 export interface Company {
   id: string;
   name: string;
   description: string;
   cityBase: string;
   areasServed: string[];
+  serviceCategories?: ServiceCategory[];
   rating: number;
   totalReviews: number;
   image: string;
@@ -22,6 +30,8 @@ export interface Menu {
   durationHours: number;
   pricePerPerson: number;
   minPeople: number;
+  serviceCategory?: ServiceCategory;
+  coverage?: CoverageArea[];
 }
 
 export interface Lead {
