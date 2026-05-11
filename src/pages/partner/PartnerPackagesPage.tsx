@@ -60,7 +60,7 @@ const PartnerPackagesPage = () => {
     setForm({ ...form, [field]: form[field].filter((i) => i !== item) });
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!form.name || form.pricePerPerson <= 0) {
       toast({ title: 'Preencha os campos obrigatórios', variant: 'destructive' });
       return;
@@ -69,7 +69,7 @@ const PartnerPackagesPage = () => {
       updatePackage(editingId, form);
       toast({ title: 'Pacote atualizado!' });
     } else {
-      const ok = addPackage(form);
+      const ok = await addPackage(form);
       if (!ok) {
         toast({ title: 'Limite de 4 pacotes atingido', variant: 'destructive' });
         return;

@@ -8,6 +8,7 @@ import {
   apiAddPackage,
   apiUpdatePackage,
   apiDeletePackage,
+  type ApiParceiro,
 } from '@/services/api';
 
 export interface DrinkPackage {
@@ -47,6 +48,7 @@ interface PartnerStore {
   register: (data: Pick<PartnerProfile, 'name' | 'email' | 'whatsapp' | 'type'>) => Promise<void>;
   updateProfile: (data: Partial<PartnerProfile>) => void;
   syncProfile: () => Promise<void>;
+  loadFromApi: (parceiroId: number) => Promise<void>;
   addPackage: (pkg: Omit<DrinkPackage, 'id'>) => Promise<boolean>;
   updatePackage: (id: string, pkg: Partial<DrinkPackage>) => void;
   deletePackage: (id: string) => void;
@@ -218,6 +220,34 @@ export const usePartnerStore = create<PartnerStore>()(
           set({ packages });
         } catch (err) {
           console.error('Erro ao buscar pacotes da API:', err);
+        }
+      },
+
+      loadFromApi: async (parceiroId: number) => {
+        try {
+          const p: ApiParceiro = await apiGetProfile(parceiroId);
+          set((s) => ({
+            isRegistered: true,
+            profile: {
+              ...s.profile,
+              apiId: p.id,
+              name: p.nome,
+              email: p.email,
+              whatsapp: p.whatsapp || '',
+              type: p.tipo,
+              businessName: p.nome_empresa || p.nome,
+              about: p.sobre || '',
+              coverImage: p.foto_capa || '',
+              cityBase: p.cidade_base || '',
+              state: p.estado || '',
+              areasServed: p.areas_atendidas || [],
+              rating: Number(p.avaliacao) || 0,
+              totalReviews: Number(p.total_avaliacoes) || 0,
+            },
+          }));
+          await get().syncPackages();
+        } catch (err) {
+          console.error('Erro ao carregar perfil da API:', err);
         }
       },
 

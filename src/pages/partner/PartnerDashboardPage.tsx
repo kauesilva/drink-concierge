@@ -1,10 +1,21 @@
+import { useEffect } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { PartnerSidebar } from '@/components/partner/PartnerSidebar';
 import { useAuthStore } from '@/store/authStore';
+import { usePartnerStore } from '@/store/partnerStore';
 
 const PartnerDashboardPage = () => {
   const { isAuthenticated, user } = useAuthStore();
+  const profileApiId = usePartnerStore((s) => s.profile.apiId);
+  const loadFromApi = usePartnerStore((s) => s.loadFromApi);
+
+  useEffect(() => {
+    const parceiroId = user?.parceiro_id;
+    if (user?.role === 'parceiro' && parceiroId && profileApiId !== parceiroId) {
+      loadFromApi(parceiroId);
+    }
+  }, [user, profileApiId, loadFromApi]);
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
