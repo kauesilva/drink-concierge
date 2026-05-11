@@ -226,7 +226,7 @@ const PartnerPackagesPage = () => {
                     </span>
                     <span className="flex items-center gap-1">
                       <Users className="w-3.5 h-3.5" />
-                      Mín. {pkg.minPeople}
+                      {pkg.maxPeople ? `${pkg.minPeople}–${pkg.maxPeople} pessoas` : `Mín. ${pkg.minPeople}`}
                     </span>
                   </div>
                   {pkg.coverage && pkg.coverage.length > 0 && (
