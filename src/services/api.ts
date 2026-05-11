@@ -1,15 +1,46 @@
+import { useAuthStore } from '@/store/authStore';
+import { useAdminStore } from '@/store/adminStore';
+
 const API_BASE = 'https://bartenderstore.com.br/servicos/api.php';
 
-async function request<T>(action: string, options?: RequestInit & { params?: Record<string, string> }): Promise<T> {
-  const { params, ...fetchOptions } = options ?? {};
+function getAuthToken(): string | null {
+  try {
+    return useAuthStore.getState().token;
+  } catch {
+    return null;
+  }
+}
+
+function getAdminToken(): string | null {
+  try {
+    return useAdminStore.getState().token;
+  } catch {
+    return null;
+  }
+}
+
+async function request<T>(
+  action: string,
+  options?: RequestInit & { params?: Record<string, string>; token?: string | null }
+): Promise<T> {
+  const { params, token, headers, ...fetchOptions } = options ?? {};
   const url = new URL(API_BASE);
   url.searchParams.set('action', action);
   if (params) {
     Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
   }
 
+  const finalHeaders: Record<string, string> = {
+    'Content-Type': 'text/plain;charset=UTF-8',
+    Accept: 'application/json',
+    ...(headers as Record<string, string> | undefined),
+  };
+  if (token) {
+    finalHeaders.Authorization = `Bearer ${token}`;
+  }
+
   const res = await fetch(url.toString(), {
-    headers: { 'Content-Type': 'text/plain;charset=UTF-8', Accept: 'application/json' },
+    headers: finalHeaders,
     ...fetchOptions,
   });
 
@@ -77,7 +108,6 @@ export interface ApiLead {
   valor_estimado: number | null;
   status: string;
   criado_em: string;
-  // Dados do pacote (join no backend)
   pacote_nome?: string;
 }
 
@@ -113,11 +143,13 @@ export async function apiUpdateProfile(
   return request('update_profile', {
     method: 'POST',
     body: JSON.stringify({ parceiro_id: parceiroId, ...data }),
+    token: getAuthToken(),
   });
 }
 
 export async function apiGetProfile(id: number): Promise<ApiParceiro> {
-  return request('get_profile', { params: { id: String(id) } });
+  // Public-readable basic profile is used in directory pages; forward token when available
+  return request('get_profile', { params: { id: String(id) }, token: getAuthToken() });
 }
 
 // =============================================
@@ -125,7 +157,7 @@ export async function apiGetProfile(id: number): Promise<ApiParceiro> {
 // =============================================
 
 export async function apiGetPackages(parceiroId: number): Promise<ApiPacote[]> {
-  return request('get_packages', { params: { id: String(parceiroId) } });
+  return request('get_packages', { params: { id: String(parceiroId) }, token: getAuthToken() });
 }
 
 export async function apiAddPackage(data: {
@@ -141,6 +173,7 @@ export async function apiAddPackage(data: {
   return request('add_package', {
     method: 'POST',
     body: JSON.stringify(data),
+    token: getAuthToken(),
   });
 }
 
@@ -157,6 +190,7 @@ export async function apiUpdatePackage(data: {
   return request('update_package', {
     method: 'POST',
     body: JSON.stringify(data),
+    token: getAuthToken(),
   });
 }
 
@@ -164,6 +198,7 @@ export async function apiDeletePackage(pacoteId: number): Promise<{ message: str
   return request('delete_package', {
     method: 'POST',
     body: JSON.stringify({ pacote_id: pacoteId }),
+    token: getAuthToken(),
   });
 }
 
@@ -194,7 +229,10 @@ export async function apiCreateLead(data: {
 }
 
 export async function apiGetPartnerLeads(parceiroId: number): Promise<ApiLead[]> {
-  return request('get_partner_leads', { params: { parceiro_id: String(parceiroId) } });
+  return request('get_partner_leads', {
+    params: { parceiro_id: String(parceiroId) },
+    token: getAuthToken(),
+  });
 }
 
 export async function apiUpdateLeadStatus(data: {
@@ -205,6 +243,7 @@ export async function apiUpdateLeadStatus(data: {
   return request('update_lead_status', {
     method: 'POST',
     body: JSON.stringify(data),
+    token: getAuthToken(),
   });
 }
 
@@ -220,9 +259,7 @@ export async function apiAdminLogin(email: string, senha: string): Promise<{ tok
 }
 
 export async function apiListLeads(token: string): Promise<ApiLead[]> {
-  return request('admin_list_leads', {
-    headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
-  });
+  return request('admin_list_leads', { token: token || getAdminToken() });
 }
 
 // =============================================
