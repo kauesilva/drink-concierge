@@ -273,6 +273,30 @@ const PartnerPackagesPage = () => {
                 rows={3}
               />
             </div>
+
+            {/* Categoria */}
+            <div className="space-y-2">
+              <Label>Categoria do pacote *</Label>
+              <RadioGroup
+                value={form.serviceCategory || ''}
+                onValueChange={(v) => setForm({ ...form, serviceCategory: v as ServiceCategory })}
+                className="grid gap-2"
+              >
+                {serviceCategories.map((cat) => (
+                  <label
+                    key={cat.value}
+                    htmlFor={`cat-${cat.value}`}
+                    className="flex items-start gap-3 p-3 rounded-lg border border-border hover:bg-secondary/40 cursor-pointer transition-colors"
+                  >
+                    <RadioGroupItem value={cat.value} id={`cat-${cat.value}`} className="mt-0.5" />
+                    <div>
+                      <span className="font-medium text-foreground block">{cat.label}</span>
+                      <span className="text-xs text-muted-foreground">{cat.description}</span>
+                    </div>
+                  </label>
+                ))}
+              </RadioGroup>
+            </div>
             <div className="grid grid-cols-3 gap-3">
               <div className="space-y-2">
                 <Label>Preço/pessoa *</Label>
