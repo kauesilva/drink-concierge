@@ -1,13 +1,16 @@
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, MapPin, Star, Check, Shield, Loader2 } from 'lucide-react';
+import { ArrowLeft, MapPin, Star, Check, Shield, Loader2, Sparkles } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import MenuCard from '@/components/menus/MenuCard';
 import RatingStars from '@/components/shared/RatingStars';
 import BadgePremium from '@/components/shared/BadgePremium';
 import { useCompanyDetail, useCompanyMenus } from '@/hooks/useCompanies';
 import { useQuoteStore } from '@/store/quoteStore';
+import { scorePackage } from '@/lib/matching';
+import { useMemo } from 'react';
 
 const CompanyDetailPage = () => {
   const { companyId } = useParams();
@@ -15,10 +18,17 @@ const CompanyDetailPage = () => {
   const { briefing } = useQuoteStore();
 
   const { data: company, isLoading: loadingCompany } = useCompanyDetail(companyId);
-  const { data: menus, isLoading: loadingMenus } = useCompanyMenus(companyId, {
-    categoria: briefing.serviceCategory,
-    cidade: briefing.city,
-  });
+  const { data: menus, isLoading: loadingMenus } = useCompanyMenus(companyId);
+
+  const sortedMenus = useMemo(() => {
+    if (!menus) return [];
+    return [...menus]
+      .map((m) => ({ menu: m, match: scorePackage(m, briefing) }))
+      .sort((a, b) => {
+        if (a.match.matches !== b.match.matches) return a.match.matches ? -1 : 1;
+        return b.match.score - a.match.score;
+      });
+  }, [menus, briefing]);
 
   if (loadingCompany || loadingMenus) {
     return (
