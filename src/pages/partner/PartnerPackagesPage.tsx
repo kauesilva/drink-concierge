@@ -305,7 +305,7 @@ const PartnerPackagesPage = () => {
                 ))}
               </RadioGroup>
             </div>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <div className="space-y-2">
                 <Label>Preço/pessoa *</Label>
                 <Input
@@ -333,6 +333,53 @@ const PartnerPackagesPage = () => {
                   value={form.minPeople}
                   onChange={(e) => setForm({ ...form, minPeople: Number(e.target.value) })}
                 />
+              </div>
+              <div className="space-y-2">
+                <Label>Máx. pessoas</Label>
+                <Input
+                  type="number"
+                  min={1}
+                  value={form.maxPeople ?? ''}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      maxPeople: e.target.value ? Number(e.target.value) : undefined,
+                    })
+                  }
+                  placeholder="Sem limite"
+                />
+              </div>
+            </div>
+
+            {/* Tipos de evento atendidos */}
+            <div className="space-y-2">
+              <Label>Tipos de evento atendidos</Label>
+              <p className="text-xs text-muted-foreground">
+                Marque os tipos compatíveis. Se nenhum for marcado, o pacote será considerado para qualquer tipo de evento.
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                {eventTypes.map((ev) => {
+                  const checked = form.eventTypes.includes(ev.value);
+                  return (
+                    <label
+                      key={ev.value}
+                      className="flex items-center gap-2 text-sm cursor-pointer p-2 rounded-md border border-border hover:bg-secondary/40"
+                    >
+                      <Checkbox
+                        checked={checked}
+                        onCheckedChange={() =>
+                          setForm((prev) => ({
+                            ...prev,
+                            eventTypes: checked
+                              ? prev.eventTypes.filter((t) => t !== ev.value)
+                              : [...prev.eventTypes, ev.value],
+                          }))
+                        }
+                      />
+                      <span>{ev.icon} {ev.label}</span>
+                    </label>
+                  );
+                })}
               </div>
             </div>
 
