@@ -8,6 +8,7 @@ import {
   apiAddPackage,
   apiUpdatePackage,
   apiDeletePackage,
+  type ApiParceiro,
 } from '@/services/api';
 
 export interface DrinkPackage {
