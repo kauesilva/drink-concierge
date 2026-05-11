@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Pencil, Trash2, X, GlassWater, Clock, Users, DollarSign } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, GlassWater, Clock, Users, DollarSign, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Dialog,
   DialogContent,
@@ -15,8 +17,18 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { usePartnerStore, type DrinkPackage } from '@/store/partnerStore';
 import { toast } from '@/hooks/use-toast';
+import { serviceCategories } from '@/data/mockData';
+import { brazilianStates, getCitiesByUF } from '@/data/brazilLocations';
+import type { CoverageArea, ServiceCategory } from '@/types';
 
 const emptyPkg = {
   name: '',
@@ -26,6 +38,8 @@ const emptyPkg = {
   durationHours: 4,
   pricePerPerson: 0,
   minPeople: 30,
+  serviceCategory: undefined as ServiceCategory | undefined,
+  coverage: [] as CoverageArea[],
 };
 
 const PartnerPackagesPage = () => {
