@@ -276,6 +276,15 @@ export const usePartnerStore = create<PartnerStore>()(
       logout: () =>
         set({ isRegistered: false, profile: { ...defaultProfile }, packages: [] }),
     }),
-    { name: 'bartender-partner' }
+    {
+      name: 'bartender-partner',
+      // Evita estourar a cota do localStorage quando a foto de capa é um
+      // data URL grande (base64). A imagem é recarregada da API no login.
+      partialize: (state) => ({
+        isRegistered: state.isRegistered,
+        profile: { ...state.profile, coverImage: '' },
+        packages: state.packages,
+      }),
+    }
   )
 );
