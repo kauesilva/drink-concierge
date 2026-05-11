@@ -379,6 +379,69 @@ const PartnerPackagesPage = () => {
                 </div>
               )}
             </div>
+
+            {/* Coverage / Region */}
+            <div className="space-y-2">
+              <Label>Cidades atendidas por este pacote *</Label>
+              <p className="text-xs text-muted-foreground">
+                Escolha o estado e marque as cidades. Repita para adicionar outros estados.
+              </p>
+
+              <Select value={coverageState} onValueChange={setCoverageState}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione um estado" />
+                </SelectTrigger>
+                <SelectContent className="max-h-72">
+                  {brazilianStates.map((s) => (
+                    <SelectItem key={s.uf} value={s.uf}>
+                      {s.uf} — {s.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {coverageState && (
+                <div className="border border-border rounded-lg p-3 max-h-48 overflow-y-auto">
+                  <div className="grid grid-cols-2 gap-2">
+                    {coverageCities.map((city) => (
+                      <label
+                        key={city}
+                        className="flex items-center gap-2 text-sm cursor-pointer hover:text-foreground"
+                      >
+                        <Checkbox
+                          checked={isCityInCoverage(city)}
+                          onCheckedChange={() => toggleCoverageCity(city)}
+                        />
+                        <span>{city}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {form.coverage.length > 0 && (
+                <div className="space-y-2 mt-2">
+                  {form.coverage.map((c) => (
+                    <div key={c.state} className="border border-border rounded-lg p-2">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-semibold">{c.state}</span>
+                        <button
+                          onClick={() => removeCoverageState(c.state)}
+                          className="text-xs text-destructive hover:underline"
+                        >
+                          Remover
+                        </button>
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {c.cities.map((city) => (
+                          <Badge key={city} variant="secondary" className="text-xs">{city}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           <DialogFooter>
