@@ -127,6 +127,7 @@ export const usePartnerStore = create<PartnerStore>()(
             whatsapp: profile.whatsapp,
             email: profile.email,
             areas_atendidas: profile.areasServed,
+            categorias_servico: profile.serviceCategories,
           });
         } catch (err) {
           console.error('Erro ao sincronizar perfil:', err);
@@ -157,6 +158,8 @@ export const usePartnerStore = create<PartnerStore>()(
               minimo_pessoas: pkg.minPeople,
               itens: pkg.includes,
               drinks: pkg.drinks,
+              categoria_servico: pkg.serviceCategory,
+              cobertura: pkg.coverage,
             });
             set((s) => ({
               packages: s.packages.map((p) =>
@@ -189,6 +192,8 @@ export const usePartnerStore = create<PartnerStore>()(
             minimo_pessoas: updated.minPeople,
             itens: updated.includes,
             drinks: updated.drinks,
+            categoria_servico: updated.serviceCategory,
+            cobertura: updated.coverage,
           }).catch((err) => console.error('Erro ao atualizar pacote na API:', err));
         }
       },
@@ -222,6 +227,8 @@ export const usePartnerStore = create<PartnerStore>()(
             durationHours: Number(p.duracao_horas),
             pricePerPerson: Number(p.preco_por_pessoa),
             minPeople: Number(p.minimo_pessoas),
+            serviceCategory: (p.categoria_servico as any) || undefined,
+            coverage: p.cobertura || [],
           }));
           set({ packages });
         } catch (err) {
@@ -247,6 +254,7 @@ export const usePartnerStore = create<PartnerStore>()(
               cityBase: p.cidade_base || '',
               state: p.estado || '',
               areasServed: p.areas_atendidas || [],
+              serviceCategories: (p.categorias_servico as any) || [],
               rating: Number(p.avaliacao) || 0,
               totalReviews: Number(p.total_avaliacoes) || 0,
             },
