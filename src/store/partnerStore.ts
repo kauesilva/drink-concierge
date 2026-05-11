@@ -72,6 +72,7 @@ const defaultProfile: PartnerProfile = {
   cityBase: '',
   state: '',
   areasServed: [],
+  serviceCategories: [],
   rating: 0,
   totalReviews: 0,
 };
