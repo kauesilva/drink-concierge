@@ -8,20 +8,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import ProgressSteps from '@/components/shared/ProgressSteps';
 import { useQuoteStore } from '@/store/quoteStore';
-import { eventTypes, brazilianStates, serviceCategories } from '@/data/mockData';
+import { eventTypes, serviceCategories } from '@/data/mockData';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import StateCitySelect from '@/components/shared/StateCitySelect';
 
 const steps = ['Tipo de Serviço', 'Tipo de Evento', 'Pessoas', 'Local', 'Data', 'Contato'];
 
@@ -288,42 +282,14 @@ const QuotePage = () => {
                   </div>
 
                   <div className="grid gap-4">
-                    <div className="grid grid-cols-3 gap-4">
-                      <div className="col-span-2">
-                        <Label htmlFor="city">Cidade *</Label>
-                        <Input
-                          id="city"
-                          placeholder="São Paulo"
-                          value={briefing.city || ''}
-                          onChange={(e) => setBriefing({ city: e.target.value })}
-                          className="mt-2"
-                        />
-                        {errors.city && (
-                          <p className="text-sm text-destructive mt-1">{errors.city}</p>
-                        )}
-                      </div>
-                      <div>
-                        <Label htmlFor="state">Estado *</Label>
-                        <Select
-                          value={briefing.state || ''}
-                          onValueChange={(value) => setBriefing({ state: value })}
-                        >
-                          <SelectTrigger className="mt-2">
-                            <SelectValue placeholder="UF" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {brazilianStates.map((state) => (
-                              <SelectItem key={state} value={state}>
-                                {state}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        {errors.state && (
-                          <p className="text-sm text-destructive mt-1">{errors.state}</p>
-                        )}
-                      </div>
-                    </div>
+                    <StateCitySelect
+                      state={briefing.state || ''}
+                      city={briefing.city || ''}
+                      onStateChange={(uf) => setBriefing({ state: uf })}
+                      onCityChange={(c) => setBriefing({ city: c })}
+                      required
+                      errors={{ state: errors.state, city: errors.city }}
+                    />
 
                     <div>
                       <Label htmlFor="neighborhood">Bairro *</Label>
