@@ -26,7 +26,7 @@ import {
 } from '@/components/ui/select';
 import { usePartnerStore, type DrinkPackage } from '@/store/partnerStore';
 import { toast } from '@/hooks/use-toast';
-import { serviceCategories } from '@/data/mockData';
+import { serviceCategories, eventTypes } from '@/data/mockData';
 import { brazilianStates, getCitiesByUF } from '@/data/brazilLocations';
 import type { CoverageArea, ServiceCategory } from '@/types';
 
@@ -38,8 +38,10 @@ const emptyPkg = {
   durationHours: 4,
   pricePerPerson: 0,
   minPeople: 30,
+  maxPeople: undefined as number | undefined,
   serviceCategory: undefined as ServiceCategory | undefined,
   coverage: [] as CoverageArea[],
+  eventTypes: [] as string[],
 };
 
 const PartnerPackagesPage = () => {
@@ -66,8 +68,10 @@ const PartnerPackagesPage = () => {
       durationHours: pkg.durationHours,
       pricePerPerson: pkg.pricePerPerson,
       minPeople: pkg.minPeople,
+      maxPeople: pkg.maxPeople,
       serviceCategory: pkg.serviceCategory,
       coverage: pkg.coverage ? [...pkg.coverage] : [],
+      eventTypes: pkg.eventTypes ? [...pkg.eventTypes] : [],
     });
     setDialogOpen(true);
   };
@@ -122,6 +126,10 @@ const PartnerPackagesPage = () => {
     }
     if (!form.serviceCategory) {
       toast({ title: 'Selecione a categoria do pacote', variant: 'destructive' });
+      return;
+    }
+    if (form.maxPeople && form.maxPeople < form.minPeople) {
+      toast({ title: 'O máximo de pessoas deve ser maior ou igual ao mínimo', variant: 'destructive' });
       return;
     }
     if (!form.coverage || form.coverage.length === 0) {
