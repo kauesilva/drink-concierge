@@ -19,7 +19,7 @@ const Footer = () => {
 
   return (
     <footer className="border-t border-border">
-      <div className="container mx-auto px-6 py-16 md:py-20">
+      <div className="container mx-auto px-6 py-16 md:py-20 bg-slate-300">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12">
           {/* Brand */}
           <div className="md:col-span-5">
@@ -72,7 +72,7 @@ const Footer = () => {
 
         {/* Bottom */}
         <div className="border-t border-border mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-muted-foreground">
-          <p>© 2024 Bartender Store. Todos os direitos reservados.</p>
+          <p>© 2026 Bartender Store. Todos os direitos reservados.</p>
           <div className="flex gap-6">
             <a href="#" className="hover:text-foreground transition-colors">
               Termos de Uso
