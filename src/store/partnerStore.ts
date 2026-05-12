@@ -149,7 +149,7 @@ export const usePartnerStore = create<PartnerStore>()(
             categorias_servico: profile.serviceCategories,
             titulo_perfil: profile.title,
             descricao_curta: profile.shortDescription,
-            descricao_completa: profile.about,
+            
             logo: profile.logo,
             galeria: profile.gallery,
             video_url: profile.videoUrl,
@@ -286,7 +286,7 @@ export const usePartnerStore = create<PartnerStore>()(
               whatsapp: p.whatsapp || '',
               type: p.tipo,
               businessName: p.nome_empresa || p.nome,
-              about: (p as any).descricao_completa || p.sobre || '',
+              about: p.sobre || '',
               coverImage: p.foto_capa || '',
               cityBase: p.cidade_base || '',
               state: p.estado || '',
