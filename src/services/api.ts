@@ -167,7 +167,7 @@ export async function apiUpdateProfile(
     categorias_servico?: string[];
     titulo_perfil?: string;
     descricao_curta?: string;
-    descricao_completa?: string;
+    
     logo?: string;
     galeria?: string[];
     video_url?: string;
