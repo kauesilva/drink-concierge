@@ -149,7 +149,7 @@ export const usePartnerStore = create<PartnerStore>()(
             categorias_servico: profile.serviceCategories,
             titulo_perfil: profile.title,
             descricao_curta: profile.shortDescription,
-            descricao_completa: profile.about,
+            
             logo: profile.logo,
             galeria: profile.gallery,
             video_url: profile.videoUrl,
