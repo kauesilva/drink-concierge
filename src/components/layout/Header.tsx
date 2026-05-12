@@ -56,6 +56,14 @@ const Header = () => {
             >
               Orçamento
             </Link>
+            <Link
+              to="/parceiros"
+              className={`text-sm font-medium transition-colors ${
+                location.pathname.startsWith('/parceiros') ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              Encontre seu Bartender
+            </Link>
             <a
               href="#como-funciona"
               onClick={handleComoFunciona}
@@ -126,6 +134,9 @@ const Header = () => {
                 </Link>
                 <Link to="/orcamento" onClick={() => setIsMenuOpen(false)} className="text-base font-medium text-foreground py-2.5 px-3 rounded-lg hover:bg-secondary transition-colors">
                   Pedir Orçamento
+                </Link>
+                <Link to="/parceiros" onClick={() => setIsMenuOpen(false)} className="text-base font-medium text-foreground py-2.5 px-3 rounded-lg hover:bg-secondary transition-colors">
+                  Encontre seu Bartender
                 </Link>
                 <a href="#como-funciona" onClick={handleComoFunciona} className="text-base font-medium text-foreground py-2.5 px-3 rounded-lg hover:bg-secondary transition-colors cursor-pointer">
                   Como Funciona

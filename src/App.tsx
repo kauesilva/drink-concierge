@@ -21,6 +21,8 @@ import PartnerPackagesPage from "./pages/partner/PartnerPackagesPage";
 import PartnerLeadsPage from "./pages/partner/PartnerLeadsPage";
 import AdminLoginPage from "./pages/admin/AdminLoginPage";
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
+import PartnersDirectoryPage from "./pages/PartnersDirectoryPage";
+import PartnerPublicProfilePage from "./pages/PartnerPublicProfilePage";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +37,8 @@ const App = () => (
           <Route path="/login" element={<LoginPage />} />
           <Route path="/cadastro" element={<RegisterPage />} />
           <Route path="/orcamento" element={<QuotePage />} />
+          <Route path="/parceiros" element={<PartnersDirectoryPage />} />
+          <Route path="/parceiros/:partnerId" element={<PartnerPublicProfilePage />} />
           <Route path="/resultados" element={<ResultsPage />} />
           <Route path="/empresas/:companyId" element={<CompanyDetailPage />} />
           <Route path="/empresas/:companyId/cardapios/:menuId" element={<MenuDetailPage />} />
