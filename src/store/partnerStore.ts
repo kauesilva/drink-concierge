@@ -11,7 +11,7 @@ import {
   type ApiParceiro,
 } from '@/services/api';
 
-import type { CoverageArea, ServiceCategory } from '@/types';
+import type { CoverageArea, ServiceCategory, PartnerSocials } from '@/types';
 
 export interface DrinkPackage {
   id: string;
@@ -30,7 +30,7 @@ export interface DrinkPackage {
 }
 
 export interface PartnerProfile {
-  apiId?: number; // ID no banco MySQL
+  apiId?: number;
   name: string;
   email: string;
   whatsapp: string;
@@ -44,6 +44,15 @@ export interface PartnerProfile {
   serviceCategories: ServiceCategory[];
   rating: number;
   totalReviews: number;
+  // novos campos da vitrine
+  title: string;
+  shortDescription: string;
+  logo: string;
+  gallery: string[];
+  videoUrl: string;
+  differentials: string[];
+  socials: PartnerSocials;
+  showContact: boolean;
 }
 
 interface PartnerStore {
@@ -77,6 +86,14 @@ const defaultProfile: PartnerProfile = {
   serviceCategories: [],
   rating: 0,
   totalReviews: 0,
+  title: '',
+  shortDescription: '',
+  logo: '',
+  gallery: [],
+  videoUrl: '',
+  differentials: [],
+  socials: {},
+  showContact: false,
 };
 
 export const usePartnerStore = create<PartnerStore>()(
