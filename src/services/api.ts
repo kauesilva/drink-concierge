@@ -1,7 +1,7 @@
 import { useAuthStore } from '@/store/authStore';
 import { useAdminStore } from '@/store/adminStore';
 
-const API_BASE = 'https://bartenderstore.com.br/servicos/api.php';
+const API_BASE = 'https://bartenderstore.com.br/servicos/api_v2.php';
 const UPLOAD_ENDPOINT = 'https://bartenderstore.com.br/servicos/uploads.php';
 
 /**
