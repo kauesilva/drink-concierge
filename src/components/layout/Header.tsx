@@ -4,12 +4,20 @@ import { Menu, X, Wine, LogIn } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/store/authStore';
+import { usePartnerStore } from '@/store/partnerStore';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { isAuthenticated, user, logout } = useAuthStore();
+  const { isAuthenticated, user, logout: authLogout } = useAuthStore();
+  const partnerLogout = usePartnerStore((s) => s.logout);
+
+  const logout = () => {
+    authLogout();
+    partnerLogout();
+    navigate('/', { replace: true });
+  };
 
   const handleComoFunciona = (e: React.MouseEvent) => {
     e.preventDefault();
