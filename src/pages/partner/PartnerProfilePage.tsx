@@ -111,7 +111,11 @@ const PartnerProfilePage = () => {
             </div>
           )}
           <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/20 transition-colors flex items-center justify-center">
-            <Camera className="w-6 h-6 text-background opacity-0 group-hover:opacity-100 transition-opacity" />
+            {uploading ? (
+              <span className="text-sm font-medium text-background bg-foreground/60 px-3 py-1 rounded">Enviando...</span>
+            ) : (
+              <Camera className="w-6 h-6 text-background opacity-0 group-hover:opacity-100 transition-opacity" />
+            )}
           </div>
           <input
             ref={fileRef}
