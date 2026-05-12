@@ -18,8 +18,8 @@ const Footer = () => {
   };
 
   return (
-    <footer className="border-t border-border">
-      <div className="container mx-auto px-6 py-16 md:py-20 bg-zinc-200">
+    <footer className="border-t border-border bg-zinc-200">
+      <div className="container mx-auto px-6 py-16 md:py-20">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12">
           {/* Brand */}
           <div className="md:col-span-5">
