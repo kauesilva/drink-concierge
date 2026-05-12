@@ -109,9 +109,16 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       logout: () => {
-        set({ user: null, token: null, isAuthenticated: false });
-        // Limpar store do parceiro também
-        localStorage.removeItem('bartender-partner');
+        set({ user: null, token: null, isAuthenticated: false, loading: false });
+        // Limpar storages persistidos para garantir que nenhum estado antigo
+        // (parceiro/admin/auth) reapareça após o logout.
+        try {
+          localStorage.removeItem('bartender-partner');
+          localStorage.removeItem('bartender-auth');
+          localStorage.removeItem('bartender-admin');
+        } catch {
+          // ignore
+        }
       },
 
       setLoading: (v) => set({ loading: v }),
