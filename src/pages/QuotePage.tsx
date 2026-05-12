@@ -16,6 +16,7 @@ import imgComemoracao from '@/assets/events/comemoracao.jpg';
 import img15Anos from '@/assets/events/15-anos.jpg';
 import imgAtivacao from '@/assets/events/ativacao-marca.jpg';
 import imgFreelancer from '@/assets/events/freelancer-bar.jpg';
+import imgOutro from '@/assets/events/outro.jpg';
 
 const EVENT_IMAGES: Record<string, string> = {
   'casamento': imgCasamento,
@@ -25,6 +26,7 @@ const EVENT_IMAGES: Record<string, string> = {
   '15-anos': img15Anos,
   'ativacao-marca': imgAtivacao,
   'freelancer-bar': imgFreelancer,
+  'outro': imgOutro,
 };
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -197,7 +199,7 @@ const QuotePage = () => {
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     {eventTypes.map((event) => (
                       <button
                         key={event.value}
