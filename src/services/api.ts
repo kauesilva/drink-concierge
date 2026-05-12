@@ -165,6 +165,18 @@ export async function apiUpdateProfile(
     email?: string;
     areas_atendidas?: string[];
     categorias_servico?: string[];
+    titulo_perfil?: string;
+    descricao_curta?: string;
+    descricao_completa?: string;
+    logo?: string;
+    galeria?: string[];
+    video_url?: string;
+    diferenciais?: string[];
+    instagram?: string;
+    facebook?: string;
+    tiktok?: string;
+    site?: string;
+    telefone_publico?: number;
   }
 ): Promise<{ message: string }> {
   return request('update_profile', {
@@ -172,6 +184,22 @@ export async function apiUpdateProfile(
     body: JSON.stringify({ parceiro_id: parceiroId, ...data }),
     token: getAuthToken(),
   });
+}
+
+export async function apiListPublicPartners(filters?: {
+  cidade?: string;
+  estado?: string;
+  categoria?: string;
+}): Promise<ApiParceiro[]> {
+  const params: Record<string, string> = {};
+  if (filters?.cidade) params.cidade = filters.cidade;
+  if (filters?.estado) params.estado = filters.estado;
+  if (filters?.categoria) params.categoria = filters.categoria;
+  return request('list_public_partners', { params });
+}
+
+export async function apiGetPublicPartner(id: number): Promise<ApiParceiro> {
+  return request('get_public_partner', { params: { id: String(id) } });
 }
 
 export async function apiGetProfile(id: number): Promise<ApiParceiro> {

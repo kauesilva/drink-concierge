@@ -11,7 +11,7 @@ import {
   type ApiParceiro,
 } from '@/services/api';
 
-import type { CoverageArea, ServiceCategory } from '@/types';
+import type { CoverageArea, ServiceCategory, PartnerSocials } from '@/types';
 
 export interface DrinkPackage {
   id: string;
@@ -30,7 +30,7 @@ export interface DrinkPackage {
 }
 
 export interface PartnerProfile {
-  apiId?: number; // ID no banco MySQL
+  apiId?: number;
   name: string;
   email: string;
   whatsapp: string;
@@ -44,6 +44,15 @@ export interface PartnerProfile {
   serviceCategories: ServiceCategory[];
   rating: number;
   totalReviews: number;
+  // novos campos da vitrine
+  title: string;
+  shortDescription: string;
+  logo: string;
+  gallery: string[];
+  videoUrl: string;
+  differentials: string[];
+  socials: PartnerSocials;
+  showContact: boolean;
 }
 
 interface PartnerStore {
@@ -77,6 +86,14 @@ const defaultProfile: PartnerProfile = {
   serviceCategories: [],
   rating: 0,
   totalReviews: 0,
+  title: '',
+  shortDescription: '',
+  logo: '',
+  gallery: [],
+  videoUrl: '',
+  differentials: [],
+  socials: {},
+  showContact: false,
 };
 
 export const usePartnerStore = create<PartnerStore>()(
@@ -130,6 +147,18 @@ export const usePartnerStore = create<PartnerStore>()(
             email: profile.email,
             areas_atendidas: profile.areasServed,
             categorias_servico: profile.serviceCategories,
+            titulo_perfil: profile.title,
+            descricao_curta: profile.shortDescription,
+            descricao_completa: profile.about,
+            logo: profile.logo,
+            galeria: profile.gallery,
+            video_url: profile.videoUrl,
+            diferenciais: profile.differentials,
+            instagram: profile.socials?.instagram,
+            facebook: profile.socials?.facebook,
+            tiktok: profile.socials?.tiktok,
+            site: profile.socials?.site,
+            telefone_publico: profile.showContact ? 1 : 0,
           });
         } catch (err) {
           console.error('Erro ao sincronizar perfil:', err);
@@ -257,7 +286,7 @@ export const usePartnerStore = create<PartnerStore>()(
               whatsapp: p.whatsapp || '',
               type: p.tipo,
               businessName: p.nome_empresa || p.nome,
-              about: p.sobre || '',
+              about: (p as any).descricao_completa || p.sobre || '',
               coverImage: p.foto_capa || '',
               cityBase: p.cidade_base || '',
               state: p.estado || '',
@@ -265,6 +294,19 @@ export const usePartnerStore = create<PartnerStore>()(
               serviceCategories: (p.categorias_servico as any) || [],
               rating: Number(p.avaliacao) || 0,
               totalReviews: Number(p.total_avaliacoes) || 0,
+              title: (p as any).titulo_perfil || '',
+              shortDescription: (p as any).descricao_curta || '',
+              logo: (p as any).logo || '',
+              gallery: (p as any).galeria || [],
+              videoUrl: (p as any).video_url || '',
+              differentials: (p as any).diferenciais || [],
+              socials: {
+                instagram: (p as any).instagram || '',
+                facebook: (p as any).facebook || '',
+                tiktok: (p as any).tiktok || '',
+                site: (p as any).site || '',
+              },
+              showContact: !!(p as any).telefone_publico,
             },
           }));
           await get().syncPackages();

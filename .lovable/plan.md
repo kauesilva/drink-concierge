@@ -1,64 +1,123 @@
-# Teste de ponta a ponta: cadastro de parceiro → consulta de pacotes via briefing
 
-Objetivo: validar fluxo completo no preview, identificar erros (já há um conhecido: `get_partner_leads` retorna "Ação inválida") e mapear correções.
+# Vitrine de Parceiros + Perfil Público + Painel Expandido
 
-## Erros já detectados pelos logs
+Transformar o perfil do parceiro em uma vitrine comercial dentro da plataforma, com nova página pública, página de detalhe profissional e edição completa no painel.
 
-1. `**GET get_partner_leads` → 400 "Ação inválida"** (em `/parceiro/leads`). O backend `api.php` não reconhece a action. Precisa ser corrigido no backend OU o frontend deve usar a action correta.
-2. **Pacote existente (id 3) sem `cobertura`, `categoria_servico`, `maximo_pessoas`, `tipos_evento**` na resposta de `get_packages`. Significa que o backend ainda não persiste esses campos novos — todo match cairá no fallback (sem categoria → não bate filtro obrigatório de `serviceCategory`, então o pacote some dos resultados).
-3. **Parceiro id 12 sem `cidade_base`/`estado`/`categorias_servico**` preenchidos — perfil incompleto.
+## 1. Modelo de dados (PHP/MySQL)
 
-## Plano de execução do teste
+Adicionar novos campos em `parceiros` (via `api.php`/SQL no servidor):
 
-### Fase 1 — Cadastro/Setup do parceiro (browser automation)
+- `titulo_perfil` VARCHAR(150) — título de apresentação
+- `descricao_curta` VARCHAR(300)
+- `logo` VARCHAR(255) — URL do logo/imagem principal
+- `galeria` JSON — array de até 5 URLs
+- `video_url` VARCHAR(500) — link de 1 vídeo (YouTube/Vimeo/MP4)
+- `diferenciais` JSON — array de strings
+- `instagram`, `facebook`, `tiktok`, `site` VARCHAR(255)
+- `telefone_publico` TINYINT(1) — se permite exibir contato
+- `publicado` TINYINT(1) — calculado/flag de visibilidade
 
-1. `navigate_to_sandbox /login`, logar como `empresa2@empresa2.com.br / 123456` (já existente).
-2. Ir em `/parceiro/perfil`: preencher cidade base SP/São Paulo, escolher categorias de serviço, salvar. Capturar request `update_profile` (payload + status).
-3. Ir em `/parceiro/pacotes`: criar pacote "Teste E2E" com:
-  - categoria: serviço completo
-  - min 20 / max 100 pessoas
-  - cobertura: SP → [São Paulo, Campinas]
-  - tipos de evento: casamento, corporativo
-  - preço/duração quaisquer
-   Capturar request `add_package`.
-4. Recarregar `/parceiro/pacotes` → confirmar via `get_packages` se os novos campos voltaram persistidos.
+Novas actions no `api.php`:
 
-### Fase 2 — Consulta como cliente
+- `list_public_partners` — retorna apenas parceiros com perfil mínimo completo (nome, ao menos 1 categoria, cidade/estado, descrição curta, ao menos 1 foto — capa ou galeria)
+- `get_public_partner` — devolve o perfil público (sem email/whatsapp se `telefone_publico=0`)
+- `update_profile` estendido para os novos campos
 
-5. `navigate_to_sandbox /orcamento`, preencher briefing: serviço completo, casamento, 30 pessoas, São Paulo/SP, data futura.
-6. Ir até `/resultados`. Capturar requests `list_companies` + `get_packages` para cada empresa.
-7. Verificar se a empresa do parceiro aparece e se o pacote de teste é listado como compatível.
-8. Abrir detalhe da empresa, conferir badge "Compatível".
+> Observação: o usuário precisa criar/ajustar essas colunas e actions no backend PHP. O frontend será preparado para consumir esses campos.
 
-### Fase 3 — Rastreio e diagnóstico
+## 2. Frontend — Tipos e API client
 
-Para cada falha observada, registrar:
+`src/types/index.ts`: estender `PartnerProfile` (e tipos relacionados) com:
+`title`, `shortDescription`, `logo`, `gallery: string[]`, `videoUrl`, `differentials: string[]`, `socials: { instagram?, facebook?, tiktok?, site? }`, `showContact: boolean`.
 
-- URL/action chamada, payload enviado, resposta do backend.
-- Onde no código frontend a falha se origina (ex.: mapper em `useCompanies.mapPackageToMenu`, filtros em `useMatchingPackages`, validações em `PartnerPackagesPage`).
-- Causa provável: backend não persiste / frontend envia campo errado / matching descarta indevidamente.
+`src/services/api.ts`:
+- `apiListPublicPartners(filters?)` → `list_public_partners`
+- `apiGetPublicPartner(id)` → `get_public_partner`
+- Estender `apiUpdateProfile` com os novos campos.
 
-### Fase 4 — Relatório
+`src/store/partnerStore.ts`: incluir os novos campos em `defaultProfile`, `loadFromApi` e `syncProfile`.
 
-Entregar tabela com: passo, esperado, obtido, causa raiz, correção sugerida (frontend vs backend `api.php`).
+## 3. Nova rota e item no menu
 
-## Hipóteses já formuladas (a confirmar no teste)
+- Adicionar rota `/parceiros` → `PartnersDirectoryPage` em `src/App.tsx`.
+- Adicionar rota `/parceiros/:id` → `PartnerPublicProfilePage`.
+- Em `src/components/layout/Header.tsx`: incluir item **"Encontre seu Bartender"** no nav desktop e mobile, entre "Orçamento" e "Como funciona".
 
-- `add_package` provavelmente ignora `cobertura`, `maximo_pessoas`, `categoria_servico`, `tipos_evento` → pacote nunca passa nos filtros obrigatórios de matching → resultados sempre vazios.
-- `get_partner_leads` action ausente no backend → painel de leads quebrado.
-- `update_profile` pode não persistir `categorias_servico`/`areas_atendidas` estruturado.
+## 4. Página `Encontre seu Bartender` (`src/pages/PartnersDirectoryPage.tsx`)
 
-## O que NÃO faço neste plano
+- Hero curto + filtros: estado/cidade (`StateCitySelect`), categoria de serviço (mão de obra / serviço completo / consultoria).
+- Grid responsivo de cards (2 col mobile / 3-4 col desktop), cada card com: logo ou foto principal, nome, badges de categorias, cidade/estado, descrição curta, botão **Ver perfil** → `/parceiros/:id`.
+- Empty state quando não houver parceiros com perfil completo.
+- Componente reutilizável `PartnerCard` em `src/components/partners/PartnerCard.tsx`.
 
-- Não altero `api.php` (fora do projeto Lovable). Para correções no backend, listo o que precisa mudar mas a aplicação é manual pelo usuário.
-- Não mexo em auth, pagamentos ou layout.
+## 5. Página pública do perfil (`src/pages/PartnerPublicProfilePage.tsx`)
 
-## Saída esperada
+Layout em seções:
 
-Relatório em chat com:
+```text
+[ Capa + logo + nome + título + cidade ]
+[ Botões: Solicitar orçamento  |  WhatsApp (se showContact) ]
+[ Sobre / descrição completa ]
+[ Diferenciais (lista com ícones) ]
+[ Galeria (grid até 5 fotos, lightbox simples) ]
+[ Vídeo de apresentação (embed YouTube/Vimeo ou <video>) ]
+[ Tipos de serviço + Regiões atendidas ]
+[ Redes sociais + contato (se permitido) ]
+```
 
-1. Lista de bugs confirmados + reprodução.
-2. Para cada um: correção no frontend (quando possível) ou gere o arquivo `api.php`completo.
-3. Recomendação de próximos passos priorizados.
+- "Solicitar orçamento" leva a `/orcamento` pré-preenchendo a categoria do parceiro (via querystring/quoteStore).
+- Animações sutis com framer-motion; respeitar tokens do design system.
 
-Aprovando, executo o teste no browser e devolvo o diagnóstico.
+## 6. Painel do parceiro — `Meu Perfil` expandido
+
+Reescrever `src/pages/partner/PartnerProfilePage.tsx` em seções (ou tabs):
+
+1. **Identidade**: logo (upload via `apiUploadImage`), nome da empresa, título do perfil, descrição curta, descrição completa.
+2. **Serviços e atendimento**: categorias (já existe), estado/cidade base, áreas atendidas.
+3. **Mídia**: foto de capa (já existe), galeria com até 5 fotos (upload, reorder simples, remover), 1 vídeo (URL).
+4. **Diferenciais**: lista editável (input + chips, mesmo padrão das áreas).
+5. **Contato e redes**: WhatsApp, email, Instagram, Facebook, TikTok, site, switch "Exibir contato no perfil público".
+6. **Status de publicação**: card com checklist do mínimo necessário; se incompleto, exibir aviso amarelo:
+   *"Complete seu perfil para aparecer na vitrine pública da plataforma."*
+   Listar quais campos estão faltando.
+
+Manter botão único **Salvar Perfil** que dispara `syncProfile` com todos os campos.
+
+## 7. Regra de publicação
+
+Helper `isPartnerPublishable(profile)` em `src/lib/partners.ts` validando:
+nome, ≥1 categoria, estado+cidade base, descrição curta, ≥1 imagem (capa ou galeria).
+
+- Backend filtra em `list_public_partners`.
+- Frontend usa o mesmo helper para o aviso no painel e para esconder/ocultar botões.
+
+## 8. Detalhes técnicos
+
+- Uploads continuam via `apiUploadImage` (endpoint já existente em `bartenderstore.com.br/servicos/uploads.php`).
+- Galeria: array de URLs salvas no perfil; UI permite adicionar até 5 e remover.
+- Vídeo: aceitar URL YouTube/Vimeo; helper para extrair embed; fallback `<video src>` se for `.mp4`.
+- Sem mudanças em autenticação, pagamentos ou lógica de matching existente.
+- Manter design minimalista premium (Space Grotesk display, Inter body, CTA dourado).
+
+## 9. Arquivos a criar/editar
+
+Novos:
+- `src/pages/PartnersDirectoryPage.tsx`
+- `src/pages/PartnerPublicProfilePage.tsx`
+- `src/components/partners/PartnerCard.tsx`
+- `src/components/partners/GalleryUploader.tsx`
+- `src/components/partners/VideoEmbed.tsx`
+- `src/lib/partners.ts`
+
+Editados:
+- `src/App.tsx` (rotas)
+- `src/components/layout/Header.tsx` (novo link)
+- `src/types/index.ts`
+- `src/services/api.ts`
+- `src/store/partnerStore.ts`
+- `src/pages/partner/PartnerProfilePage.tsx`
+
+Backend (você precisa aplicar no servidor PHP/MySQL):
+- Migration adicionando colunas em `parceiros`
+- Novas actions `list_public_partners` e `get_public_partner` em `api.php`
+- Extensão da action `update_profile`
