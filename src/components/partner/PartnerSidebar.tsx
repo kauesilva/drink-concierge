@@ -14,6 +14,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { usePartnerStore } from '@/store/partnerStore';
+import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/ui/button';
 
 const items = [
@@ -28,6 +29,7 @@ export function PartnerSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { profile, logout } = usePartnerStore();
+  const authLogout = useAuthStore((s) => s.logout);
 
   return (
     <Sidebar collapsible="icon" className="border-r border-border/40">
@@ -76,7 +78,8 @@ export function PartnerSidebar() {
           className="w-full justify-start text-muted-foreground"
           onClick={() => {
             logout();
-            navigate('/');
+            authLogout();
+            navigate('/', { replace: true });
           }}
         >
           <LogOut className="mr-2 h-4 w-4" />
