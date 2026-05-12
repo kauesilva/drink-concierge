@@ -1,5 +1,12 @@
 export type ServiceCategory = 'mao-de-obra' | 'servico-completo' | 'consultoria';
 
+export interface PartnerSocials {
+  instagram?: string;
+  facebook?: string;
+  tiktok?: string;
+  site?: string;
+}
+
 export interface CoverageArea {
   state: string; // UF
   cities: string[];
