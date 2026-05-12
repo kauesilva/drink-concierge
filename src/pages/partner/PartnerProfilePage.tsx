@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { usePartnerStore } from '@/store/partnerStore';
 import { toast } from '@/hooks/use-toast';
+import { apiUploadImage } from '@/services/api';
 import StateCitySelect from '@/components/shared/StateCitySelect';
 import { serviceCategories } from '@/data/mockData';
 import type { ServiceCategory } from '@/types';
@@ -26,12 +27,26 @@ const PartnerProfilePage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile.apiId]);
 
-  const handleCoverUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [uploading, setUploading] = useState(false);
+
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => setForm({ ...form, coverImage: reader.result as string });
-    reader.readAsDataURL(file);
+    if (!file.type.startsWith('image/')) {
+      toast({ title: 'Selecione um arquivo de imagem', variant: 'destructive' });
+      return;
+    }
+    setUploading(true);
+    try {
+      const { url } = await apiUploadImage(file);
+      setForm((prev) => ({ ...prev, coverImage: url }));
+      toast({ title: 'Imagem enviada', description: 'Lembre de salvar o perfil para confirmar.' });
+    } catch (err: any) {
+      toast({ title: 'Falha no upload', description: err?.message || 'Tente novamente.', variant: 'destructive' });
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = '';
+    }
   };
 
   const addArea = () => {

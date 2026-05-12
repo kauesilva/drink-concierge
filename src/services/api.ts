@@ -2,6 +2,22 @@ import { useAuthStore } from '@/store/authStore';
 import { useAdminStore } from '@/store/adminStore';
 
 const API_BASE = 'https://bartenderstore.com.br/servicos/api.php';
+const UPLOAD_ENDPOINT = 'https://bartenderstore.com.br/servicos/uploads.php';
+
+/**
+ * Faz upload de uma imagem e retorna a URL pública servida em
+ * https://bartenderstore.com.br/servicos/uploads/<arquivo>
+ */
+export async function apiUploadImage(file: File): Promise<{ url: string; filename: string }> {
+  const fd = new FormData();
+  fd.append('file', file);
+  const res = await fetch(UPLOAD_ENDPOINT, { method: 'POST', body: fd });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(data?.error || `Falha no upload (${res.status})`);
+  }
+  return data;
+}
 
 function getAuthToken(): string | null {
   try {
