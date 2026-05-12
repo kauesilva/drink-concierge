@@ -9,6 +9,23 @@ import { Label } from '@/components/ui/label';
 import ProgressSteps from '@/components/shared/ProgressSteps';
 import { useQuoteStore } from '@/store/quoteStore';
 import { eventTypes, serviceCategories } from '@/data/mockData';
+import imgCasamento from '@/assets/events/casamento.jpg';
+import imgAniversario from '@/assets/events/aniversario.jpg';
+import imgCorporativo from '@/assets/events/corporativo.jpg';
+import imgComemoracao from '@/assets/events/comemoracao.jpg';
+import img15Anos from '@/assets/events/15-anos.jpg';
+import imgAtivacao from '@/assets/events/ativacao-marca.jpg';
+import imgFreelancer from '@/assets/events/freelancer-bar.jpg';
+
+const EVENT_IMAGES: Record<string, string> = {
+  'casamento': imgCasamento,
+  'aniversario': imgAniversario,
+  'corporativo': imgCorporativo,
+  'comemoracao': imgComemoracao,
+  '15-anos': img15Anos,
+  'ativacao-marca': imgAtivacao,
+  'freelancer-bar': imgFreelancer,
+};
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
@@ -180,22 +197,31 @@ const QuotePage = () => {
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {eventTypes.map((event) => (
                       <button
                         key={event.value}
                         onClick={() => handleEventTypeSelect(event.value)}
                         className={cn(
-                          'p-4 rounded-xl border-2 text-left transition-all duration-200',
+                          'group relative overflow-hidden rounded-2xl border-2 text-left transition-all duration-300',
                           briefing.eventType === event.value
-                            ? 'border-primary bg-primary/5 shadow-gold'
-                            : 'border-border hover:border-primary/50 hover:bg-secondary/50'
+                            ? 'border-primary shadow-gold'
+                            : 'border-border hover:border-primary/50'
                         )}
                       >
-                        <span className="text-2xl mb-2 block">{event.icon}</span>
-                        <span className="font-medium text-foreground">{event.label}</span>
+                        <div className="aspect-square overflow-hidden bg-muted">
+                          <img
+                            src={EVENT_IMAGES[event.value]}
+                            alt={event.label}
+                            loading="lazy"
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                          />
+                        </div>
+                        <p className="text-sm font-medium text-foreground py-3 px-2 text-center">{event.label}</p>
                         {briefing.eventType === event.value && (
-                          <Check className="w-5 h-5 text-primary absolute top-3 right-3" />
+                          <span className="absolute top-2 right-2 w-7 h-7 rounded-full bg-primary flex items-center justify-center shadow-gold">
+                            <Check className="w-4 h-4 text-primary-foreground" />
+                          </span>
                         )}
                       </button>
                     ))}
