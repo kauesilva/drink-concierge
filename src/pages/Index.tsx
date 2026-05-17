@@ -26,6 +26,7 @@ import imgFreelancer from '@/assets/events/freelancer-bar.jpg';
 import imgMaoDeObra from '@/assets/services/mao-de-obra.jpg';
 import imgServicoCompleto from '@/assets/services/servico-completo.jpg';
 import imgConsultoria from '@/assets/services/consultoria.jpg';
+import statsBartender from '@/assets/stats-bartender.jpg';
 
 const EVENT_IMAGES: Record<string, string> = {
   'casamento': imgCasamento,
@@ -239,23 +240,49 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Stats band */}
-      <section className="border-y border-border bg-secondary/30">
-        <div className="container py-12 md:py-16">
-          <div className="grid grid-cols-3 gap-8">
+      {/* Stats band — imersivo com foto de fundo */}
+      <section className="relative overflow-hidden border-y border-primary/15">
+        {/* Imagem de fundo */}
+        <img
+          src={statsBartender}
+          alt=""
+          aria-hidden="true"
+          loading="lazy"
+          decoding="async"
+          className="absolute inset-0 w-full h-full object-cover object-center md:[background-attachment:fixed]"
+        />
+        {/* Overlays — escurece para contraste mas mantém a foto legível */}
+        <div className="absolute inset-0 bg-black/65" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-black/40 to-background/90" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.12)_0%,transparent_60%)]" />
+
+        <div className="container relative z-10 py-20 md:py-28">
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-xs md:text-sm font-semibold text-primary uppercase tracking-[0.2em] text-center mb-10 md:mb-14"
+          >
+            Resultados que falam por si
+          </motion.p>
+
+          <div className="grid grid-cols-3 gap-4 md:gap-8 md:divide-x md:divide-white/10">
             {stats.map((stat, i) =>
-            <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              className="text-center">
-              
-                <p className="font-display text-3xl md:text-5xl font-bold text-foreground mb-1">
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 24, scale: 0.96 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.12, duration: 0.6, ease: 'easeOut' }}
+                className="text-center px-2 md:px-4"
+              >
+                <p className="font-display text-4xl md:text-6xl font-bold text-white mb-3 tracking-tight">
                   {stat.value}
                 </p>
-                <p className="text-sm text-muted-foreground">{stat.label}</p>
+                <div className="h-px w-8 bg-primary mx-auto mb-3" />
+                <p className="text-xs md:text-sm text-white/75 uppercase tracking-wider">
+                  {stat.label}
+                </p>
               </motion.div>
             )}
           </div>
