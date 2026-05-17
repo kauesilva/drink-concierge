@@ -1,11 +1,13 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Users, MapPin, Calendar, Loader2, Sparkles } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import CompanyCard from '@/components/companies/CompanyCard';
+import PackageResultCard from '@/components/menus/PackageResultCard';
 import { useQuoteStore } from '@/store/quoteStore';
 import { eventTypes } from '@/data/mockData';
 import { useMatchingPackages } from '@/hooks/useCompanies';
