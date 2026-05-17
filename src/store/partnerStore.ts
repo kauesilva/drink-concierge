@@ -195,6 +195,8 @@ export const usePartnerStore = create<PartnerStore>()(
               categoria_servico: pkg.serviceCategory,
               cobertura: pkg.coverage,
               tipos_evento: pkg.eventTypes,
+              foto_capa: pkg.coverImage,
+              galeria: pkg.gallery,
             });
             set((s) => ({
               packages: s.packages.map((p) =>
