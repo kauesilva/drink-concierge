@@ -1,8 +1,17 @@
+import { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, CheckCircle, Star, Sparkles, Zap, Shield, Users } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import RotatingHeadline from '@/components/RotatingHeadline';
+import heroDrinks from '@/assets/hero/drinks.jpg';
+import heroBartender from '@/assets/hero/bartender.jpg';
+import heroConsultor from '@/assets/hero/consultor.jpg';
+import heroCasamento from '@/assets/hero/casamento.jpg';
+
+// Mesma ordem das palavras em RotatingHeadline:
+// ['bar de drinks', 'bartender', 'consultor de bar', 'bar de casamento', 'bar não alcoólico']
+const HERO_IMAGES = [heroDrinks, heroBartender, heroConsultor, heroCasamento, heroDrinks];
 import { Button } from '@/components/ui/button';
 import { eventTypes, serviceCategories } from '@/data/mockData';
 import imgCasamento from '@/assets/events/casamento.jpg';
