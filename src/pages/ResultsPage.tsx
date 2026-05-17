@@ -18,7 +18,8 @@ import { ptBR } from 'date-fns/locale';
 const ResultsPage = () => {
   const navigate = useNavigate();
   const { briefing } = useQuoteStore();
-  const [viewMode, setViewMode] = useState<'empresas' | 'pacotes'>('empresas');
+  const [viewMode, setViewMode] = useState<'empresas' | 'pacotes'>('pacotes');
+  const [sortBy, setSortBy] = useState<'match' | 'price' | 'rating'>('match');
   useEffect(() => {
     if (!briefing.eventType || !briefing.people) {
       navigate('/orcamento');
