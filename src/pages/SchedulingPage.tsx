@@ -13,16 +13,18 @@ import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
+const TRAVEL_FEE = 150;
+
 const SchedulingPage = () => {
   const navigate = useNavigate();
-  const { briefing, selectedCompanyId, selectedMenuId } = useQuoteStore();
+  const { briefing, selectedCompanyId, selectedMenuIds } = useQuoteStore();
   const [observations, setObservations] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
   const { data: company, isLoading: lc } = useCompanyDetail(selectedCompanyId || undefined);
   const { data: menus, isLoading: lm } = useCompanyMenus(selectedCompanyId || undefined);
-  const menu = menus?.find(m => m.id === selectedMenuId);
+  const selectedMenus = (menus || []).filter((m) => selectedMenuIds.includes(m.id));
 
   if (lc || lm) {
     return (
@@ -34,22 +36,32 @@ const SchedulingPage = () => {
     );
   }
 
-  if (!company || !menu) {
+  if (!company || selectedMenus.length === 0) {
     navigate('/resultados');
     return null;
   }
 
   const people = briefing.people || 50;
-  const baseTotal = menu.pricePerPerson * people;
-  const travelFee = 150;
-  const estimatedTotal = baseTotal + travelFee;
+  const baseTotal = selectedMenus.reduce((acc, m) => acc + m.pricePerPerson * people, 0);
+  const estimatedTotal = baseTotal + TRAVEL_FEE;
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
+      const packagesSummary = selectedMenus
+        .map((m) => `- ${m.name} (R$ ${m.pricePerPerson}/pessoa)`)
+        .join('\n');
+      const composedObservations = [
+        `Pacotes solicitados (${selectedMenus.length}):`,
+        packagesSummary,
+        observations ? `\nObservações do cliente:\n${observations}` : '',
+      ]
+        .filter(Boolean)
+        .join('\n');
+
       await apiCreateLead({
         parceiro_id: Number(selectedCompanyId),
-        pacote_id: Number(selectedMenuId),
+        pacote_id: Number(selectedMenus[0].id),
         tipo_evento: briefing.eventType || '',
         quantidade_pessoas: people,
         cidade: briefing.city || '',
@@ -60,7 +72,7 @@ const SchedulingPage = () => {
         nome_cliente: briefing.clientName || '',
         whatsapp: briefing.whatsapp || '',
         email: briefing.email || '',
-        observacoes: observations || undefined,
+        observacoes: composedObservations,
         valor_estimado: estimatedTotal,
       });
       navigate('/confirmacao');
@@ -96,12 +108,24 @@ const SchedulingPage = () => {
               <div className="w-16 h-16 rounded-lg bg-muted flex-shrink-0 overflow-hidden">
                 <img src={company.image} alt={company.name} className="w-full h-full object-cover" />
               </div>
-              <div>
-                <h2 className="font-display text-lg font-semibold text-foreground">{company.name}</h2>
-                <p className="text-sm text-muted-foreground">Cardápio: {menu.name}</p>
+              <div className="min-w-0">
+                <h2 className="font-display text-lg font-semibold text-foreground truncate">{company.name}</h2>
+                <p className="text-sm text-muted-foreground">
+                  {selectedMenus.length} pacote{selectedMenus.length > 1 ? 's' : ''} selecionado{selectedMenus.length > 1 ? 's' : ''}
+                </p>
               </div>
             </div>
-            <div className="flex justify-between text-lg">
+            <ul className="space-y-2 mb-4">
+              {selectedMenus.map((m) => (
+                <li key={m.id} className="flex justify-between items-center text-sm">
+                  <span className="text-foreground">{m.name}</span>
+                  <span className="text-muted-foreground">
+                    R$ {(m.pricePerPerson * people).toLocaleString('pt-BR')}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <div className="flex justify-between text-lg pt-3 border-t border-border/50">
               <span className="text-muted-foreground">Total estimado</span>
               <span className="font-bold text-primary">R$ {estimatedTotal.toLocaleString('pt-BR')}</span>
             </div>

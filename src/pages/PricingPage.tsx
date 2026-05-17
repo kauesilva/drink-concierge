@@ -1,4 +1,5 @@
 import { Link, useParams, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Check, Calendar, MapPin, Users, Clock, Loader2 } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
@@ -8,14 +9,24 @@ import { useQuoteStore } from '@/store/quoteStore';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
+const TRAVEL_FEE = 150;
+
 const PricingPage = () => {
   const { companyId, menuId } = useParams();
   const navigate = useNavigate();
-  const { briefing } = useQuoteStore();
+  const { briefing, selectedCompanyId, selectedMenuIds, addMenuToSelection } = useQuoteStore();
 
   const { data: company, isLoading: lc } = useCompanyDetail(companyId);
   const { data: menus, isLoading: lm } = useCompanyMenus(companyId);
-  const menu = menus?.find(m => m.id === menuId);
+
+  // Garante que o pacote vindo da URL faça parte da seleção
+  useEffect(() => {
+    if (!companyId || !menuId) return;
+    const sameCompany = selectedCompanyId === companyId;
+    if (!sameCompany || !selectedMenuIds.includes(menuId)) {
+      addMenuToSelection(companyId, menuId);
+    }
+  }, [companyId, menuId, selectedCompanyId, selectedMenuIds, addMenuToSelection]);
 
   if (lc || lm) {
     return (
@@ -27,11 +38,31 @@ const PricingPage = () => {
     );
   }
 
-  if (!company || !menu) {
+  if (!company || !menus) {
     return (
       <Layout>
         <div className="container py-16 text-center">
-          <h1 className="text-2xl font-semibold mb-4">Cardápio não encontrado</h1>
+          <h1 className="text-2xl font-semibold mb-4">Empresa não encontrada</h1>
+          <Button asChild variant="gold">
+            <Link to="/resultados">Voltar aos resultados</Link>
+          </Button>
+        </div>
+      </Layout>
+    );
+  }
+
+  // Usa todos os pacotes selecionados desta empresa; cai no menuId da URL como fallback
+  const activeIds = selectedMenuIds.length > 0 && selectedCompanyId === companyId
+    ? selectedMenuIds
+    : menuId ? [menuId] : [];
+
+  const selectedMenus = menus.filter((m) => activeIds.includes(m.id));
+
+  if (selectedMenus.length === 0) {
+    return (
+      <Layout>
+        <div className="container py-16 text-center">
+          <h1 className="text-2xl font-semibold mb-4">Nenhum pacote selecionado</h1>
           <Button asChild variant="gold">
             <Link to="/resultados">Voltar aos resultados</Link>
           </Button>
@@ -41,9 +72,8 @@ const PricingPage = () => {
   }
 
   const people = briefing.people || 50;
-  const baseTotal = menu.pricePerPerson * people;
-  const travelFee = 150;
-  const estimatedTotal = baseTotal + travelFee;
+  const baseTotal = selectedMenus.reduce((acc, m) => acc + m.pricePerPerson * people, 0);
+  const estimatedTotal = baseTotal + TRAVEL_FEE;
 
   const handleContinue = () => {
     navigate('/agendamento');
@@ -62,7 +92,9 @@ const PricingPage = () => {
             <h1 className="font-display text-2xl md:text-3xl font-semibold text-foreground mb-2">
               Valores estimados
             </h1>
-            <p className="text-muted-foreground">Revise os valores e confirme sua seleção</p>
+            <p className="text-muted-foreground">
+              Revise os {selectedMenus.length > 1 ? `${selectedMenus.length} pacotes` : 'valores'} antes de continuar
+            </p>
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="card-premium p-6 mb-6">
@@ -72,9 +104,15 @@ const PricingPage = () => {
                 <span className="text-muted-foreground">Empresa</span>
                 <span className="font-medium text-foreground">{company.name}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Cardápio</span>
-                <span className="font-medium text-foreground">{menu.name}</span>
+              <div className="flex justify-between items-start gap-4">
+                <span className="text-muted-foreground flex-shrink-0">
+                  {selectedMenus.length > 1 ? 'Pacotes' : 'Cardápio'}
+                </span>
+                <div className="text-right">
+                  {selectedMenus.map((m) => (
+                    <p key={m.id} className="font-medium text-foreground">{m.name}</p>
+                  ))}
+                </div>
               </div>
             </div>
           </motion.div>
@@ -88,7 +126,7 @@ const PricingPage = () => {
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <Clock className="w-4 h-4 text-primary" />
-                <span>{menu.durationHours}h de serviço</span>
+                <span>{selectedMenus[0].durationHours}h de serviço</span>
               </div>
               {briefing.eventDate && (
                 <div className="flex items-center gap-2 text-sm">
@@ -106,19 +144,23 @@ const PricingPage = () => {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="card-premium p-6 mb-6">
             <h2 className="font-display text-lg font-semibold mb-4">Composição do valor</h2>
             <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="font-medium text-foreground">Serviço de bar</p>
-                  <p className="text-sm text-muted-foreground">R$ {menu.pricePerPerson} × {people} pessoas</p>
+              {selectedMenus.map((m) => (
+                <div key={m.id} className="flex justify-between items-center">
+                  <div>
+                    <p className="font-medium text-foreground">{m.name}</p>
+                    <p className="text-sm text-muted-foreground">R$ {m.pricePerPerson} × {people} pessoas</p>
+                  </div>
+                  <span className="font-medium text-foreground">
+                    R$ {(m.pricePerPerson * people).toLocaleString('pt-BR')}
+                  </span>
                 </div>
-                <span className="font-medium text-foreground">R$ {baseTotal.toLocaleString('pt-BR')}</span>
-              </div>
+              ))}
               <div className="flex justify-between items-center">
                 <div>
                   <p className="font-medium text-foreground">Taxa de deslocamento</p>
                   <p className="text-sm text-muted-foreground">{briefing.neighborhood}, {briefing.city}</p>
                 </div>
-                <span className="font-medium text-foreground">R$ {travelFee.toLocaleString('pt-BR')}</span>
+                <span className="font-medium text-foreground">R$ {TRAVEL_FEE.toLocaleString('pt-BR')}</span>
               </div>
               <div className="pt-4 border-t border-border/50 flex justify-between items-center">
                 <div>
@@ -130,11 +172,11 @@ const PricingPage = () => {
             </div>
           </motion.div>
 
-          {menu.includes.length > 0 && (
+          {selectedMenus[0].includes.length > 0 && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="card-premium p-6 mb-8">
               <h2 className="font-display text-lg font-semibold mb-4">O que está incluído</h2>
               <ul className="grid grid-cols-2 gap-2">
-                {menu.includes.slice(0, 6).map((item, idx) => (
+                {selectedMenus[0].includes.slice(0, 6).map((item, idx) => (
                   <li key={idx} className="flex items-center gap-2 text-sm">
                     <Check className="w-4 h-4 text-primary flex-shrink-0" />
                     <span className="text-foreground">{item}</span>
