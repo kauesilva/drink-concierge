@@ -112,6 +112,8 @@ export interface ApiPacote {
   categoria_servico?: string | null;
   cobertura?: ApiCoverage[];
   tipos_evento?: string[];
+  foto_capa?: string | null;
+  galeria?: string[];
   criado_em: string;
   atualizado_em: string;
 }
