@@ -1,15 +1,37 @@
+import { useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Clock, Users, Check, Wine, ChevronRight, Loader2 } from 'lucide-react';
+import { ArrowLeft, Clock, Users, Check, Wine, ChevronRight, Loader2, Plus, Trash2 } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { useCompanyDetail, useCompanyMenus } from '@/hooks/useCompanies';
 import { useQuoteStore } from '@/store/quoteStore';
+import { useToast } from '@/hooks/use-toast';
+import QuoteSelectionCard from '@/components/menus/QuoteSelectionCard';
 
 const MenuDetailPage = () => {
   const { companyId, menuId } = useParams();
   const navigate = useNavigate();
-  const { briefing, setSelectedCompany, setSelectedMenu } = useQuoteStore();
+  const { toast } = useToast();
+  const {
+    briefing,
+    selectedCompanyId,
+    selectedMenuIds,
+    addMenuToSelection,
+    removeMenuFromSelection,
+    clearSelection,
+  } = useQuoteStore();
+  const [crossCompanyOpen, setCrossCompanyOpen] = useState(false);
 
   const { data: company, isLoading: loadingCompany } = useCompanyDetail(companyId);
   const { data: menus, isLoading: loadingMenus } = useCompanyMenus(companyId);
