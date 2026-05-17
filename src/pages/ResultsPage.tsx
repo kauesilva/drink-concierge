@@ -109,21 +109,46 @@ const ResultsPage = () => {
                   ))}
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                  {matches
-                    .flatMap(({ company, matchedPackages }) =>
-                      matchedPackages.map((menu) => ({ menu, company })),
-                    )
-                    .sort((a, b) => (b.menu.match?.score ?? 0) - (a.menu.match?.score ?? 0))
-                    .map(({ menu, company }, index) => (
-                      <PackageResultCard
-                        key={`${company.id}-${menu.id}`}
-                        menu={menu}
-                        company={company}
-                        index={index}
-                      />
-                    ))}
-                </div>
+                <>
+                  <div className="flex items-center justify-between mb-4 gap-3">
+                    <p className="text-sm text-muted-foreground">
+                      Ordenar por
+                    </p>
+                    <Select value={sortBy} onValueChange={(v) => setSortBy(v as typeof sortBy)}>
+                      <SelectTrigger className="w-[200px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="match">Melhor custo-benefício</SelectItem>
+                        <SelectItem value="price">Menor preço</SelectItem>
+                        <SelectItem value="rating">Maior nota</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                    {matches
+                      .flatMap(({ company, matchedPackages }) =>
+                        matchedPackages.map((menu) => ({ menu, company })),
+                      )
+                      .sort((a, b) => {
+                        if (sortBy === 'price') {
+                          return (a.menu.pricePerPerson ?? 0) - (b.menu.pricePerPerson ?? 0);
+                        }
+                        if (sortBy === 'rating') {
+                          return (b.company.rating ?? 0) - (a.company.rating ?? 0);
+                        }
+                        return (b.menu.match?.score ?? 0) - (a.menu.match?.score ?? 0);
+                      })
+                      .map(({ menu, company }, index) => (
+                        <PackageResultCard
+                          key={`${company.id}-${menu.id}`}
+                          menu={menu}
+                          company={company}
+                          index={index}
+                        />
+                      ))}
+                  </div>
+                </>
               )}
             </>
           ) : (
