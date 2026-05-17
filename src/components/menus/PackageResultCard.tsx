@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Clock, Users, ChevronRight, Star } from 'lucide-react';
+import { Clock, Users, ChevronRight, Star, GlassWater } from 'lucide-react';
 import { Menu, Company } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -13,7 +13,7 @@ interface PackageResultCardProps {
 }
 
 const PackageResultCard = ({ menu, company, index = 0 }: PackageResultCardProps) => {
-  const cover = menu.coverImage || company.image;
+  const cover = menu.coverImage;
 
   return (
     <motion.div
@@ -22,13 +22,17 @@ const PackageResultCard = ({ menu, company, index = 0 }: PackageResultCardProps)
       transition={{ delay: Math.min(index * 0.05, 0.4) }}
       className="group flex flex-col rounded-2xl border border-border bg-card overflow-hidden hover:border-primary/30 hover:shadow-gold transition-all duration-300"
     >
-      <div className="relative h-40 w-full bg-secondary overflow-hidden">
-        {cover && (
+      <div className="relative h-40 w-full bg-gradient-to-br from-secondary to-muted overflow-hidden">
+        {cover ? (
           <img
             src={cover}
             alt={menu.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-muted-foreground/40">
+            <GlassWater className="w-12 h-12" />
+          </div>
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/10 to-transparent" />
         <div className="absolute bottom-3 left-3 right-3 flex items-center gap-2">
