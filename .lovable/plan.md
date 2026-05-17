@@ -1,22 +1,38 @@
-# Foto de capa do pacote no catálogo de resultados
+# Banner de fundo dinâmico no hero
 
-## Problema
-No modo "Pacotes" da página de resultados (`/resultados`), o card `PackageResultCard` está usando a foto da **empresa** (`company.image`) como fallback quando o pacote não tem `coverImage`. O usuário quer que a foto de capa exibida seja **sempre a do pacote**, nunca da empresa.
+## Objetivo
+Na primeira dobra da home, exibir uma imagem de fundo (estilo banner) atrás do texto "Meu xxxx em poucos cliques", que troca em sincronia com a palavra atual do `RotatingHeadline`.
 
-## Solução
+## Mapeamento
+- `bar de drinks` → `drinks.jpeg`
+- `bartender` → `bartender.jpeg`
+- `consultor de bar` → `consultor.jpeg`
+- `bar de casamento` → `casamento.jpeg`
+- `bar não alcoólico` → reutiliza `drinks.jpeg` (não há imagem dedicada — sinalizar caso o usuário queira outra)
 
-### 1. `src/components/menus/PackageResultCard.tsx`
-- Alterar `const cover = menu.coverImage || company.image;` para `const cover = menu.coverImage;`
-- Quando `menu.coverImage` não existir, o card deve mostrar um placeholder neutro de pacote (gradiente/cor sólida) ao invés da imagem da empresa.
-- A **imagem da empresa** deve continuar aparecendo apenas como **logo redondo** no overlay inferior do card (já está assim).
+## Mudanças
 
-### 2. `src/hooks/useCompanies.ts` (verificação)
-- Confirmar que `mapPackageToMenu` mapeia `p.foto_capa` corretamente para `coverImage` (já faz isso, mas verificar se não há edge cases).
+### 1. Copiar uploads para `src/assets/hero/`
+- `user-uploads://bartender.jpeg` → `src/assets/hero/bartender.jpg`
+- `user-uploads://consultor.jpeg` → `src/assets/hero/consultor.jpg`
+- `user-uploads://casamento.jpeg` → `src/assets/hero/casamento.jpg`
+- `user-uploads://drinks.jpeg` → `src/assets/hero/drinks.jpg`
 
-### 3. Sem mudanças de backend
-O campo `foto_capa` já é enviado/recebido pela API. Apenas a apresentação no frontend precisa ser ajustada.
+### 2. `src/components/RotatingHeadline.tsx`
+- Aceitar prop opcional `onIndexChange?: (i: number) => void` para emitir o índice atual.
+- Manter o ciclo de 1s.
 
-## Resultado esperado
-- Cada card no catálogo de pacotes mostra a foto de capa do próprio pacote.
-- Se o pacote não tiver foto de capa cadastrada, exibe um fundo neutro (sem logo da empresa).
-- A identidade visual da empresa (logo + nome + nota) permanece no overlay inferior, como está hoje.
+### 3. `src/pages/Index.tsx`
+- Importar as 4 imagens e montar `HERO_IMAGES = ['drinks','bartender','consultor','casamento','drinks']` (mesma ordem das palavras em `RotatingHeadline`).
+- Adicionar estado `heroIndex` controlado por callback de `RotatingHeadline`.
+- Na `<section>` hero, adicionar um layer absoluto com `AnimatePresence` cruzando a imagem ativa (fade ~600ms), com overlay escuro/gradiente para preservar legibilidade do texto.
+- Manter os blobs/glow existentes por cima da imagem mas abaixo do conteúdo.
+
+## Detalhes técnicos
+- `framer-motion` já em uso.
+- Imagens carregadas com `loading="eager"` apenas a primeira; demais com fetchpriority normal.
+- Texto fica em `z-10` sobre a imagem; overlay com `bg-background/70` + gradiente para contraste.
+
+## Fora do escopo
+- Trocar a duração da rotação.
+- Mudar a lista de palavras.
