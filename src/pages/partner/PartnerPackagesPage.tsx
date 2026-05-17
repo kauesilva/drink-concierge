@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Pencil, Trash2, X, GlassWater, Clock, Users, DollarSign, MapPin } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, GlassWater, Clock, Users, DollarSign, MapPin, ImageIcon } from 'lucide-react';
+import GalleryUploader from '@/components/partners/GalleryUploader';
+import { apiUploadImage } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -42,6 +44,8 @@ const emptyPkg = {
   serviceCategory: undefined as ServiceCategory | undefined,
   coverage: [] as CoverageArea[],
   eventTypes: [] as string[],
+  coverImage: '',
+  gallery: [] as string[],
 };
 
 const PartnerPackagesPage = () => {
@@ -72,8 +76,28 @@ const PartnerPackagesPage = () => {
       serviceCategory: pkg.serviceCategory,
       coverage: pkg.coverage ? [...pkg.coverage] : [],
       eventTypes: pkg.eventTypes ? [...pkg.eventTypes] : [],
+      coverImage: pkg.coverImage || '',
+      gallery: pkg.gallery ? [...pkg.gallery] : [],
     });
     setDialogOpen(true);
+  };
+
+  const coverInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingCover, setUploadingCover] = useState(false);
+
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    setUploadingCover(true);
+    try {
+      const { url } = await apiUploadImage(file);
+      setForm((prev) => ({ ...prev, coverImage: url }));
+    } catch (err: any) {
+      toast({ title: 'Falha no upload', description: err?.message || 'Tente novamente.', variant: 'destructive' });
+    } finally {
+      setUploadingCover(false);
+      if (coverInputRef.current) coverInputRef.current.value = '';
+    }
   };
 
   const addItem = (field: 'includes' | 'drinks', value: string, setter: (v: string) => void) => {
@@ -194,7 +218,15 @@ const PartnerPackagesPage = () => {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
             >
-              <Card className="border-border/60 hover:border-primary/30 transition-colors h-full">
+              <Card className="border-border/60 hover:border-primary/30 transition-colors h-full overflow-hidden">
+                {pkg.coverImage && (
+                  <div
+                    className="relative h-32 w-full bg-cover bg-center"
+                    style={{ backgroundImage: `url(${pkg.coverImage})` }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-background/40 to-transparent" />
+                  </div>
+                )}
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <CardTitle className="text-lg">{pkg.name}</CardTitle>
@@ -239,6 +271,18 @@ const PartnerPackagesPage = () => {
                       </span>
                     </div>
                   )}
+                  {pkg.gallery && pkg.gallery.length > 0 && (
+                    <div className="flex gap-1.5">
+                      {pkg.gallery.slice(0, 5).map((src, i) => (
+                        <img
+                          key={i}
+                          src={src}
+                          alt={`Foto ${i + 1}`}
+                          className="w-10 h-10 rounded object-cover border border-border"
+                        />
+                      ))}
+                    </div>
+                  )}
                   {pkg.drinks.length > 0 && (
                     <div className="flex flex-wrap gap-1.5">
                       {pkg.drinks.map((d) => (
@@ -279,6 +323,57 @@ const PartnerPackagesPage = () => {
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
                 placeholder="Descreva o que está incluído..."
                 rows={3}
+              />
+            </div>
+
+            {/* Foto de capa */}
+            <div className="space-y-2">
+              <Label>Foto de capa do pacote</Label>
+              <p className="text-xs text-muted-foreground">
+                Aparece ao fundo do card do pacote. Use uma imagem horizontal (16:9) para melhor resultado.
+              </p>
+              {form.coverImage ? (
+                <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-border group">
+                  <img src={form.coverImage} alt="Capa do pacote" className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => setForm((p) => ({ ...p, coverImage: '' }))}
+                    className="absolute top-2 right-2 w-7 h-7 rounded-full bg-foreground/70 text-background flex items-center justify-center"
+                    aria-label="Remover capa"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => coverInputRef.current?.click()}
+                  disabled={uploadingCover}
+                  className="w-full aspect-video rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center text-muted-foreground hover:border-primary hover:text-primary transition-colors"
+                >
+                  <ImageIcon className="w-7 h-7 mb-1" />
+                  <span className="text-sm">{uploadingCover ? 'Enviando...' : 'Adicionar foto de capa'}</span>
+                </button>
+              )}
+              <input
+                ref={coverInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleCoverUpload}
+              />
+            </div>
+
+            {/* Galeria */}
+            <div className="space-y-2">
+              <Label>Galeria do pacote (até 5 fotos)</Label>
+              <p className="text-xs text-muted-foreground">
+                Mostre exemplos do serviço, drinks e decoração.
+              </p>
+              <GalleryUploader
+                images={form.gallery}
+                onChange={(gallery) => setForm((p) => ({ ...p, gallery }))}
+                max={5}
               />
             </div>
 

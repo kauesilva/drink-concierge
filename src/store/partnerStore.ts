@@ -27,6 +27,8 @@ export interface DrinkPackage {
   serviceCategory?: ServiceCategory;
   coverage?: CoverageArea[];
   eventTypes?: string[];
+  coverImage?: string;
+  gallery?: string[];
 }
 
 export interface PartnerProfile {
@@ -193,6 +195,8 @@ export const usePartnerStore = create<PartnerStore>()(
               categoria_servico: pkg.serviceCategory,
               cobertura: pkg.coverage,
               tipos_evento: pkg.eventTypes,
+              foto_capa: pkg.coverImage,
+              galeria: pkg.gallery,
             });
             set((s) => ({
               packages: s.packages.map((p) =>
@@ -229,6 +233,8 @@ export const usePartnerStore = create<PartnerStore>()(
             categoria_servico: updated.serviceCategory,
             cobertura: updated.coverage,
             tipos_evento: updated.eventTypes,
+            foto_capa: updated.coverImage,
+            galeria: updated.gallery,
           }).catch((err) => console.error('Erro ao atualizar pacote na API:', err));
         }
       },
@@ -266,6 +272,8 @@ export const usePartnerStore = create<PartnerStore>()(
             serviceCategory: (p.categoria_servico as any) || undefined,
             coverage: p.cobertura || [],
             eventTypes: p.tipos_evento || [],
+            coverImage: (p as any).foto_capa || '',
+            gallery: (p as any).galeria || [],
           }));
           set({ packages });
         } catch (err) {

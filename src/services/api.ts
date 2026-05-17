@@ -112,6 +112,8 @@ export interface ApiPacote {
   categoria_servico?: string | null;
   cobertura?: ApiCoverage[];
   tipos_evento?: string[];
+  foto_capa?: string | null;
+  galeria?: string[];
   criado_em: string;
   atualizado_em: string;
 }
@@ -228,6 +230,8 @@ export async function apiAddPackage(data: {
   categoria_servico?: string;
   cobertura?: ApiCoverage[];
   tipos_evento?: string[];
+  foto_capa?: string;
+  galeria?: string[];
 }): Promise<{ id: number; message: string }> {
   return request('add_package', {
     method: 'POST',
@@ -249,6 +253,8 @@ export async function apiUpdatePackage(data: {
   categoria_servico?: string;
   cobertura?: ApiCoverage[];
   tipos_evento?: string[];
+  foto_capa?: string;
+  galeria?: string[];
 }): Promise<{ message: string }> {
   return request('update_package', {
     method: 'POST',

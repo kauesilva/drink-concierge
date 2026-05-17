@@ -1,70 +1,47 @@
-# Novo `api.php` (vitrine de parceiros)
+# Foto de capa e galeria por pacote
 
-Vou gerar um arquivo `/mnt/documents/api_v2.php` baseado no atual `api.php` (811 linhas), preservando 100% dos handlers existentes e adicionando o necessário para o módulo "Encontre seu Bartender".
+Adicionar ao cadastro/edição de pacote no painel do parceiro:
+- 1 foto de capa (exibida ao fundo do card do pacote)
+- até 5 fotos de galeria (exemplos do serviço)
 
-## Migration SQL (entregue junto, em arquivo separado)
+## Frontend
 
+**`src/store/partnerStore.ts`**
+- Adicionar em `DrinkPackage`: `coverImage?: string` e `gallery?: string[]`.
+- Incluir esses campos em `addPackage`, `updatePackage` e no mapeamento de `syncPackages` (de/para `foto_capa` e `galeria`).
+
+**`src/services/api.ts`**
+- Em `apiAddPackage` e `apiUpdatePackage`: incluir `foto_capa?: string` e `galeria?: string[]`.
+- Em `ApiPacote`: adicionar `foto_capa: string | null` e `galeria: string[]`.
+
+**`src/pages/partner/PartnerPackagesPage.tsx`**
+- Estender `emptyPkg` com `coverImage: ''` e `gallery: []`.
+- Em `openEdit`, carregar esses campos.
+- No diálogo, adicionar duas seções (logo após “Descrição”):
+  - **Foto de capa**: usa um uploader simples (botão + preview + remover), reutilizando `apiUploadImage` do `services/api.ts`.
+  - **Galeria (até 5 fotos)**: reutilizar `src/components/partners/GalleryUploader.tsx` (já existe, suporta `max`).
+- No card do pacote: se `pkg.coverImage` existir, exibir como background com overlay escuro para legibilidade do texto; caso contrário manter visual atual.
+- (Opcional, pequeno) mostrar miniatura da galeria no card se houver imagens.
+
+## Backend (gerar arquivos ao final)
+
+**SQL (`pacotes_fotos.sql`)**
 ```sql
-ALTER TABLE parceiros
-  ADD COLUMN titulo_perfil      VARCHAR(150) NULL,
-  ADD COLUMN descricao_curta    VARCHAR(300) NULL,
-  ADD COLUMN logo               VARCHAR(255) NULL,
-  ADD COLUMN galeria            JSON NULL,
-  ADD COLUMN video_url          VARCHAR(500) NULL,
-  ADD COLUMN diferenciais       JSON NULL,
-  ADD COLUMN instagram          VARCHAR(255) NULL,
-  ADD COLUMN facebook           VARCHAR(255) NULL,
-  ADD COLUMN tiktok             VARCHAR(255) NULL,
-  ADD COLUMN site               VARCHAR(255) NULL,
-  ADD COLUMN telefone_publico   TINYINT(1) NOT NULL DEFAULT 0,
-  ADD COLUMN publicado          TINYINT(1) NOT NULL DEFAULT 0;
+ALTER TABLE pacotes
+  ADD COLUMN foto_capa VARCHAR(500) NULL,
+  ADD COLUMN galeria TEXT NULL; -- JSON array de URLs
 ```
 
-## Mudanças no `api.php`
+**`api_v2.php`**
+- Em `add_package` e `update_package`: aceitar `foto_capa` (string) e `galeria` (array → `json_encode`).
+- Em `get_packages` / leitura: retornar `foto_capa` e `galeria` (com `json_decode` → array; default `[]`).
 
-### 1. Roteamento — novas actions
-```
-list_public_partners → handleListPublicPartners
-get_public_partner   → handleGetPublicPartner
-```
+## Validações
+- Limite client-side: galeria ≤ 5.
+- Apenas `image/*` no upload (já no `GalleryUploader` e replicado no uploader de capa).
+- Campos opcionais — não bloqueiam o salvamento do pacote.
 
-### 2. `handleUpdateProfile` — estender lista de campos permitidos
-Adicionar a `$allowed`:
-`titulo_perfil`, `descricao_curta`, `logo`, `video_url`, `instagram`, `facebook`, `tiktok`, `site` (string) e `telefone_publico` (int 0/1).
-
-Adicionar tratamento JSON (igual `categorias_servico`) para:
-- `galeria` (array de até 5 URLs — slice de segurança)
-- `diferenciais` (array de strings)
-
-Após salvar, recalcular flag `publicado` via helper `isPartnerPublishable($pdo, $id)` (nome + ≥1 categoria + estado + cidade_base + descricao_curta + ≥1 imagem entre `foto_capa`/`logo`/`galeria`) e atualizar coluna `publicado`.
-
-### 3. `handleGetProfile` — incluir os novos campos
-Decodificar `galeria` e `diferenciais` via `decodeJsonField`. Casts booleanos para `telefone_publico` e `publicado`.
-
-### 4. `handleListPublicPartners` (novo)
-- `SELECT * FROM parceiros WHERE ativo=1 AND publicado=1`
-- Filtros opcionais: `?estado=`, `?cidade=` (match em `cidade_base` ou em `parceiro_areas.area`), `?categoria=` (busca em `categorias_servico` JSON via `JSON_CONTAINS`)
-- Carrega `areas_atendidas`, `categorias_servico`, `galeria`, `diferenciais`
-- Retorna apenas campos públicos (omite `email`, `whatsapp` quando `telefone_publico=0`)
-- Ordena por `avaliacao DESC, atualizado_em DESC`
-
-### 5. `handleGetPublicPartner` (novo)
-- `?id=` obrigatório
-- Mesma lógica de filtragem de campos sensíveis baseado em `telefone_publico`
-- 404 se não publicado / não ativo
-
-### 6. Helper novo
-```php
-function isPartnerPublishable(PDO $pdo, int $id): bool
-function stripPrivateFields(array $p): array  // remove email/whatsapp se telefone_publico=0
-```
-
-### 7. Comentário de cabeçalho
-Adicionar as 2 novas actions à lista de endpoints no docblock.
-
-## Entregáveis
-
-- `/mnt/documents/api_v2.php` — arquivo PHP completo, pronto para substituir o atual
-- `/mnt/documents/migration_vitrine.sql` — ALTER TABLE acima
-
-Nada do PHP existente será removido ou renomeado; apenas extensões aditivas.
+## Entregáveis ao final da implementação
+- Código atualizado nos arquivos acima.
+- `pacotes_fotos.sql` para o usuário rodar no MySQL.
+- `api_v2.php` atualizado para download.
