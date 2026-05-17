@@ -14,7 +14,7 @@ const TRAVEL_FEE = 150;
 const PricingPage = () => {
   const { companyId, menuId } = useParams();
   const navigate = useNavigate();
-  const { briefing, selectedCompanyId, selectedMenuIds, addMenuToSelection } = useQuoteStore();
+  const { briefing, selectedCompanyId, selectedMenuIds, addMenuToSelection, setNegotiationRequested } = useQuoteStore();
 
   const { data: company, isLoading: lc } = useCompanyDetail(companyId);
   const { data: menus, isLoading: lm } = useCompanyMenus(companyId);
@@ -74,8 +74,11 @@ const PricingPage = () => {
   const people = briefing.people || 50;
   const baseTotal = selectedMenus.reduce((acc, m) => acc + m.pricePerPerson * people, 0);
   const estimatedTotal = baseTotal + TRAVEL_FEE;
+  const isCombo = selectedMenus.length >= 2;
+  const expectationTotal = Math.round(estimatedTotal * 0.9);
 
-  const handleContinue = () => {
+  const handleContinue = (negotiate: boolean) => {
+    setNegotiationRequested(negotiate && isCombo);
     navigate('/agendamento');
   };
 
@@ -162,12 +165,27 @@ const PricingPage = () => {
                 </div>
                 <span className="font-medium text-foreground">R$ {TRAVEL_FEE.toLocaleString('pt-BR')}</span>
               </div>
-              <div className="pt-4 border-t border-border/50 flex justify-between items-center">
+              <div className="pt-4 border-t border-border/50 flex justify-between items-start gap-4">
                 <div>
                   <p className="text-lg font-semibold text-foreground">Total estimado</p>
-                  <p className="text-xs text-muted-foreground">Valor final sujeito a confirmação</p>
+                  <p className="text-xs text-muted-foreground">
+                    {isCombo ? 'Expectativa em negociação · valor final definido pela empresa' : 'Valor final sujeito a confirmação'}
+                  </p>
                 </div>
-                <span className="text-2xl font-bold text-primary">R$ {estimatedTotal.toLocaleString('pt-BR')}</span>
+                <div className="text-right">
+                  {isCombo ? (
+                    <>
+                      <p className="text-sm line-through text-muted-foreground">
+                        R$ {estimatedTotal.toLocaleString('pt-BR')}
+                      </p>
+                      <p className="text-2xl font-bold text-primary">
+                        ~ R$ {expectationTotal.toLocaleString('pt-BR')}
+                      </p>
+                    </>
+                  ) : (
+                    <span className="text-2xl font-bold text-primary">R$ {estimatedTotal.toLocaleString('pt-BR')}</span>
+                  )}
+                </div>
               </div>
             </div>
           </motion.div>
@@ -187,11 +205,29 @@ const PricingPage = () => {
           )}
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-            <Button variant="gold" size="xl" className="w-full" onClick={handleContinue}>
-              Selecionar e agendar
-            </Button>
+            {isCombo && (
+              <div className="mb-4 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-center text-sm text-foreground">
+                <span className="font-medium">Combo de {selectedMenus.length} pacotes</span> · aberto à negociação com a empresa
+              </div>
+            )}
+            {isCombo ? (
+              <div className="space-y-3">
+                <Button variant="gold" size="xl" className="w-full" onClick={() => handleContinue(true)}>
+                  Negociar combo
+                </Button>
+                <Button variant="outline" size="xl" className="w-full" onClick={() => handleContinue(false)}>
+                  Selecionar e agendar pelo valor cheio
+                </Button>
+              </div>
+            ) : (
+              <Button variant="gold" size="xl" className="w-full" onClick={() => handleContinue(false)}>
+                Selecionar e agendar
+              </Button>
+            )}
             <p className="text-center text-xs text-muted-foreground mt-4">
-              Ao continuar, você será direcionado para confirmar os dados do agendamento.
+              {isCombo
+                ? 'Ao negociar, sua solicitação é enviada à empresa para avaliação do desconto.'
+                : 'Ao continuar, você será direcionado para confirmar os dados do agendamento.'}
             </p>
           </motion.div>
         </div>
