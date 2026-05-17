@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, CheckCircle, Star, Sparkles, Zap, Shield, Users } from 'lucide-react';
@@ -65,6 +65,14 @@ const staggerContainer = {
 
 const Index = () => {
   const [heroIndex, setHeroIndex] = useState(0);
+
+  // Pré-carrega a próxima imagem para evitar flash durante a transição
+  useEffect(() => {
+    const nextIdx = (heroIndex + 1) % HERO_IMAGES.length;
+    const img = new Image();
+    img.src = HERO_IMAGES[nextIdx];
+  }, [heroIndex]);
+
   const handleHeroIndex = useCallback((i: number) => setHeroIndex(i), []);
 
   const steps = [
@@ -154,6 +162,8 @@ const Index = () => {
               src={HERO_IMAGES[heroIndex]}
               alt=""
               aria-hidden="true"
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-cover"
             />
           </motion.div>
