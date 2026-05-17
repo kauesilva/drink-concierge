@@ -186,7 +186,7 @@ const Index = () => {
             
             {/* Badge */}
             <motion.div variants={fadeInUp} className="mb-8">
-              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-sm font-medium text-foreground">
+              <span className="inline-flex items-center gap-2 px-4 border border-primary/20 bg-primary/5 text-foreground py-[10px] font-sans text-lg font-semibold rounded-full shadow-md">
                 <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                 Marketplace de drinks para eventos
               </span>
