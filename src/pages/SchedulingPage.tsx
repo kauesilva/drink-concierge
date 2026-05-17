@@ -217,10 +217,16 @@ const SchedulingPage = () => {
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
             <Button variant="gold" size="xl" className="w-full" onClick={handleSubmit} disabled={isSubmitting}>
-              {isSubmitting ? 'Enviando...' : 'Solicitar contratação'}
+              {isSubmitting
+                ? 'Enviando...'
+                : isNegotiation
+                  ? 'Enviar pedido de negociação'
+                  : 'Solicitar contratação'}
             </Button>
             <p className="text-center text-xs text-muted-foreground mt-4">
-              Um agente entrará em contato para finalizar a contratação
+              {isNegotiation
+                ? 'A empresa retornará via WhatsApp com a proposta final do combo.'
+                : 'Um agente entrará em contato para finalizar a contratação'}
             </p>
           </motion.div>
         </div>
