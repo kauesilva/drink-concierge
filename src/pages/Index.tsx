@@ -1,8 +1,17 @@
+import { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, CheckCircle, Star, Sparkles, Zap, Shield, Users } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import RotatingHeadline from '@/components/RotatingHeadline';
+import heroDrinks from '@/assets/hero/drinks.jpg';
+import heroBartender from '@/assets/hero/bartender.jpg';
+import heroConsultor from '@/assets/hero/consultor.jpg';
+import heroCasamento from '@/assets/hero/casamento.jpg';
+
+// Mesma ordem das palavras em RotatingHeadline:
+// ['bar de drinks', 'bartender', 'consultor de bar', 'bar de casamento', 'bar não alcoólico']
+const HERO_IMAGES = [heroDrinks, heroBartender, heroConsultor, heroCasamento, heroDrinks];
 import { Button } from '@/components/ui/button';
 import { eventTypes, serviceCategories } from '@/data/mockData';
 import imgCasamento from '@/assets/events/casamento.jpg';
@@ -54,6 +63,9 @@ const staggerContainer = {
 };
 
 const Index = () => {
+  const [heroIndex, setHeroIndex] = useState(0);
+  const handleHeroIndex = useCallback((i: number) => setHeroIndex(i), []);
+
   const steps = [
   {
     icon: Sparkles,
@@ -126,8 +138,27 @@ const Index = () => {
     <Layout>
       {/* Hero Section — Apple / Linear inspired */}
       <section className="relative min-h-[100vh] flex items-center justify-center overflow-hidden">
-        {/* Subtle gradient background */}
+        {/* Banner de fundo dinâmico sincronizado com a palavra rotativa */}
         <div className="absolute inset-0 bg-destructive-foreground" />
+        <AnimatePresence mode="sync">
+          <motion.div
+            key={heroIndex}
+            initial={{ opacity: 0, scale: 1.05 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ opacity: { duration: 0.7 }, scale: { duration: 1.2, ease: 'easeOut' } }}
+            className="absolute inset-0"
+          >
+            <img
+              src={HERO_IMAGES[heroIndex]}
+              alt=""
+              aria-hidden="true"
+              className="w-full h-full object-cover"
+            />
+          </motion.div>
+        </AnimatePresence>
+        {/* Overlay para legibilidade */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background/85 via-background/70 to-background/95" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-primary/8 rounded-full blur-[120px] animate-glow-pulse" />
         <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[100px]" />
 
@@ -150,7 +181,7 @@ const Index = () => {
             <motion.h1
               variants={fadeInUp}
               className="heading-display text-foreground mb-6">
-              <RotatingHeadline />
+              <RotatingHeadline onIndexChange={handleHeroIndex} />
               <br />
               <span className="text-primary">em poucos cliques</span>
             </motion.h1>
