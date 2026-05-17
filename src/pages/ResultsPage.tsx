@@ -1,11 +1,13 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Users, MapPin, Calendar, Loader2, Sparkles } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import CompanyCard from '@/components/companies/CompanyCard';
+import PackageResultCard from '@/components/menus/PackageResultCard';
 import { useQuoteStore } from '@/store/quoteStore';
 import { eventTypes } from '@/data/mockData';
 import { useMatchingPackages } from '@/hooks/useCompanies';
@@ -15,7 +17,7 @@ import { ptBR } from 'date-fns/locale';
 const ResultsPage = () => {
   const navigate = useNavigate();
   const { briefing } = useQuoteStore();
-
+  const [viewMode, setViewMode] = useState<'empresas' | 'pacotes'>('empresas');
   useEffect(() => {
     if (!briefing.eventType || !briefing.people) {
       navigate('/orcamento');
@@ -77,24 +79,51 @@ const ResultsPage = () => {
               <p className="text-muted-foreground">Buscando empresas compatíveis...</p>
             </div>
           ) : matches && matches.length > 0 ? (
-            <div className="space-y-4 md:space-y-6">
-              {matches.map(({ company, matchedPackages }, index) => (
-                <div key={company.id} className="space-y-2">
-                  <CompanyCard company={company} index={index} />
-                  <div className="flex items-center gap-2 px-2 text-xs text-muted-foreground">
-                    <Sparkles className="w-3.5 h-3.5 text-primary" />
-                    <span>
-                      {matchedPackages.length} pacote{matchedPackages.length > 1 ? 's' : ''} compatível{matchedPackages.length > 1 ? 'eis' : ''}
-                    </span>
-                    {matchedPackages[0]?.match.reasons.slice(0, 2).map((r) => (
-                      <Badge key={r} variant="secondary" className="text-xs font-normal">
-                        {r}
-                      </Badge>
-                    ))}
-                  </div>
+            <>
+              <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as 'empresas' | 'pacotes')} className="mb-6">
+                <TabsList className="grid w-full max-w-sm grid-cols-2">
+                  <TabsTrigger value="empresas">Empresas</TabsTrigger>
+                  <TabsTrigger value="pacotes">Pacotes</TabsTrigger>
+                </TabsList>
+              </Tabs>
+
+              {viewMode === 'empresas' ? (
+                <div className="space-y-4 md:space-y-6">
+                  {matches.map(({ company, matchedPackages }, index) => (
+                    <div key={company.id} className="space-y-2">
+                      <CompanyCard company={company} index={index} />
+                      <div className="flex items-center gap-2 px-2 text-xs text-muted-foreground">
+                        <Sparkles className="w-3.5 h-3.5 text-primary" />
+                        <span>
+                          {matchedPackages.length} pacote{matchedPackages.length > 1 ? 's' : ''} compatível{matchedPackages.length > 1 ? 'eis' : ''}
+                        </span>
+                        {matchedPackages[0]?.match.reasons.slice(0, 2).map((r) => (
+                          <Badge key={r} variant="secondary" className="text-xs font-normal">
+                            {r}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                  {matches
+                    .flatMap(({ company, matchedPackages }) =>
+                      matchedPackages.map((menu) => ({ menu, company })),
+                    )
+                    .sort((a, b) => (b.menu.match?.score ?? 0) - (a.menu.match?.score ?? 0))
+                    .map(({ menu, company }, index) => (
+                      <PackageResultCard
+                        key={`${company.id}-${menu.id}`}
+                        menu={menu}
+                        company={company}
+                        index={index}
+                      />
+                    ))}
+                </div>
+              )}
+            </>
           ) : (
             <div className="text-center py-16">
               <p className="text-lg text-muted-foreground mb-2">

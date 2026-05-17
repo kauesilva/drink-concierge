@@ -1,47 +1,37 @@
-# Foto de capa e galeria por pacote
+# Busca por Empresas ou Pacotes nos Resultados
 
-Adicionar ao cadastro/edição de pacote no painel do parceiro:
-- 1 foto de capa (exibida ao fundo do card do pacote)
-- até 5 fotos de galeria (exemplos do serviço)
+Adicionar um toggle no topo da página de resultados (`/resultados`) permitindo ao usuário alternar entre:
 
-## Frontend
+- **Empresas** (visão atual): card por empresa com seus pacotes compatíveis agrupados.
+- **Pacotes** (nova visão): catálogo plano de pacotes compatíveis, cada card mostrando o logotipo/nome da empresa ao lado, estilo iFood.
 
-**`src/store/partnerStore.ts`**
-- Adicionar em `DrinkPackage`: `coverImage?: string` e `gallery?: string[]`.
-- Incluir esses campos em `addPackage`, `updatePackage` e no mapeamento de `syncPackages` (de/para `foto_capa` e `galeria`).
+## Mudanças
 
-**`src/services/api.ts`**
-- Em `apiAddPackage` e `apiUpdatePackage`: incluir `foto_capa?: string` e `galeria?: string[]`.
-- Em `ApiPacote`: adicionar `foto_capa: string | null` e `galeria: string[]`.
+### 1. `src/pages/ResultsPage.tsx`
+- Adicionar estado local `viewMode: 'empresas' | 'pacotes'` (default `empresas`).
+- Renderizar `Tabs` (shadcn) logo abaixo dos filtros do briefing, com dois botões: "Empresas" e "Pacotes".
+- Quando `pacotes`: achatar `matches` em uma lista única de pacotes (`matchedPackages.flatMap`), ordenados por `match.score` desc, e renderizar com o novo `PackageResultCard`.
+- Manter visão "Empresas" inalterada.
 
-**`src/pages/partner/PartnerPackagesPage.tsx`**
-- Estender `emptyPkg` com `coverImage: ''` e `gallery: []`.
-- Em `openEdit`, carregar esses campos.
-- No diálogo, adicionar duas seções (logo após “Descrição”):
-  - **Foto de capa**: usa um uploader simples (botão + preview + remover), reutilizando `apiUploadImage` do `services/api.ts`.
-  - **Galeria (até 5 fotos)**: reutilizar `src/components/partners/GalleryUploader.tsx` (já existe, suporta `max`).
-- No card do pacote: se `pkg.coverImage` existir, exibir como background com overlay escuro para legibilidade do texto; caso contrário manter visual atual.
-- (Opcional, pequeno) mostrar miniatura da galeria no card se houver imagens.
+### 2. Novo componente `src/components/menus/PackageResultCard.tsx`
+- Props: `menu: Menu & { match }`, `company: Company`, `index`.
+- Layout (catálogo tipo iFood):
+  - Faixa lateral/topo com `coverImage` do pacote (fallback `company.image`).
+  - Nome do pacote, descrição curta, duração, mín. pessoas, preço/pessoa.
+  - Linha com logotipo redondo da empresa (`company.image`) + nome da empresa + rating pequeno.
+  - Badges de motivos do match (reuso da lógica atual).
+  - Botão "Ver mais detalhes" → `Link` para `/empresas/{company.id}/cardapios/{menu.id}` (rota já existente — `MenuDetailPage`).
+- Usar tokens do design system (sem cores hardcoded), `framer-motion` para entrada.
 
-## Backend (gerar arquivos ao final)
+### 3. Sem mudanças de backend/dados
+Os dados já vêm de `useMatchingPackages` (empresa + pacotes compatíveis). Apenas reorganizamos a apresentação no cliente.
 
-**SQL (`pacotes_fotos.sql`)**
-```sql
-ALTER TABLE pacotes
-  ADD COLUMN foto_capa VARCHAR(500) NULL,
-  ADD COLUMN galeria TEXT NULL; -- JSON array de URLs
-```
+## Detalhes técnicos
+- Reusar `Tabs`/`TabsList`/`TabsTrigger` de `@/components/ui/tabs`.
+- Tipos: `CompanyMatch` já expõe `company` e `matchedPackages` (que estende `Menu` com `match`); fácil de achatar.
+- Rota de detalhes do pacote: `/empresas/:companyId/cardapios/:menuId` (já existente, usada por `MenuCard`).
+- Mobile-first: grid 1 coluna no mobile, 2 colunas em md+.
 
-**`api_v2.php`**
-- Em `add_package` e `update_package`: aceitar `foto_capa` (string) e `galeria` (array → `json_encode`).
-- Em `get_packages` / leitura: retornar `foto_capa` e `galeria` (com `json_decode` → array; default `[]`).
-
-## Validações
-- Limite client-side: galeria ≤ 5.
-- Apenas `image/*` no upload (já no `GalleryUploader` e replicado no uploader de capa).
-- Campos opcionais — não bloqueiam o salvamento do pacote.
-
-## Entregáveis ao final da implementação
-- Código atualizado nos arquivos acima.
-- `pacotes_fotos.sql` para o usuário rodar no MySQL.
-- `api_v2.php` atualizado para download.
+## Fora do escopo
+- Busca textual / filtros adicionais no catálogo de pacotes (pode vir depois).
+- Mudanças em `MenuDetailPage`, store de orçamento ou API.
