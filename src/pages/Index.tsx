@@ -286,7 +286,7 @@ const Index = () => {
       </section>
 
       {/* Service Categories */}
-      <section className="py-24 md:py-32">
+      <section className="py-24 md:py-[50px]">
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
