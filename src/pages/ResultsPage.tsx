@@ -84,8 +84,8 @@ const ResultsPage = () => {
             <>
               <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as 'empresas' | 'pacotes')} className="mb-6">
                 <TabsList className="grid w-full max-w-sm grid-cols-2">
-                  <TabsTrigger value="empresas">Empresas</TabsTrigger>
                   <TabsTrigger value="pacotes">Pacotes</TabsTrigger>
+                  <TabsTrigger value="empresas">Empresas</TabsTrigger>
                 </TabsList>
               </Tabs>
 
