@@ -6,6 +6,7 @@ import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import CompanyCard from '@/components/companies/CompanyCard';
 import PackageResultCard from '@/components/menus/PackageResultCard';
 import { useQuoteStore } from '@/store/quoteStore';
