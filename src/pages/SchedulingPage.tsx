@@ -17,7 +17,7 @@ const TRAVEL_FEE = 150;
 
 const SchedulingPage = () => {
   const navigate = useNavigate();
-  const { briefing, selectedCompanyId, selectedMenuIds } = useQuoteStore();
+  const { briefing, selectedCompanyId, selectedMenuIds, negotiationRequested, setNegotiationRequested } = useQuoteStore();
   const [observations, setObservations] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
@@ -44,6 +44,7 @@ const SchedulingPage = () => {
   const people = briefing.people || 50;
   const baseTotal = selectedMenus.reduce((acc, m) => acc + m.pricePerPerson * people, 0);
   const estimatedTotal = baseTotal + TRAVEL_FEE;
+  const isNegotiation = negotiationRequested && selectedMenus.length >= 2;
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
@@ -51,7 +52,10 @@ const SchedulingPage = () => {
       const packagesSummary = selectedMenus
         .map((m) => `- ${m.name} (R$ ${m.pricePerPerson}/pessoa)`)
         .join('\n');
-      const composedObservations = [
+      const negotiationHeader = isNegotiation
+        ? `[NEGOCIAÇÃO SOLICITADA - COMBO DE ${selectedMenus.length} PACOTES]\nCliente aguarda condição especial. Valor cheio: R$ ${estimatedTotal.toLocaleString('pt-BR')}.\n\n`
+        : '';
+      const composedObservations = negotiationHeader + [
         `Pacotes solicitados (${selectedMenus.length}):`,
         packagesSummary,
         observations ? `\nObservações do cliente:\n${observations}` : '',
@@ -75,6 +79,7 @@ const SchedulingPage = () => {
         observacoes: composedObservations,
         valor_estimado: estimatedTotal,
       });
+      setNegotiationRequested(false);
       navigate('/confirmacao');
     } catch (err: any) {
       toast({
@@ -98,9 +103,13 @@ const SchedulingPage = () => {
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-8">
             <h1 className="font-display text-2xl md:text-3xl font-semibold text-foreground mb-2">
-              Confirmar agendamento
+              {isNegotiation ? 'Solicitação de negociação' : 'Confirmar agendamento'}
             </h1>
-            <p className="text-muted-foreground">Revise os dados antes de solicitar a contratação</p>
+            <p className="text-muted-foreground">
+              {isNegotiation
+                ? `Você está pedindo uma condição especial para combinar ${selectedMenus.length} pacotes. A empresa avaliará e retornará via WhatsApp.`
+                : 'Revise os dados antes de solicitar a contratação'}
+            </p>
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="card-premium p-6 mb-6">
@@ -126,9 +135,16 @@ const SchedulingPage = () => {
               ))}
             </ul>
             <div className="flex justify-between text-lg pt-3 border-t border-border/50">
-              <span className="text-muted-foreground">Total estimado</span>
-              <span className="font-bold text-primary">R$ {estimatedTotal.toLocaleString('pt-BR')}</span>
+              <span className="text-muted-foreground">{isNegotiation ? 'Valor cheio (a negociar)' : 'Total estimado'}</span>
+              <span className={`font-bold ${isNegotiation ? 'line-through text-muted-foreground' : 'text-primary'}`}>
+                R$ {estimatedTotal.toLocaleString('pt-BR')}
+              </span>
             </div>
+            {isNegotiation && (
+              <p className="mt-3 text-xs text-center text-muted-foreground">
+                O valor final será definido pela empresa após análise do combo.
+              </p>
+            )}
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="card-premium p-6 mb-6">
