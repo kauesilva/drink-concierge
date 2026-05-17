@@ -69,29 +69,82 @@ const MenuDetailPage = () => {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="card-premium p-6 md:p-8"
+                className="card-premium overflow-hidden"
               >
-                <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
-                  <span>{company.name}</span>
-                </div>
-                <h1 className="font-display text-2xl md:text-3xl font-semibold text-foreground mb-4">
-                  {menu.name}
-                </h1>
-                <p className="text-muted-foreground mb-6">
-                  {menu.description}
-                </p>
-
-                <div className="flex flex-wrap gap-4 pb-6 border-b border-border/50">
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary rounded-full">
-                    <Clock className="w-4 h-4 text-primary" />
-                    <span className="text-sm">{menu.durationHours} horas de serviço</span>
+                {menu.coverImage && (
+                  <div className="relative w-full h-56 md:h-72 bg-secondary">
+                    <img
+                      src={menu.coverImage}
+                      alt={menu.name}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                    <div className="absolute bottom-4 left-6 right-6 text-white">
+                      <p className="text-sm opacity-90">{company.name}</p>
+                      <h1 className="font-display text-2xl md:text-3xl font-semibold">
+                        {menu.name}
+                      </h1>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary rounded-full">
-                    <Users className="w-4 h-4 text-primary" />
-                    <span className="text-sm">Mínimo {menu.minPeople} pessoas</span>
+                )}
+                <div className="p-6 md:p-8">
+                  {!menu.coverImage && (
+                    <>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
+                        <span>{company.name}</span>
+                      </div>
+                      <h1 className="font-display text-2xl md:text-3xl font-semibold text-foreground mb-4">
+                        {menu.name}
+                      </h1>
+                    </>
+                  )}
+                  <p className="text-muted-foreground mb-6">
+                    {menu.description}
+                  </p>
+
+                  <div className="flex flex-wrap gap-4 pb-6 border-b border-border/50">
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary rounded-full">
+                      <Clock className="w-4 h-4 text-primary" />
+                      <span className="text-sm">{menu.durationHours} horas de serviço</span>
+                    </div>
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary rounded-full">
+                      <Users className="w-4 h-4 text-primary" />
+                      <span className="text-sm">Mínimo {menu.minPeople} pessoas</span>
+                    </div>
                   </div>
                 </div>
               </motion.div>
+
+              {menu.gallery && menu.gallery.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.05 }}
+                  className="card-premium p-6 md:p-8"
+                >
+                  <h2 className="font-display text-xl font-semibold mb-4">
+                    Galeria do serviço
+                  </h2>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {menu.gallery.map((src, idx) => (
+                      <a
+                        key={idx}
+                        href={src}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="block aspect-square overflow-hidden rounded-lg bg-secondary"
+                      >
+                        <img
+                          src={src}
+                          alt={`${menu.name} - foto ${idx + 1}`}
+                          className="w-full h-full object-cover hover:scale-105 transition-transform"
+                          loading="lazy"
+                        />
+                      </a>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
 
               {menu.includes.length > 0 && (
                 <motion.div
