@@ -250,7 +250,7 @@ const MenuDetailPage = () => {
               )}
             </div>
 
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-1 space-y-4">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -280,30 +280,72 @@ const MenuDetailPage = () => {
                 {!meetsMinimum && (
                   <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 mb-6">
                     <p className="text-sm text-amber-700">
-                      ⚠️ Este cardápio exige mínimo de {menu.minPeople} pessoas. 
+                      ⚠️ Este cardápio exige mínimo de {menu.minPeople} pessoas.
                       Seu evento tem {people}.
                     </p>
                   </div>
                 )}
 
-                <Button
-                  variant="gold"
-                  size="lg"
-                  className="w-full"
-                  onClick={handleSelectMenu}
-                >
-                  Ver valores
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
+                <div className="space-y-2">
+                  <Button
+                    variant={inSelection ? 'outline' : 'gold'}
+                    size="lg"
+                    className="w-full"
+                    onClick={handleAddClick}
+                  >
+                    {inSelection ? (
+                      <>
+                        <Trash2 className="w-4 h-4" />
+                        Remover do orçamento
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-4 h-4" />
+                        Adicionar ao orçamento
+                      </>
+                    )}
+                  </Button>
+
+                  <Button
+                    variant={inSelection ? 'gold' : 'outline'}
+                    size="lg"
+                    className="w-full"
+                    onClick={handleSelectMenu}
+                  >
+                    Ver valores e finalizar
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </div>
 
                 <p className="text-xs text-muted-foreground text-center mt-4">
-                  Valor final sujeito a confirmação
+                  Você pode combinar mais de um pacote desta empresa.
                 </p>
               </motion.div>
+
+              <QuoteSelectionCard people={people} />
             </div>
           </div>
         </div>
       </div>
+
+      <AlertDialog open={crossCompanyOpen} onOpenChange={setCrossCompanyOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Trocar de empresa?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Você já tem pacotes selecionados de outra empresa no seu orçamento.
+              Cada orçamento pode conter pacotes de uma única empresa. Deseja
+              substituir a seleção pelos pacotes desta empresa?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmSwitchCompany}>
+              Trocar e adicionar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Layout>
   );
 };
