@@ -344,7 +344,7 @@ const Index = () => {
       </section>
 
       {/* How it Works — Stripe inspired */}
-      <section id="como-funciona" className="py-24 md:py-32">
+      <section id="como-funciona" className="py-24 md:py-0">
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
