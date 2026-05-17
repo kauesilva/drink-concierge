@@ -233,6 +233,8 @@ export const usePartnerStore = create<PartnerStore>()(
             categoria_servico: updated.serviceCategory,
             cobertura: updated.coverage,
             tipos_evento: updated.eventTypes,
+            foto_capa: updated.coverImage,
+            galeria: updated.gallery,
           }).catch((err) => console.error('Erro ao atualizar pacote na API:', err));
         }
       },
