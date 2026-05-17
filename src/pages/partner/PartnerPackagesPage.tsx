@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Pencil, Trash2, X, GlassWater, Clock, Users, DollarSign, MapPin } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, GlassWater, Clock, Users, DollarSign, MapPin, Camera, ImageIcon } from 'lucide-react';
+import GalleryUploader from '@/components/partners/GalleryUploader';
+import { apiUploadImage } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -42,6 +44,8 @@ const emptyPkg = {
   serviceCategory: undefined as ServiceCategory | undefined,
   coverage: [] as CoverageArea[],
   eventTypes: [] as string[],
+  coverImage: '',
+  gallery: [] as string[],
 };
 
 const PartnerPackagesPage = () => {
@@ -72,8 +76,28 @@ const PartnerPackagesPage = () => {
       serviceCategory: pkg.serviceCategory,
       coverage: pkg.coverage ? [...pkg.coverage] : [],
       eventTypes: pkg.eventTypes ? [...pkg.eventTypes] : [],
+      coverImage: pkg.coverImage || '',
+      gallery: pkg.gallery ? [...pkg.gallery] : [],
     });
     setDialogOpen(true);
+  };
+
+  const coverInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingCover, setUploadingCover] = useState(false);
+
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    setUploadingCover(true);
+    try {
+      const { url } = await apiUploadImage(file);
+      setForm((prev) => ({ ...prev, coverImage: url }));
+    } catch (err: any) {
+      toast({ title: 'Falha no upload', description: err?.message || 'Tente novamente.', variant: 'destructive' });
+    } finally {
+      setUploadingCover(false);
+      if (coverInputRef.current) coverInputRef.current.value = '';
+    }
   };
 
   const addItem = (field: 'includes' | 'drinks', value: string, setter: (v: string) => void) => {
