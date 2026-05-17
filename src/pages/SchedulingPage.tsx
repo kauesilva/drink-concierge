@@ -108,12 +108,24 @@ const SchedulingPage = () => {
               <div className="w-16 h-16 rounded-lg bg-muted flex-shrink-0 overflow-hidden">
                 <img src={company.image} alt={company.name} className="w-full h-full object-cover" />
               </div>
-              <div>
-                <h2 className="font-display text-lg font-semibold text-foreground">{company.name}</h2>
-                <p className="text-sm text-muted-foreground">Cardápio: {menu.name}</p>
+              <div className="min-w-0">
+                <h2 className="font-display text-lg font-semibold text-foreground truncate">{company.name}</h2>
+                <p className="text-sm text-muted-foreground">
+                  {selectedMenus.length} pacote{selectedMenus.length > 1 ? 's' : ''} selecionado{selectedMenus.length > 1 ? 's' : ''}
+                </p>
               </div>
             </div>
-            <div className="flex justify-between text-lg">
+            <ul className="space-y-2 mb-4">
+              {selectedMenus.map((m) => (
+                <li key={m.id} className="flex justify-between items-center text-sm">
+                  <span className="text-foreground">{m.name}</span>
+                  <span className="text-muted-foreground">
+                    R$ {(m.pricePerPerson * people).toLocaleString('pt-BR')}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <div className="flex justify-between text-lg pt-3 border-t border-border/50">
               <span className="text-muted-foreground">Total estimado</span>
               <span className="font-bold text-primary">R$ {estimatedTotal.toLocaleString('pt-BR')}</span>
             </div>
