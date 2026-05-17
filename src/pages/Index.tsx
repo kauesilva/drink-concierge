@@ -8,10 +8,11 @@ import heroDrinks from '@/assets/hero/drinks.jpg';
 import heroBartender from '@/assets/hero/bartender.jpg';
 import heroConsultor from '@/assets/hero/consultor.jpg';
 import heroCasamento from '@/assets/hero/casamento.jpg';
+import heroNaoAlcoolico from '@/assets/hero/nao-alcoolico.jpg';
 
 // Mesma ordem das palavras em RotatingHeadline:
 // ['bar de drinks', 'bartender', 'consultor de bar', 'bar de casamento', 'bar não alcoólico']
-const HERO_IMAGES = [heroDrinks, heroBartender, heroConsultor, heroCasamento, heroDrinks];
+const HERO_IMAGES = [heroDrinks, heroBartender, heroConsultor, heroCasamento, heroNaoAlcoolico];
 import { Button } from '@/components/ui/button';
 import { eventTypes, serviceCategories } from '@/data/mockData';
 import imgCasamento from '@/assets/events/casamento.jpg';
