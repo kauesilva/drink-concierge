@@ -181,7 +181,7 @@ const Index = () => {
             <motion.h1
               variants={fadeInUp}
               className="heading-display text-foreground mb-6">
-              <RotatingHeadline />
+              <RotatingHeadline onIndexChange={handleHeroIndex} />
               <br />
               <span className="text-primary">em poucos cliques</span>
             </motion.h1>
