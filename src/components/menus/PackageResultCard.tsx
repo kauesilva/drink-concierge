@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Clock, Users, ChevronRight, Star } from 'lucide-react';
+import { Clock, Users, ChevronRight, Star, GlassWater } from 'lucide-react';
 import { Menu, Company } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
