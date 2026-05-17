@@ -1,46 +1,37 @@
-# Negociação de pacotes combinados
+# Stats band com imagem de fundo cinematográfica
 
-Quando o cliente soma **2 ou mais pacotes da mesma empresa**, mostramos o valor cheio riscado, um valor de expectativa visual e um botão **"Negociar"** que apenas sinaliza o interesse — a empresa decide o desconto final via WhatsApp.
+Transformar a faixa "500+ eventos / 98% / 50+ empresas" em uma seção imersiva com a foto do bartender de fundo, overlay escuro e tipografia em branco com destaque dourado.
 
-## Comportamento
+## Visual
 
-- **1 pacote selecionado:** fluxo atual permanece (apenas "Selecionar e agendar").
-- **2+ pacotes da mesma empresa:**
-  - Em `PricingPage`, o total cheio aparece **riscado** ao lado de um valor "expectativa" (sugestão visual de -10% combo, apenas referência — sem fechar desconto).
-  - Aparece um selo "Aberto à negociação · combo de N pacotes".
-  - Dois CTAs lado a lado:
-    - **Negociar combo** (gold, primário) → vai para `/agendamento` com flag `negotiationRequested = true`.
-    - **Selecionar e agendar** (outline) → fluxo normal sem flag.
-  - Em `SchedulingPage`, se a flag estiver ativa:
-    - Título do bloco muda para "Solicitação de negociação".
-    - Texto explicativo: "Você está pedindo uma condição especial para combinar N pacotes. A empresa avaliará e retornará via WhatsApp."
-    - Botão final muda para "Enviar pedido de negociação".
-    - `observacoes` ganha um cabeçalho `[NEGOCIAÇÃO SOLICITADA - COMBO DE N PACOTES]` antes do resumo atual.
-    - `valor_estimado` continua sendo o total cheio (sem inventar desconto no banco).
+- Imagem `WhatsApp_Image_2026-05-16_at_22.05.42.jpeg` salva em `src/assets/stats-bartender.jpg` e importada como ES6.
+- `bg-fixed` (parallax sutil) em desktop, fallback estático no mobile.
+- Camadas de overlay (de baixo para cima):
+  1. `bg-black/65` base — garante leitura dos números em qualquer parte da foto.
+  2. Gradiente vertical `from-background/90 via-black/55 to-background/90` — costura a seção com o restante da página (sem "caixote" duro nas bordas).
+  3. Gradiente radial centralizado com leve halo dourado (`hsl(var(--primary)/0.1)`) atrás dos números para realçar o conteúdo sem lavar a imagem.
+- Borda superior/inferior trocadas por `border-primary/15` no lugar de `border-border` para manter unidade premium.
+
+## Conteúdo
+
+- Padding generoso: `py-20 md:py-28`.
+- Eyebrow novo acima dos números: `Resultados que falam por si` (uppercase, dourado, tracking-wider).
+- Números:
+  - `text-white` (override pontual — semanticamente OK aqui pois é hero sobre imagem).
+  - Tamanho aumentado para `text-4xl md:text-6xl`, Space Grotesk bold.
+  - Linha dourada fina (`h-px w-8 bg-primary mx-auto`) entre número e label.
+- Labels em `text-white/75`, mantendo Inter.
+- Stagger animation já existente preservado; adicionar leve `scale: 0.96 → 1` para entrada mais cinemática.
+- Divisores verticais sutis entre as 3 colunas em desktop (`md:divide-x md:divide-white/10`).
 
 ## Mudanças por arquivo
 
-**`src/store/quoteStore.ts`**
-- Adicionar `negotiationRequested: boolean`, setter `setNegotiationRequested(value)` e resetar para `false` em `clearSelection`, `setSelectedMenu` e quando muda de empresa.
+**`src/assets/stats-bartender.jpg`** (novo) — copy do upload do usuário.
 
-**`src/pages/PricingPage.tsx`**
-- Calcular `isCombo = selectedMenus.length >= 2`.
-- Se combo: renderizar o "Total estimado" com `<span className="line-through text-muted-foreground">` no valor cheio + um valor de expectativa (`Math.round(estimatedTotal * 0.9)`) destacado, com legenda "Expectativa em negociação · valor final definido pela empresa".
-- Substituir o botão único por:
-  - `Negociar combo` (gold) → `setNegotiationRequested(true)` e navega para `/agendamento`.
-  - `Selecionar e agendar` (outline) → `setNegotiationRequested(false)` e navega normalmente.
-- Selo informativo acima dos CTAs quando `isCombo`.
-
-**`src/pages/SchedulingPage.tsx`**
-- Ler `negotiationRequested` do store.
-- Ajustar título do card de resumo, copy explicativa e label do botão conforme flag.
-- Prefixar `observacoes` com `[NEGOCIAÇÃO SOLICITADA - COMBO DE N PACOTES]\n` quando ativo.
-- Após sucesso, resetar `negotiationRequested`.
-
-**`src/components/menus/QuoteSelectionCard.tsx`**
-- Quando `selected.length >= 2`, mostrar um pequeno selo "Combo · aberto a negociação" abaixo do subtotal, para reforçar a expectativa antes da pricing page.
+**`src/pages/Index.tsx`**
+- Import da imagem nova.
+- Substituir o bloco `<section>` das linhas 243–263 por nova versão com `relative`, `<img>` absoluta de fundo (com `loading="lazy"`, `object-cover`, `object-center`), camadas de overlay e o grid de stats redesenhado conforme acima.
 
 ## Fora do escopo
-- Nenhuma mudança no backend/MySQL nem nas colunas de `leads` — a sinalização viaja inteira dentro de `observacoes`.
-- Não há cálculo real de desconto nem contraproposta automática; o parceiro define tudo via WhatsApp.
-- Nenhuma alteração no `MenuDetailPage` ou no fluxo de seleção de pacotes.
+- Nenhuma mudança nos valores das estatísticas, na ordem das seções ou em outras áreas da home.
+- Sem alteração no design system / tokens globais.
