@@ -63,6 +63,9 @@ const staggerContainer = {
 };
 
 const Index = () => {
+  const [heroIndex, setHeroIndex] = useState(0);
+  const handleHeroIndex = useCallback((i: number) => setHeroIndex(i), []);
+
   const steps = [
   {
     icon: Sparkles,
