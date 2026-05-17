@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, CheckCircle, Star, Sparkles, Zap, Shield, Users } from 'lucide-react';
+import AnimatedCounter from '@/components/AnimatedCounter';
 import Layout from '@/components/layout/Layout';
 import RotatingHeadline from '@/components/RotatingHeadline';
 import heroDrinks from '@/assets/hero/drinks.jpg';
@@ -277,7 +278,11 @@ const Index = () => {
                 className="text-center px-2 md:px-4"
               >
                 <p className="font-display text-4xl md:text-6xl font-bold text-white mb-3 tracking-tight">
-                  {stat.value}
+                  <AnimatedCounter
+                    value={parseInt(stat.value)}
+                    suffix={stat.value.replace(/^\d+/, '')}
+                    duration={2}
+                  />
                 </p>
                 <div className="h-px w-8 bg-primary mx-auto mb-3" />
                 <p className="text-xs md:text-sm text-white/75 uppercase tracking-wider">
