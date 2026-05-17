@@ -7,6 +7,8 @@ interface QuoteStore {
   currentStep: number;
   selectedCompanyId: string | null;
   selectedMenuIds: string[];
+  negotiationRequested: boolean;
+  setNegotiationRequested: (value: boolean) => void;
   setBriefing: (data: Partial<QuoteBriefing>) => void;
   setCurrentStep: (step: number) => void;
   setSelectedCompany: (id: string | null) => void;
