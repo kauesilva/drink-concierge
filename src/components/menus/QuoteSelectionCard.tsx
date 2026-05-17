@@ -71,12 +71,18 @@ const QuoteSelectionCard = ({ people }: QuoteSelectionCardProps) => {
         </AnimatePresence>
       </ul>
 
-      <div className="flex items-center justify-between pt-3 border-t border-border/60 mb-4">
+      <div className="flex items-center justify-between pt-3 border-t border-border/60 mb-2">
         <span className="text-sm text-muted-foreground">Subtotal estimado</span>
         <span className="text-lg font-bold text-primary">
           R$ {total.toLocaleString('pt-BR')}
         </span>
       </div>
+
+      {selected.length >= 2 && (
+        <p className="mb-4 text-xs text-center text-primary font-medium">
+          Combo · aberto a negociação com a empresa
+        </p>
+      )}
 
       <Button asChild variant="gold" size="sm" className="w-full">
         <Link to={`/empresas/${selectedCompanyId}/cardapios/${firstId}/valores`}>
