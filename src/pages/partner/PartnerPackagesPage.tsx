@@ -218,7 +218,15 @@ const PartnerPackagesPage = () => {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
             >
-              <Card className="border-border/60 hover:border-primary/30 transition-colors h-full">
+              <Card className="border-border/60 hover:border-primary/30 transition-colors h-full overflow-hidden">
+                {pkg.coverImage && (
+                  <div
+                    className="relative h-32 w-full bg-cover bg-center"
+                    style={{ backgroundImage: `url(${pkg.coverImage})` }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-background/40 to-transparent" />
+                  </div>
+                )}
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <CardTitle className="text-lg">{pkg.name}</CardTitle>
@@ -261,6 +269,18 @@ const PartnerPackagesPage = () => {
                           .map((c) => `${c.state}: ${c.cities.slice(0, 3).join(', ')}${c.cities.length > 3 ? '...' : ''}`)
                           .join(' • ')}
                       </span>
+                    </div>
+                  )}
+                  {pkg.gallery && pkg.gallery.length > 0 && (
+                    <div className="flex gap-1.5">
+                      {pkg.gallery.slice(0, 5).map((src, i) => (
+                        <img
+                          key={i}
+                          src={src}
+                          alt={`Foto ${i + 1}`}
+                          className="w-10 h-10 rounded object-cover border border-border"
+                        />
+                      ))}
                     </div>
                   )}
                   {pkg.drinks.length > 0 && (
