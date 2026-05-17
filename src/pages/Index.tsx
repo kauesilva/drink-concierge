@@ -252,20 +252,11 @@ const Index = () => {
           decoding="async"
           className="absolute inset-0 w-full h-full object-cover object-center md:[background-attachment:fixed]"
         />
-        {/* Overlays — escurece para contraste mas mantém a foto legível */}
-        <div className="absolute inset-0 bg-black/65" />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-black/40 to-background/90" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.12)_0%,transparent_60%)]" />
+        {/* Overlay escuro — mantém a foto visível com contraste para o texto */}
+        <div className="absolute inset-0 bg-black/60" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.1)_0%,transparent_60%)]" />
 
-        <div className="container relative z-10 py-20 md:py-28">
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-xs md:text-sm font-semibold text-primary uppercase tracking-[0.2em] text-center mb-10 md:mb-14"
-          >
-            Resultados que falam por si
-          </motion.p>
+        <div className="container relative z-10 py-10 md:py-14">
 
           <div className="grid grid-cols-3 gap-4 md:gap-8 md:divide-x md:divide-white/10">
             {stats.map((stat, i) =>
