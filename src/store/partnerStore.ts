@@ -27,6 +27,8 @@ export interface DrinkPackage {
   serviceCategory?: ServiceCategory;
   coverage?: CoverageArea[];
   eventTypes?: string[];
+  coverImage?: string;
+  gallery?: string[];
 }
 
 export interface PartnerProfile {
