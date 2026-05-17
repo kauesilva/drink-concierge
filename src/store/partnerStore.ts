@@ -272,6 +272,8 @@ export const usePartnerStore = create<PartnerStore>()(
             serviceCategory: (p.categoria_servico as any) || undefined,
             coverage: p.cobertura || [],
             eventTypes: p.tipos_evento || [],
+            coverImage: (p as any).foto_capa || '',
+            gallery: (p as any).galeria || [],
           }));
           set({ packages });
         } catch (err) {
