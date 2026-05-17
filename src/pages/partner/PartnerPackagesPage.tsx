@@ -326,6 +326,57 @@ const PartnerPackagesPage = () => {
               />
             </div>
 
+            {/* Foto de capa */}
+            <div className="space-y-2">
+              <Label>Foto de capa do pacote</Label>
+              <p className="text-xs text-muted-foreground">
+                Aparece ao fundo do card do pacote. Use uma imagem horizontal (16:9) para melhor resultado.
+              </p>
+              {form.coverImage ? (
+                <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-border group">
+                  <img src={form.coverImage} alt="Capa do pacote" className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => setForm((p) => ({ ...p, coverImage: '' }))}
+                    className="absolute top-2 right-2 w-7 h-7 rounded-full bg-foreground/70 text-background flex items-center justify-center"
+                    aria-label="Remover capa"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => coverInputRef.current?.click()}
+                  disabled={uploadingCover}
+                  className="w-full aspect-video rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center text-muted-foreground hover:border-primary hover:text-primary transition-colors"
+                >
+                  <ImageIcon className="w-7 h-7 mb-1" />
+                  <span className="text-sm">{uploadingCover ? 'Enviando...' : 'Adicionar foto de capa'}</span>
+                </button>
+              )}
+              <input
+                ref={coverInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleCoverUpload}
+              />
+            </div>
+
+            {/* Galeria */}
+            <div className="space-y-2">
+              <Label>Galeria do pacote (até 5 fotos)</Label>
+              <p className="text-xs text-muted-foreground">
+                Mostre exemplos do serviço, drinks e decoração.
+              </p>
+              <GalleryUploader
+                images={form.gallery}
+                onChange={(gallery) => setForm((p) => ({ ...p, gallery }))}
+                max={5}
+              />
+            </div>
+
             {/* Categoria */}
             <div className="space-y-2">
               <Label>Categoria do pacote *</Label>
