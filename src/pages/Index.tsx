@@ -157,8 +157,10 @@ const Index = () => {
             />
           </motion.div>
         </AnimatePresence>
-        {/* Overlay para legibilidade */}
-        <div className="absolute inset-0 bg-gradient-to-b from-background/85 via-background/70 to-background/95" />
+        {/* Overlay multicamada para garantir contraste em qualquer imagem/tela */}
+        <div className="absolute inset-0 bg-background/55" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/40 to-background" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--background)/0.15)_0%,hsl(var(--background)/0.55)_70%,hsl(var(--background)/0.85)_100%)]" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-primary/8 rounded-full blur-[120px] animate-glow-pulse" />
         <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[100px]" />
 
