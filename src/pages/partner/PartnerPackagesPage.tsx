@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Pencil, Trash2, X, GlassWater, Clock, Users, DollarSign, MapPin, Camera, ImageIcon } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, GlassWater, Clock, Users, DollarSign, MapPin, ImageIcon } from 'lucide-react';
 import GalleryUploader from '@/components/partners/GalleryUploader';
 import { apiUploadImage } from '@/services/api';
 import { Button } from '@/components/ui/button';
