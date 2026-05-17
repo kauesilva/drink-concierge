@@ -396,7 +396,7 @@ const Index = () => {
       </section>
 
       {/* Event Types — Minimal grid */}
-      <section className="py-24 md:py-32 bg-secondary/30">
+      <section className="py-24 bg-secondary/30 md:py-0">
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
