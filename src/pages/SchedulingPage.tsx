@@ -13,16 +13,18 @@ import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
+const TRAVEL_FEE = 150;
+
 const SchedulingPage = () => {
   const navigate = useNavigate();
-  const { briefing, selectedCompanyId, selectedMenuId } = useQuoteStore();
+  const { briefing, selectedCompanyId, selectedMenuIds } = useQuoteStore();
   const [observations, setObservations] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
   const { data: company, isLoading: lc } = useCompanyDetail(selectedCompanyId || undefined);
   const { data: menus, isLoading: lm } = useCompanyMenus(selectedCompanyId || undefined);
-  const menu = menus?.find(m => m.id === selectedMenuId);
+  const selectedMenus = (menus || []).filter((m) => selectedMenuIds.includes(m.id));
 
   if (lc || lm) {
     return (
@@ -34,22 +36,32 @@ const SchedulingPage = () => {
     );
   }
 
-  if (!company || !menu) {
+  if (!company || selectedMenus.length === 0) {
     navigate('/resultados');
     return null;
   }
 
   const people = briefing.people || 50;
-  const baseTotal = menu.pricePerPerson * people;
-  const travelFee = 150;
-  const estimatedTotal = baseTotal + travelFee;
+  const baseTotal = selectedMenus.reduce((acc, m) => acc + m.pricePerPerson * people, 0);
+  const estimatedTotal = baseTotal + TRAVEL_FEE;
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
+      const packagesSummary = selectedMenus
+        .map((m) => `- ${m.name} (R$ ${m.pricePerPerson}/pessoa)`)
+        .join('\n');
+      const composedObservations = [
+        `Pacotes solicitados (${selectedMenus.length}):`,
+        packagesSummary,
+        observations ? `\nObservações do cliente:\n${observations}` : '',
+      ]
+        .filter(Boolean)
+        .join('\n');
+
       await apiCreateLead({
         parceiro_id: Number(selectedCompanyId),
-        pacote_id: Number(selectedMenuId),
+        pacote_id: Number(selectedMenus[0].id),
         tipo_evento: briefing.eventType || '',
         quantidade_pessoas: people,
         cidade: briefing.city || '',
@@ -60,7 +72,7 @@ const SchedulingPage = () => {
         nome_cliente: briefing.clientName || '',
         whatsapp: briefing.whatsapp || '',
         email: briefing.email || '',
-        observacoes: observations || undefined,
+        observacoes: composedObservations,
         valor_estimado: estimatedTotal,
       });
       navigate('/confirmacao');
