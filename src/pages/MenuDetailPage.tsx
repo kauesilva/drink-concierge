@@ -65,11 +65,44 @@ const MenuDetailPage = () => {
   const people = briefing.people || 50;
   const estimatedTotal = menu.pricePerPerson * people;
   const meetsMinimum = people >= menu.minPeople;
+  const inSelection = selectedMenuIds.includes(menu.id);
+  const isDifferentCompany =
+    !!selectedCompanyId && selectedCompanyId !== company.id && selectedMenuIds.length > 0;
+
+  const doAdd = () => {
+    addMenuToSelection(company.id, menu.id);
+    toast({ title: 'Pacote adicionado ao orçamento' });
+  };
+
+  const handleAddClick = () => {
+    if (inSelection) {
+      removeMenuFromSelection(menu.id);
+      toast({ title: 'Pacote removido do orçamento' });
+      return;
+    }
+    if (isDifferentCompany) {
+      setCrossCompanyOpen(true);
+      return;
+    }
+    doAdd();
+  };
 
   const handleSelectMenu = () => {
-    setSelectedCompany(company.id);
-    setSelectedMenu(menu.id);
+    if (!inSelection) {
+      if (isDifferentCompany) {
+        setCrossCompanyOpen(true);
+        return;
+      }
+      addMenuToSelection(company.id, menu.id);
+    }
     navigate(`/empresas/${companyId}/cardapios/${menuId}/valores`);
+  };
+
+  const confirmSwitchCompany = () => {
+    clearSelection();
+    addMenuToSelection(company.id, menu.id);
+    setCrossCompanyOpen(false);
+    toast({ title: 'Seleção trocada para esta empresa' });
   };
 
   return (
