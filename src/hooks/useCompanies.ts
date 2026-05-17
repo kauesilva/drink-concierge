@@ -34,6 +34,8 @@ export function mapPackageToMenu(p: ApiPacote, companyId: string): Menu {
     serviceCategory: (p.categoria_servico as ServiceCategory) || undefined,
     coverage: p.cobertura || [],
     eventTypes: p.tipos_evento || [],
+    coverImage: p.foto_capa || undefined,
+    gallery: p.galeria || [],
   };
 }
 
