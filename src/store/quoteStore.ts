@@ -7,6 +7,8 @@ interface QuoteStore {
   currentStep: number;
   selectedCompanyId: string | null;
   selectedMenuIds: string[];
+  negotiationRequested: boolean;
+  setNegotiationRequested: (value: boolean) => void;
   setBriefing: (data: Partial<QuoteBriefing>) => void;
   setCurrentStep: (step: number) => void;
   setSelectedCompany: (id: string | null) => void;
@@ -26,6 +28,8 @@ export const useQuoteStore = create<QuoteStore>()(
       currentStep: 1,
       selectedCompanyId: null,
       selectedMenuIds: [],
+      negotiationRequested: false,
+      setNegotiationRequested: (value) => set({ negotiationRequested: value }),
       setBriefing: (data) => set((state) => ({
         briefing: { ...state.briefing, ...data }
       })),
@@ -34,16 +38,18 @@ export const useQuoteStore = create<QuoteStore>()(
       setSelectedMenu: (id) => set((state) => ({
         selectedMenuIds: id ? [id] : [],
         selectedCompanyId: id ? state.selectedCompanyId : null,
+        negotiationRequested: false,
       })),
       addMenuToSelection: (companyId, menuId) => set((state) => {
         const sameCompany = state.selectedCompanyId === companyId;
         const list = sameCompany ? state.selectedMenuIds : [];
         if (list.includes(menuId)) {
-          return { selectedCompanyId: companyId, selectedMenuIds: list };
+          return { selectedCompanyId: companyId, selectedMenuIds: list, negotiationRequested: sameCompany ? state.negotiationRequested : false };
         }
         return {
           selectedCompanyId: companyId,
           selectedMenuIds: [...list, menuId],
+          negotiationRequested: sameCompany ? state.negotiationRequested : false,
         };
       }),
       removeMenuFromSelection: (menuId) => set((state) => {
@@ -51,14 +57,16 @@ export const useQuoteStore = create<QuoteStore>()(
         return {
           selectedMenuIds: next,
           selectedCompanyId: next.length === 0 ? null : state.selectedCompanyId,
+          negotiationRequested: next.length < 2 ? false : state.negotiationRequested,
         };
       }),
-      clearSelection: () => set({ selectedCompanyId: null, selectedMenuIds: [] }),
+      clearSelection: () => set({ selectedCompanyId: null, selectedMenuIds: [], negotiationRequested: false }),
       resetQuote: () => set({
         briefing: {},
         currentStep: 1,
         selectedCompanyId: null,
         selectedMenuIds: [],
+        negotiationRequested: false,
       }),
     }),
     {

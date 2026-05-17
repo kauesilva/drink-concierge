@@ -1,55 +1,46 @@
-# Unificar pacotes da mesma empresa em um único orçamento
+# Negociação de pacotes combinados
 
-## Objetivo
-Hoje o cliente seleciona **um único pacote** de uma empresa e segue para `/valores` → `/agendamento` → lead. Permitir selecionar **vários pacotes da mesma empresa** e enviá-los juntos em um único orçamento (ex.: "Open Bar Premium" + "Bar de café" da mesma casa).
+Quando o cliente soma **2 ou mais pacotes da mesma empresa**, mostramos o valor cheio riscado, um valor de expectativa visual e um botão **"Negociar"** que apenas sinaliza o interesse — a empresa decide o desconto final via WhatsApp.
 
-Regra-chave: o "carrinho" é **scoped a uma única empresa**. Se o usuário tentar adicionar um pacote de outra empresa, mostrar confirmação para limpar a seleção atual.
+## Comportamento
 
-## Mudanças
+- **1 pacote selecionado:** fluxo atual permanece (apenas "Selecionar e agendar").
+- **2+ pacotes da mesma empresa:**
+  - Em `PricingPage`, o total cheio aparece **riscado** ao lado de um valor "expectativa" (sugestão visual de -10% combo, apenas referência — sem fechar desconto).
+  - Aparece um selo "Aberto à negociação · combo de N pacotes".
+  - Dois CTAs lado a lado:
+    - **Negociar combo** (gold, primário) → vai para `/agendamento` com flag `negotiationRequested = true`.
+    - **Selecionar e agendar** (outline) → fluxo normal sem flag.
+  - Em `SchedulingPage`, se a flag estiver ativa:
+    - Título do bloco muda para "Solicitação de negociação".
+    - Texto explicativo: "Você está pedindo uma condição especial para combinar N pacotes. A empresa avaliará e retornará via WhatsApp."
+    - Botão final muda para "Enviar pedido de negociação".
+    - `observacoes` ganha um cabeçalho `[NEGOCIAÇÃO SOLICITADA - COMBO DE N PACOTES]` antes do resumo atual.
+    - `valor_estimado` continua sendo o total cheio (sem inventar desconto no banco).
 
-### 1. `src/store/quoteStore.ts` — múltipla seleção
-Substituir `selectedMenuId: string | null` por `selectedMenuIds: string[]`, mantendo `selectedCompanyId` único:
-- `addMenuToSelection(companyId, menuId)` — se trocar de empresa, reseta lista.
-- `removeMenuFromSelection(menuId)`.
-- `clearSelection()`.
-- `setSelectedMenu(id)` continua existindo como atalho (substitui a lista por `[id]`) para compatibilidade.
+## Mudanças por arquivo
 
-### 2. `src/pages/MenuDetailPage.tsx`
-- Trocar o botão único "Ver valores" por:
-  - Botão primário **"Adicionar ao orçamento"** (gold) → adiciona à seleção e exibe toast.
-  - Botão secundário **"Ver valores e finalizar"** → adiciona (se ainda não estiver) e navega para `/valores`.
-- Se o pacote já está na seleção, botão vira **"Remover do orçamento"** (variant outline).
-- Logo abaixo, mini-card "Seu orçamento" com:
-  - Nome da empresa.
-  - Lista de pacotes selecionados (com botão X para remover cada).
-  - Total estimado consolidado.
-  - Link "Ver valores" → `/empresas/:companyId/cardapios/:firstMenuId/valores`.
-- Bloqueio cross-empresa: se `selectedCompanyId` existir e for outra, abrir `AlertDialog` "Trocar de empresa? Os pacotes selecionados serão removidos."
+**`src/store/quoteStore.ts`**
+- Adicionar `negotiationRequested: boolean`, setter `setNegotiationRequested(value)` e resetar para `false` em `clearSelection`, `setSelectedMenu` e quando muda de empresa.
 
-### 3. `src/pages/PricingPage.tsx`
-- Ler `selectedMenuIds` do store em vez de apenas `menuId` da rota.
-- Renderizar **uma seção "Composição do valor" por pacote** (nome + preço/pessoa × pessoas), além de uma única taxa de deslocamento.
-- Total = soma de todos pacotes × pessoas + taxa.
-- Manter rota `/empresas/:companyId/cardapios/:menuId/valores` — o `menuId` da URL é só "entrada" e garante que o pacote da URL esteja na seleção.
+**`src/pages/PricingPage.tsx`**
+- Calcular `isCombo = selectedMenus.length >= 2`.
+- Se combo: renderizar o "Total estimado" com `<span className="line-through text-muted-foreground">` no valor cheio + um valor de expectativa (`Math.round(estimatedTotal * 0.9)`) destacado, com legenda "Expectativa em negociação · valor final definido pela empresa".
+- Substituir o botão único por:
+  - `Negociar combo` (gold) → `setNegotiationRequested(true)` e navega para `/agendamento`.
+  - `Selecionar e agendar` (outline) → `setNegotiationRequested(false)` e navega normalmente.
+- Selo informativo acima dos CTAs quando `isCombo`.
 
-### 4. `src/pages/SchedulingPage.tsx`
-- Renderizar resumo com **lista de pacotes** selecionados (não só um).
-- Total consolidado.
-- Ao enviar `apiCreateLead`:
-  - `pacote_id` = primeiro da lista (compatibilidade com backend atual).
-  - `valor_estimado` = soma total.
-  - Prefixar `observacoes` com bloco `Pacotes solicitados:` + lista (`- Nome (R$ X/pessoa)`) antes das observações do usuário.
-- Sem mudanças no backend.
+**`src/pages/SchedulingPage.tsx`**
+- Ler `negotiationRequested` do store.
+- Ajustar título do card de resumo, copy explicativa e label do botão conforme flag.
+- Prefixar `observacoes` com `[NEGOCIAÇÃO SOLICITADA - COMBO DE N PACOTES]\n` quando ativo.
+- Após sucesso, resetar `negotiationRequested`.
 
-### 5. Componente novo `src/components/menus/QuoteSelectionCard.tsx`
-Card reutilizável que mostra a seleção atual (empresa + pacotes + total + CTA). Usado em `MenuDetailPage`. Pode ser reaproveitado depois em `ResultsPage`.
+**`src/components/menus/QuoteSelectionCard.tsx`**
+- Quando `selected.length >= 2`, mostrar um pequeno selo "Combo · aberto a negociação" abaixo do subtotal, para reforçar a expectativa antes da pricing page.
 
 ## Fora do escopo
-- Adicionar pacotes a partir do `PackageResultCard` na página de resultados (pode vir depois — o usuário pediu para clicar em "Ver mais detalhes" e cair na página do pacote, fluxo atual).
-- Mudanças na API/banco para suportar múltiplos `pacote_id` por lead.
-- Selecionar pacotes de empresas diferentes no mesmo orçamento.
-
-## Detalhes técnicos
-- `AlertDialog` do shadcn já disponível.
-- Toast via `useToast`.
-- Persistência via `persist` do Zustand já existente — apenas atualizar a chave migrada (aceitar `selectedMenuId` legado e converter para `[id]` no `onRehydrateStorage` ou em uso, simples ignorar — é orçamento volátil).
+- Nenhuma mudança no backend/MySQL nem nas colunas de `leads` — a sinalização viaja inteira dentro de `observacoes`.
+- Não há cálculo real de desconto nem contraproposta automática; o parceiro define tudo via WhatsApp.
+- Nenhuma alteração no `MenuDetailPage` ou no fluxo de seleção de pacotes.
