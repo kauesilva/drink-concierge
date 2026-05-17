@@ -6,6 +6,7 @@ import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import CompanyCard from '@/components/companies/CompanyCard';
 import PackageResultCard from '@/components/menus/PackageResultCard';
 import { useQuoteStore } from '@/store/quoteStore';
@@ -17,7 +18,8 @@ import { ptBR } from 'date-fns/locale';
 const ResultsPage = () => {
   const navigate = useNavigate();
   const { briefing } = useQuoteStore();
-  const [viewMode, setViewMode] = useState<'empresas' | 'pacotes'>('empresas');
+  const [viewMode, setViewMode] = useState<'empresas' | 'pacotes'>('pacotes');
+  const [sortBy, setSortBy] = useState<'match' | 'price' | 'rating'>('match');
   useEffect(() => {
     if (!briefing.eventType || !briefing.people) {
       navigate('/orcamento');
@@ -82,8 +84,8 @@ const ResultsPage = () => {
             <>
               <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as 'empresas' | 'pacotes')} className="mb-6">
                 <TabsList className="grid w-full max-w-sm grid-cols-2">
-                  <TabsTrigger value="empresas">Empresas</TabsTrigger>
                   <TabsTrigger value="pacotes">Pacotes</TabsTrigger>
+                  <TabsTrigger value="empresas">Empresas</TabsTrigger>
                 </TabsList>
               </Tabs>
 
@@ -107,21 +109,46 @@ const ResultsPage = () => {
                   ))}
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                  {matches
-                    .flatMap(({ company, matchedPackages }) =>
-                      matchedPackages.map((menu) => ({ menu, company })),
-                    )
-                    .sort((a, b) => (b.menu.match?.score ?? 0) - (a.menu.match?.score ?? 0))
-                    .map(({ menu, company }, index) => (
-                      <PackageResultCard
-                        key={`${company.id}-${menu.id}`}
-                        menu={menu}
-                        company={company}
-                        index={index}
-                      />
-                    ))}
-                </div>
+                <>
+                  <div className="flex items-center justify-between mb-4 gap-3">
+                    <p className="text-sm text-muted-foreground">
+                      Ordenar por
+                    </p>
+                    <Select value={sortBy} onValueChange={(v) => setSortBy(v as typeof sortBy)}>
+                      <SelectTrigger className="w-[200px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="match">Melhor custo-benefício</SelectItem>
+                        <SelectItem value="price">Menor preço</SelectItem>
+                        <SelectItem value="rating">Maior nota</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                    {matches
+                      .flatMap(({ company, matchedPackages }) =>
+                        matchedPackages.map((menu) => ({ menu, company })),
+                      )
+                      .sort((a, b) => {
+                        if (sortBy === 'price') {
+                          return (a.menu.pricePerPerson ?? 0) - (b.menu.pricePerPerson ?? 0);
+                        }
+                        if (sortBy === 'rating') {
+                          return (b.company.rating ?? 0) - (a.company.rating ?? 0);
+                        }
+                        return (b.menu.match?.score ?? 0) - (a.menu.match?.score ?? 0);
+                      })
+                      .map(({ menu, company }, index) => (
+                        <PackageResultCard
+                          key={`${company.id}-${menu.id}`}
+                          menu={menu}
+                          company={company}
+                          index={index}
+                        />
+                      ))}
+                  </div>
+                </>
               )}
             </>
           ) : (
