@@ -9,15 +9,24 @@ const WORDS = [
   'bar não alcoólico',
 ];
 
-const RotatingHeadline = () => {
+interface RotatingHeadlineProps {
+  onIndexChange?: (i: number) => void;
+}
+
+const RotatingHeadline = ({ onIndexChange }: RotatingHeadlineProps = {}) => {
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
+    onIndexChange?.(0);
     const id = setInterval(() => {
-      setIndex((i) => (i + 1) % WORDS.length);
+      setIndex((i) => {
+        const next = (i + 1) % WORDS.length;
+        onIndexChange?.(next);
+        return next;
+      });
     }, 1000);
     return () => clearInterval(id);
-  }, []);
+  }, [onIndexChange]);
 
   return (
     <span className="inline-flex items-baseline gap-[0.25em]">
