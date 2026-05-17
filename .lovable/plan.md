@@ -1,37 +1,22 @@
-# Busca por Empresas ou Pacotes nos Resultados
+# Foto de capa do pacote no catálogo de resultados
 
-Adicionar um toggle no topo da página de resultados (`/resultados`) permitindo ao usuário alternar entre:
+## Problema
+No modo "Pacotes" da página de resultados (`/resultados`), o card `PackageResultCard` está usando a foto da **empresa** (`company.image`) como fallback quando o pacote não tem `coverImage`. O usuário quer que a foto de capa exibida seja **sempre a do pacote**, nunca da empresa.
 
-- **Empresas** (visão atual): card por empresa com seus pacotes compatíveis agrupados.
-- **Pacotes** (nova visão): catálogo plano de pacotes compatíveis, cada card mostrando o logotipo/nome da empresa ao lado, estilo iFood.
+## Solução
 
-## Mudanças
+### 1. `src/components/menus/PackageResultCard.tsx`
+- Alterar `const cover = menu.coverImage || company.image;` para `const cover = menu.coverImage;`
+- Quando `menu.coverImage` não existir, o card deve mostrar um placeholder neutro de pacote (gradiente/cor sólida) ao invés da imagem da empresa.
+- A **imagem da empresa** deve continuar aparecendo apenas como **logo redondo** no overlay inferior do card (já está assim).
 
-### 1. `src/pages/ResultsPage.tsx`
-- Adicionar estado local `viewMode: 'empresas' | 'pacotes'` (default `empresas`).
-- Renderizar `Tabs` (shadcn) logo abaixo dos filtros do briefing, com dois botões: "Empresas" e "Pacotes".
-- Quando `pacotes`: achatar `matches` em uma lista única de pacotes (`matchedPackages.flatMap`), ordenados por `match.score` desc, e renderizar com o novo `PackageResultCard`.
-- Manter visão "Empresas" inalterada.
+### 2. `src/hooks/useCompanies.ts` (verificação)
+- Confirmar que `mapPackageToMenu` mapeia `p.foto_capa` corretamente para `coverImage` (já faz isso, mas verificar se não há edge cases).
 
-### 2. Novo componente `src/components/menus/PackageResultCard.tsx`
-- Props: `menu: Menu & { match }`, `company: Company`, `index`.
-- Layout (catálogo tipo iFood):
-  - Faixa lateral/topo com `coverImage` do pacote (fallback `company.image`).
-  - Nome do pacote, descrição curta, duração, mín. pessoas, preço/pessoa.
-  - Linha com logotipo redondo da empresa (`company.image`) + nome da empresa + rating pequeno.
-  - Badges de motivos do match (reuso da lógica atual).
-  - Botão "Ver mais detalhes" → `Link` para `/empresas/{company.id}/cardapios/{menu.id}` (rota já existente — `MenuDetailPage`).
-- Usar tokens do design system (sem cores hardcoded), `framer-motion` para entrada.
+### 3. Sem mudanças de backend
+O campo `foto_capa` já é enviado/recebido pela API. Apenas a apresentação no frontend precisa ser ajustada.
 
-### 3. Sem mudanças de backend/dados
-Os dados já vêm de `useMatchingPackages` (empresa + pacotes compatíveis). Apenas reorganizamos a apresentação no cliente.
-
-## Detalhes técnicos
-- Reusar `Tabs`/`TabsList`/`TabsTrigger` de `@/components/ui/tabs`.
-- Tipos: `CompanyMatch` já expõe `company` e `matchedPackages` (que estende `Menu` com `match`); fácil de achatar.
-- Rota de detalhes do pacote: `/empresas/:companyId/cardapios/:menuId` (já existente, usada por `MenuCard`).
-- Mobile-first: grid 1 coluna no mobile, 2 colunas em md+.
-
-## Fora do escopo
-- Busca textual / filtros adicionais no catálogo de pacotes (pode vir depois).
-- Mudanças em `MenuDetailPage`, store de orçamento ou API.
+## Resultado esperado
+- Cada card no catálogo de pacotes mostra a foto de capa do próprio pacote.
+- Se o pacote não tiver foto de capa cadastrada, exibe um fundo neutro (sem logo da empresa).
+- A identidade visual da empresa (logo + nome + nota) permanece no overlay inferior, como está hoje.
