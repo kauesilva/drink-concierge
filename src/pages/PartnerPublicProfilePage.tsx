@@ -17,6 +17,7 @@ const PartnerPublicProfilePage = () => {
   const [p, setP] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [quoteOpen, setQuoteOpen] = useState(false);
 
   useEffect(() => {
     if (!partnerId) return;
