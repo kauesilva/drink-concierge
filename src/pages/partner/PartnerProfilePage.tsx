@@ -232,6 +232,22 @@ const PartnerProfilePage = () => {
         </CardContent>
       </Card>
 
+      {/* Sobre você (opcional) */}
+      <Card className="border-border/60">
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2"><User className="w-4 h-4 text-primary" />Sobre você</CardTitle>
+          <p className="text-xs text-muted-foreground">Todos os campos são opcionais. Apenas o que for preenchido aparece no seu perfil público.</p>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          <PersonalInfoFields
+            value={form.personalInfo}
+            onChange={(pi) => setForm({ ...form, personalInfo: pi })}
+          />
+        </CardContent>
+      </Card>
+
+
+
       {/* Serviços e atendimento */}
       <Card className="border-border/60">
         <CardHeader><CardTitle className="text-lg">Serviços e atendimento</CardTitle></CardHeader>
