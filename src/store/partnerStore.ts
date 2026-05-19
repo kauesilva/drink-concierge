@@ -333,6 +333,12 @@ export const usePartnerStore = create<PartnerStore>()(
             coverage: p.cobertura || [],
             eventTypes: p.tipos_evento || [],
             coverImage: (p as any).foto_capa || '',
+            hourlyRate: (p as any).valor_hora != null ? Number((p as any).valor_hora) : undefined,
+            minHours: (p as any).minimo_horas != null ? Number((p as any).minimo_horas) : undefined,
+            includesSetup: !!Number((p as any).inclui_montagem),
+            setupHours: (p as any).horas_montagem != null ? Number((p as any).horas_montagem) : undefined,
+            allowsOvertime: !!Number((p as any).permite_hora_extra),
+            overtimeHourlyRate: (p as any).valor_hora_extra != null ? Number((p as any).valor_hora_extra) : undefined,
             gallery: (p as any).galeria || [],
           }));
           set({ packages });
