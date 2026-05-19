@@ -1,16 +1,18 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, MapPin, MessageCircle, CheckCircle2, Instagram, Facebook, Globe, Mail, Phone } from 'lucide-react';
+import { ArrowLeft, MapPin, MessageCircle, CheckCircle2, Instagram, Facebook, Globe, Mail, Phone, Eye } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import VideoEmbed from '@/components/partners/VideoEmbed';
-import { apiGetPublicPartner } from '@/services/api';
+import { apiGetPublicPartner, apiGetProfile } from '@/services/api';
 import { serviceCategories } from '@/data/mockData';
 
 const PartnerPublicProfilePage = () => {
   const { partnerId } = useParams();
+  const [searchParams] = useSearchParams();
+  const isPreview = searchParams.get('preview') === '1';
   const [p, setP] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -18,11 +20,13 @@ const PartnerPublicProfilePage = () => {
   useEffect(() => {
     if (!partnerId) return;
     setLoading(true);
-    apiGetPublicPartner(Number(partnerId))
+    const fetcher = isPreview ? apiGetProfile : apiGetPublicPartner;
+    fetcher(Number(partnerId))
       .then((data) => { setP(data); setError(null); })
       .catch((err) => setError(err?.message || 'Erro ao carregar parceiro'))
       .finally(() => setLoading(false));
-  }, [partnerId]);
+  }, [partnerId, isPreview]);
+
 
   const catLabel = (v: string) => serviceCategories.find((c) => c.value === v)?.label || v;
 
