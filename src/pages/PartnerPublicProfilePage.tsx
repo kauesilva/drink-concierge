@@ -57,8 +57,17 @@ const PartnerPublicProfilePage = () => {
 
   return (
     <Layout>
+      {isPreview && (
+        <div className="bg-primary/10 border-b border-primary/20 text-foreground">
+          <div className="container mx-auto px-6 py-2.5 text-sm flex items-center gap-2">
+            <Eye className="w-4 h-4 text-primary" />
+            <span><strong>Modo pré-visualização.</strong> Esta é a forma como seu perfil será exibido publicamente.</span>
+          </div>
+        </div>
+      )}
       {/* Hero */}
       <section className="relative">
+
         <div className="h-56 md:h-80 bg-muted overflow-hidden">
           {cover ? (
             <img src={cover} alt={name} className="w-full h-full object-cover" />
