@@ -186,7 +186,16 @@ export const usePartnerStore = create<PartnerStore>()(
             tiktok: profile.socials?.tiktok,
             site: profile.socials?.site,
             telefone_publico: profile.showContact ? 1 : 0,
+            idade: profile.personalInfo?.age,
+            sexo: profile.personalInfo?.gender,
+            profissao: profile.personalInfo?.profession,
+            altura: profile.personalInfo?.height,
+            peso: profile.personalInfo?.weight,
+            uniforme: profile.personalInfo?.uniform,
+            estilo_coquetelaria: profile.personalInfo?.cocktailStyle,
+            estilo_coquetelaria_outro: profile.personalInfo?.cocktailStyleOther,
           });
+
         } catch (err) {
           console.error('Erro ao sincronizar perfil:', err);
           throw err;
