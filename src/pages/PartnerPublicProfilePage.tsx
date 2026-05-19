@@ -216,4 +216,60 @@ const PartnerPublicProfilePage = () => {
   );
 };
 
+const GENDER_LABELS: Record<string, string> = {
+  masculino: 'Masculino',
+  feminino: 'Feminino',
+  nao_declarar: 'Prefiro não declarar',
+};
+const UNIFORM_LABELS: Record<string, string> = {
+  avental: 'Avental',
+  social: 'Roupa social',
+  freestyle: 'Freestyle',
+};
+const STYLE_LABELS: Record<string, string> = {
+  classico: 'Clássico',
+  moderno: 'Moderno',
+  molecular: 'Molecular',
+  contemporaneo: 'Contemporâneo',
+  diversificado: 'Diversificado',
+  todos: 'Todos',
+  outros: 'Outros',
+};
+
+function PersonalInfoBlock({ p }: { p: any }) {
+  const styleVal =
+    p.estilo_coquetelaria === 'outros' && p.estilo_coquetelaria_outro
+      ? p.estilo_coquetelaria_outro
+      : p.estilo_coquetelaria
+      ? STYLE_LABELS[p.estilo_coquetelaria] || p.estilo_coquetelaria
+      : null;
+
+  const items: { label: string; value: string }[] = [
+    p.idade && { label: 'Idade', value: `${p.idade} anos` },
+    p.sexo && { label: 'Sexo', value: GENDER_LABELS[p.sexo] || p.sexo },
+    p.profissao && { label: 'Profissão', value: p.profissao },
+    p.altura && { label: 'Altura', value: `${p.altura} cm` },
+    p.peso && { label: 'Peso', value: `${p.peso} kg` },
+    p.uniforme && { label: 'Uniforme', value: UNIFORM_LABELS[p.uniforme] || p.uniforme },
+    styleVal && { label: 'Estilo de coquetelaria', value: styleVal },
+  ].filter(Boolean) as { label: string; value: string }[];
+
+  if (!items.length) return null;
+
+  return (
+    <section>
+      <h2 className="font-display text-xl font-semibold mb-3">Sobre</h2>
+      <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 bg-card border border-border/60 rounded-2xl p-5">
+        {items.map((it) => (
+          <div key={it.label} className="flex flex-col">
+            <dt className="text-xs uppercase tracking-wide text-muted-foreground">{it.label}</dt>
+            <dd className="text-sm text-foreground font-medium mt-0.5">{it.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  );
+}
+
 export default PartnerPublicProfilePage;
+
