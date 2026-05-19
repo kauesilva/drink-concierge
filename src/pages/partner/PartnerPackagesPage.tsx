@@ -84,6 +84,12 @@ const PartnerPackagesPage = () => {
       eventTypes: pkg.eventTypes ? [...pkg.eventTypes] : [],
       coverImage: pkg.coverImage || '',
       gallery: pkg.gallery ? [...pkg.gallery] : [],
+      hourlyRate: pkg.hourlyRate ?? 0,
+      minHours: pkg.minHours ?? 5,
+      includesSetup: !!pkg.includesSetup,
+      setupHours: pkg.setupHours ?? 1,
+      allowsOvertime: !!pkg.allowsOvertime,
+      overtimeHourlyRate: pkg.overtimeHourlyRate ?? 0,
     });
     setDialogOpen(true);
   };
