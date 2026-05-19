@@ -179,6 +179,14 @@ export async function apiUpdateProfile(
     tiktok?: string;
     site?: string;
     telefone_publico?: number;
+    idade?: number;
+    sexo?: string;
+    profissao?: string;
+    altura?: number;
+    peso?: number;
+    uniforme?: string;
+    estilo_coquetelaria?: string;
+    estilo_coquetelaria_outro?: string;
   }
 ): Promise<{ message: string }> {
   return request('update_profile', {
