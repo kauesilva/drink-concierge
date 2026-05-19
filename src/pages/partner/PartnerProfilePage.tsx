@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Camera, Plus, X, Save, AlertTriangle, CheckCircle2, Image as ImageIcon, Sparkles, Share2 } from 'lucide-react';
+import { Camera, Plus, X, Save, AlertTriangle, CheckCircle2, Image as ImageIcon, Sparkles, Share2, Eye, Link as LinkIcon, Instagram, MessageCircle, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,6 +9,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { usePartnerStore } from '@/store/partnerStore';
 import { toast } from '@/hooks/use-toast';
 import { apiUploadImage } from '@/services/api';
@@ -18,6 +21,7 @@ import VideoEmbed from '@/components/partners/VideoEmbed';
 import { serviceCategories } from '@/data/mockData';
 import { getPublishChecks, isPartnerPublishable } from '@/lib/partners';
 import type { ServiceCategory } from '@/types';
+import type { PartnerAbout, CocktailStyle } from '@/store/partnerStore';
 
 const PartnerProfilePage = () => {
   const { profile, updateProfile } = usePartnerStore();
