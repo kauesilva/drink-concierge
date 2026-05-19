@@ -43,6 +43,13 @@ export interface Menu {
   eventTypes?: string[];
   coverImage?: string;
   gallery?: string[];
+  // Labor-only fields (used when serviceCategory === 'mao-de-obra')
+  hourlyRate?: number;
+  minHours?: number;
+  includesSetup?: boolean;
+  setupHours?: number;
+  allowsOvertime?: boolean;
+  overtimeHourlyRate?: number;
 }
 
 export interface Lead {
