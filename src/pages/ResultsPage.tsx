@@ -82,9 +82,10 @@ const ResultsPage = () => {
             </div>
           ) : matches && matches.length > 0 ? (
             <>
-              <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as 'empresas' | 'pacotes')} className="mb-6">
-                <TabsList className="grid w-full max-w-sm grid-cols-2">
+              <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as typeof viewMode)} className="mb-6">
+                <TabsList className="grid w-full max-w-xl grid-cols-3">
                   <TabsTrigger value="pacotes">Pacotes</TabsTrigger>
+                  <TabsTrigger value="mao-de-obra">Mão de obra</TabsTrigger>
                   <TabsTrigger value="empresas">Empresas</TabsTrigger>
                 </TabsList>
               </Tabs>
@@ -109,46 +110,73 @@ const ResultsPage = () => {
                   ))}
                 </div>
               ) : (
-                <>
-                  <div className="flex items-center justify-between mb-4 gap-3">
-                    <p className="text-sm text-muted-foreground">
-                      Ordenar por
-                    </p>
-                    <Select value={sortBy} onValueChange={(v) => setSortBy(v as typeof sortBy)}>
-                      <SelectTrigger className="w-[200px]">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="match">Melhor custo-benefício</SelectItem>
-                        <SelectItem value="price">Menor preço</SelectItem>
-                        <SelectItem value="rating">Maior nota</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                    {matches
-                      .flatMap(({ company, matchedPackages }) =>
-                        matchedPackages.map((menu) => ({ menu, company })),
-                      )
-                      .sort((a, b) => {
-                        if (sortBy === 'price') {
-                          return (a.menu.pricePerPerson ?? 0) - (b.menu.pricePerPerson ?? 0);
-                        }
-                        if (sortBy === 'rating') {
-                          return (b.company.rating ?? 0) - (a.company.rating ?? 0);
-                        }
-                        return (b.menu.match?.score ?? 0) - (a.menu.match?.score ?? 0);
-                      })
-                      .map(({ menu, company }, index) => (
-                        <PackageResultCard
-                          key={`${company.id}-${menu.id}`}
-                          menu={menu}
-                          company={company}
-                          index={index}
-                        />
-                      ))}
-                  </div>
-                </>
+                (() => {
+                  const allPackages = matches.flatMap(({ company, matchedPackages }) =>
+                    matchedPackages.map((menu) => ({ menu, company })),
+                  );
+                  const filtered =
+                    viewMode === 'mao-de-obra'
+                      ? allPackages.filter(({ menu }) => menu.serviceCategory === 'mao-de-obra')
+                      : allPackages.filter(({ menu }) => menu.serviceCategory !== 'mao-de-obra');
+
+                  if (filtered.length === 0) {
+                    return (
+                      <div className="text-center py-12 text-muted-foreground">
+                        {viewMode === 'mao-de-obra'
+                          ? 'Nenhum pacote de mão de obra disponível para seu briefing.'
+                          : 'Nenhum pacote completo disponível.'}
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <>
+                      <div className="flex items-center justify-between mb-4 gap-3">
+                        <p className="text-sm text-muted-foreground">Ordenar por</p>
+                        <Select value={sortBy} onValueChange={(v) => setSortBy(v as typeof sortBy)}>
+                          <SelectTrigger className="w-[200px]">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="match">Melhor custo-benefício</SelectItem>
+                            <SelectItem value="price">
+                              {viewMode === 'mao-de-obra' ? 'Menor valor/hora' : 'Menor preço'}
+                            </SelectItem>
+                            <SelectItem value="rating">Maior nota</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                        {filtered
+                          .sort((a, b) => {
+                            if (sortBy === 'price') {
+                              const av =
+                                viewMode === 'mao-de-obra'
+                                  ? a.menu.hourlyRate ?? 0
+                                  : a.menu.pricePerPerson ?? 0;
+                              const bv =
+                                viewMode === 'mao-de-obra'
+                                  ? b.menu.hourlyRate ?? 0
+                                  : b.menu.pricePerPerson ?? 0;
+                              return av - bv;
+                            }
+                            if (sortBy === 'rating') {
+                              return (b.company.rating ?? 0) - (a.company.rating ?? 0);
+                            }
+                            return (b.menu.match?.score ?? 0) - (a.menu.match?.score ?? 0);
+                          })
+                          .map(({ menu, company }, index) => (
+                            <PackageResultCard
+                              key={`${company.id}-${menu.id}`}
+                              menu={menu}
+                              company={company}
+                              index={index}
+                            />
+                          ))}
+                      </div>
+                    </>
+                  );
+                })()
               )}
             </>
           ) : (
