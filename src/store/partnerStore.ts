@@ -289,6 +289,12 @@ export const usePartnerStore = create<PartnerStore>()(
             tipos_evento: updated.eventTypes,
             foto_capa: updated.coverImage,
             galeria: updated.gallery,
+            valor_hora: updated.hourlyRate,
+            minimo_horas: updated.minHours,
+            inclui_montagem: updated.includesSetup ? 1 : 0,
+            horas_montagem: updated.setupHours,
+            permite_hora_extra: updated.allowsOvertime ? 1 : 0,
+            valor_hora_extra: updated.overtimeHourlyRate,
           }).catch((err) => console.error('Erro ao atualizar pacote na API:', err));
         }
       },
