@@ -108,12 +108,16 @@ const PartnerProfilePage = () => {
       animate={{ opacity: 1, y: 0 }}
       className="max-w-4xl mx-auto space-y-6"
     >
-      <div>
-        <h1 className="font-display text-2xl font-bold">Meu Perfil</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Essas informações aparecem na sua página pública em <span className="font-medium">Encontre seu Bartender</span>.
-        </p>
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+        <div>
+          <h1 className="font-display text-2xl font-bold">Meu Perfil</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Essas informações aparecem na sua página pública em <span className="font-medium">Encontre seu Bartender</span>.
+          </p>
+        </div>
+        <ProfileActions apiId={form.apiId} businessName={form.businessName} />
       </div>
+
 
       {/* Status de publicação */}
       <Card className={publishable ? 'border-primary/40 bg-primary/5' : 'border-amber-300 bg-amber-50 dark:bg-amber-950/20'}>
