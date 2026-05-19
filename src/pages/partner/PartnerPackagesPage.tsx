@@ -675,31 +675,33 @@ const PartnerPackagesPage = () => {
               )}
             </div>
 
-            {/* Drinks */}
-            <div className="space-y-2">
-              <Label>Drinks</Label>
-              <div className="flex gap-2">
-                <Input
-                  value={drinkInput}
-                  onChange={(e) => setDrinkInput(e.target.value)}
-                  placeholder="Ex: Caipirinha"
-                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addItem('drinks', drinkInput, setDrinkInput))}
-                />
-                <Button type="button" variant="outline" size="icon" onClick={() => addItem('drinks', drinkInput, setDrinkInput)}>
-                  <Plus className="w-4 h-4" />
-                </Button>
-              </div>
-              {form.drinks.length > 0 && (
-                <div className="flex flex-wrap gap-1.5">
-                  {form.drinks.map((item) => (
-                    <Badge key={item} variant="secondary" className="gap-1 pr-1">
-                      {item}
-                      <button onClick={() => removeItem('drinks', item)}><X className="w-3 h-3" /></button>
-                    </Badge>
-                  ))}
+            {/* Drinks (não aplicável para mão de obra) */}
+            {form.serviceCategory !== 'mao-de-obra' && (
+              <div className="space-y-2">
+                <Label>Drinks</Label>
+                <div className="flex gap-2">
+                  <Input
+                    value={drinkInput}
+                    onChange={(e) => setDrinkInput(e.target.value)}
+                    placeholder="Ex: Caipirinha"
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addItem('drinks', drinkInput, setDrinkInput))}
+                  />
+                  <Button type="button" variant="outline" size="icon" onClick={() => addItem('drinks', drinkInput, setDrinkInput)}>
+                    <Plus className="w-4 h-4" />
+                  </Button>
                 </div>
-              )}
-            </div>
+                {form.drinks.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {form.drinks.map((item) => (
+                      <Badge key={item} variant="secondary" className="gap-1 pr-1">
+                        {item}
+                        <button onClick={() => removeItem('drinks', item)}><X className="w-3 h-3" /></button>
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Coverage / Region */}
             <div className="space-y-2">
