@@ -6,6 +6,7 @@ import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import VideoEmbed from '@/components/partners/VideoEmbed';
+import QuickQuoteDialog from '@/components/partners/QuickQuoteDialog';
 import { apiGetPublicPartner, apiGetProfile } from '@/services/api';
 import { serviceCategories } from '@/data/mockData';
 
@@ -16,6 +17,7 @@ const PartnerPublicProfilePage = () => {
   const [p, setP] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [quoteOpen, setQuoteOpen] = useState(false);
 
   useEffect(() => {
     if (!partnerId) return;
@@ -104,8 +106,8 @@ const PartnerPublicProfilePage = () => {
               </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 mt-6">
-              <Button asChild variant="gold" size="lg" className="flex-1">
-                <Link to="/orcamento">Solicitar orçamento</Link>
+              <Button variant="gold" size="lg" className="flex-1" onClick={() => setQuoteOpen(true)}>
+                Solicitar orçamento
               </Button>
               {showContact && whatsappLink && (
                 <Button asChild variant="outline" size="lg" className="flex-1">
@@ -207,11 +209,20 @@ const PartnerPublicProfilePage = () => {
             </div>
           )}
 
-          <Button asChild variant="gold" size="lg" className="w-full">
-            <Link to="/orcamento">Solicitar orçamento</Link>
+          <Button variant="gold" size="lg" className="w-full" onClick={() => setQuoteOpen(true)}>
+            Solicitar orçamento
           </Button>
         </aside>
       </div>
+
+      <QuickQuoteDialog
+        open={quoteOpen}
+        onOpenChange={setQuoteOpen}
+        parceiroId={Number(partnerId)}
+        parceiroNome={name}
+        cidadeBase={p.cidade_base || ''}
+        estadoBase={p.estado || ''}
+      />
     </Layout>
   );
 };

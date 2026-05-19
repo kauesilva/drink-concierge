@@ -305,6 +305,24 @@ export async function apiCreateLead(data: {
   });
 }
 
+export async function apiSendQuickQuote(data: {
+  parceiro_id: number;
+  nome_cliente: string;
+  whatsapp: string;
+  email: string;
+  tipo_evento: string;
+  quantidade_pessoas: number;
+  data_evento: string;
+  cidade: string;
+  estado: string;
+  observacoes?: string;
+}): Promise<{ id: number; message: string }> {
+  return request('send_quick_quote', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
 export async function apiGetPartnerLeads(parceiroId: number): Promise<ApiLead[]> {
   return request('get_partner_leads', {
     params: { parceiro_id: String(parceiroId) },
