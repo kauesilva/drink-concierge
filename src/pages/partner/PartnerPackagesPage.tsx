@@ -156,27 +156,77 @@ const PartnerPackagesPage = () => {
   };
 
   const handleSave = async () => {
-    if (!form.name || form.pricePerPerson <= 0) {
-      toast({ title: 'Preencha os campos obrigatórios', variant: 'destructive' });
+    if (!form.name) {
+      toast({ title: 'Preencha o nome do pacote', variant: 'destructive' });
       return;
     }
     if (!form.serviceCategory) {
       toast({ title: 'Selecione a categoria do pacote', variant: 'destructive' });
       return;
     }
-    if (form.maxPeople && form.maxPeople < form.minPeople) {
-      toast({ title: 'O máximo de pessoas deve ser maior ou igual ao mínimo', variant: 'destructive' });
-      return;
+    const isLabor = form.serviceCategory === 'mao-de-obra';
+    if (isLabor) {
+      if (!form.hourlyRate || form.hourlyRate <= 0) {
+        toast({ title: 'Informe o valor por hora', variant: 'destructive' });
+        return;
+      }
+      if (!form.minHours || form.minHours < 1) {
+        toast({ title: 'Informe o mínimo de horas', variant: 'destructive' });
+        return;
+      }
+      if (form.allowsOvertime && (!form.overtimeHourlyRate || form.overtimeHourlyRate <= 0)) {
+        toast({ title: 'Informe o valor da hora extra', variant: 'destructive' });
+        return;
+      }
+      // Limite de 1 pacote de mão de obra
+      const exists = packages.some(
+        (p) => p.serviceCategory === 'mao-de-obra' && p.id !== editingId,
+      );
+      if (exists) {
+        toast({
+          title: 'Você já possui um pacote de mão de obra',
+          description: 'Apenas 1 pacote de mão de obra é permitido por parceiro.',
+          variant: 'destructive',
+        });
+        return;
+      }
+    } else {
+      if (form.pricePerPerson <= 0) {
+        toast({ title: 'Informe o preço por pessoa', variant: 'destructive' });
+        return;
+      }
+      if (form.maxPeople && form.maxPeople < form.minPeople) {
+        toast({ title: 'O máximo de pessoas deve ser maior ou igual ao mínimo', variant: 'destructive' });
+        return;
+      }
     }
     if (!form.coverage || form.coverage.length === 0) {
       toast({ title: 'Adicione ao menos uma cidade de atendimento', variant: 'destructive' });
       return;
     }
+    // Normaliza o payload conforme o tipo do pacote
+    const payload = isLabor
+      ? {
+          ...form,
+          pricePerPerson: 0,
+          minPeople: 0,
+          maxPeople: undefined,
+          drinks: [],
+        }
+      : {
+          ...form,
+          hourlyRate: undefined,
+          minHours: undefined,
+          includesSetup: false,
+          setupHours: undefined,
+          allowsOvertime: false,
+          overtimeHourlyRate: undefined,
+        };
     if (editingId) {
-      updatePackage(editingId, form);
+      updatePackage(editingId, payload);
       toast({ title: 'Pacote atualizado!' });
     } else {
-      const ok = await addPackage(form);
+      const ok = await addPackage(payload);
       if (!ok) {
         toast({ title: 'Limite de 4 pacotes atingido', variant: 'destructive' });
         return;
