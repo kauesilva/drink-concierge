@@ -1,16 +1,18 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, MapPin, MessageCircle, CheckCircle2, Instagram, Facebook, Globe, Mail, Phone } from 'lucide-react';
+import { ArrowLeft, MapPin, MessageCircle, CheckCircle2, Instagram, Facebook, Globe, Mail, Phone, Eye } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import VideoEmbed from '@/components/partners/VideoEmbed';
-import { apiGetPublicPartner } from '@/services/api';
+import { apiGetPublicPartner, apiGetProfile } from '@/services/api';
 import { serviceCategories } from '@/data/mockData';
 
 const PartnerPublicProfilePage = () => {
   const { partnerId } = useParams();
+  const [searchParams] = useSearchParams();
+  const isPreview = searchParams.get('preview') === '1';
   const [p, setP] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -18,11 +20,13 @@ const PartnerPublicProfilePage = () => {
   useEffect(() => {
     if (!partnerId) return;
     setLoading(true);
-    apiGetPublicPartner(Number(partnerId))
+    const fetcher = isPreview ? apiGetProfile : apiGetPublicPartner;
+    fetcher(Number(partnerId))
       .then((data) => { setP(data); setError(null); })
       .catch((err) => setError(err?.message || 'Erro ao carregar parceiro'))
       .finally(() => setLoading(false));
-  }, [partnerId]);
+  }, [partnerId, isPreview]);
+
 
   const catLabel = (v: string) => serviceCategories.find((c) => c.value === v)?.label || v;
 
@@ -53,8 +57,17 @@ const PartnerPublicProfilePage = () => {
 
   return (
     <Layout>
+      {isPreview && (
+        <div className="bg-primary/10 border-b border-primary/20 text-foreground">
+          <div className="container mx-auto px-6 py-2.5 text-sm flex items-center gap-2">
+            <Eye className="w-4 h-4 text-primary" />
+            <span><strong>Modo pré-visualização.</strong> Esta é a forma como seu perfil será exibido publicamente.</span>
+          </div>
+        </div>
+      )}
       {/* Hero */}
       <section className="relative">
+
         <div className="h-56 md:h-80 bg-muted overflow-hidden">
           {cover ? (
             <img src={cover} alt={name} className="w-full h-full object-cover" />
@@ -116,6 +129,10 @@ const PartnerPublicProfilePage = () => {
               </p>
             </motion.section>
           )}
+
+          <PersonalInfoBlock p={p} />
+
+
 
           {!!differentials.length && (
             <section>
@@ -199,4 +216,60 @@ const PartnerPublicProfilePage = () => {
   );
 };
 
+const GENDER_LABELS: Record<string, string> = {
+  masculino: 'Masculino',
+  feminino: 'Feminino',
+  nao_declarar: 'Prefiro não declarar',
+};
+const UNIFORM_LABELS: Record<string, string> = {
+  avental: 'Avental',
+  social: 'Roupa social',
+  freestyle: 'Freestyle',
+};
+const STYLE_LABELS: Record<string, string> = {
+  classico: 'Clássico',
+  moderno: 'Moderno',
+  molecular: 'Molecular',
+  contemporaneo: 'Contemporâneo',
+  diversificado: 'Diversificado',
+  todos: 'Todos',
+  outros: 'Outros',
+};
+
+function PersonalInfoBlock({ p }: { p: any }) {
+  const styleVal =
+    p.estilo_coquetelaria === 'outros' && p.estilo_coquetelaria_outro
+      ? p.estilo_coquetelaria_outro
+      : p.estilo_coquetelaria
+      ? STYLE_LABELS[p.estilo_coquetelaria] || p.estilo_coquetelaria
+      : null;
+
+  const items: { label: string; value: string }[] = [
+    p.idade && { label: 'Idade', value: `${p.idade} anos` },
+    p.sexo && { label: 'Sexo', value: GENDER_LABELS[p.sexo] || p.sexo },
+    p.profissao && { label: 'Profissão', value: p.profissao },
+    p.altura && { label: 'Altura', value: `${p.altura} cm` },
+    p.peso && { label: 'Peso', value: `${p.peso} kg` },
+    p.uniforme && { label: 'Uniforme', value: UNIFORM_LABELS[p.uniforme] || p.uniforme },
+    styleVal && { label: 'Estilo de coquetelaria', value: styleVal },
+  ].filter(Boolean) as { label: string; value: string }[];
+
+  if (!items.length) return null;
+
+  return (
+    <section>
+      <h2 className="font-display text-xl font-semibold mb-3">Sobre</h2>
+      <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 bg-card border border-border/60 rounded-2xl p-5">
+        {items.map((it) => (
+          <div key={it.label} className="flex flex-col">
+            <dt className="text-xs uppercase tracking-wide text-muted-foreground">{it.label}</dt>
+            <dd className="text-sm text-foreground font-medium mt-0.5">{it.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  );
+}
+
 export default PartnerPublicProfilePage;
+

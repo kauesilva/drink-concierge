@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Camera, Plus, X, Save, AlertTriangle, CheckCircle2, Image as ImageIcon, Sparkles, Share2 } from 'lucide-react';
+import { Camera, Plus, X, Save, AlertTriangle, CheckCircle2, Image as ImageIcon, Sparkles, Share2, Eye, Link as LinkIcon, Instagram, MessageCircle, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,6 +9,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { usePartnerStore } from '@/store/partnerStore';
 import { toast } from '@/hooks/use-toast';
 import { apiUploadImage } from '@/services/api';
@@ -18,6 +21,7 @@ import VideoEmbed from '@/components/partners/VideoEmbed';
 import { serviceCategories } from '@/data/mockData';
 import { getPublishChecks, isPartnerPublishable } from '@/lib/partners';
 import type { ServiceCategory } from '@/types';
+import type { PartnerAbout, CocktailStyle } from '@/store/partnerStore';
 
 const PartnerProfilePage = () => {
   const { profile, updateProfile } = usePartnerStore();
@@ -104,12 +108,16 @@ const PartnerProfilePage = () => {
       animate={{ opacity: 1, y: 0 }}
       className="max-w-4xl mx-auto space-y-6"
     >
-      <div>
-        <h1 className="font-display text-2xl font-bold">Meu Perfil</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Essas informações aparecem na sua página pública em <span className="font-medium">Encontre seu Bartender</span>.
-        </p>
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+        <div>
+          <h1 className="font-display text-2xl font-bold">Meu Perfil</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Essas informações aparecem na sua página pública em <span className="font-medium">Encontre seu Bartender</span>.
+          </p>
+        </div>
+        <ProfileActions apiId={form.apiId} businessName={form.businessName} />
       </div>
+
 
       {/* Status de publicação */}
       <Card className={publishable ? 'border-primary/40 bg-primary/5' : 'border-amber-300 bg-amber-50 dark:bg-amber-950/20'}>
@@ -223,6 +231,22 @@ const PartnerProfilePage = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Sobre você (opcional) */}
+      <Card className="border-border/60">
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2"><User className="w-4 h-4 text-primary" />Sobre você</CardTitle>
+          <p className="text-xs text-muted-foreground">Todos os campos são opcionais. Apenas o que for preenchido aparece no seu perfil público.</p>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          <PersonalInfoFields
+            value={form.personalInfo}
+            onChange={(pi) => setForm({ ...form, personalInfo: pi })}
+          />
+        </CardContent>
+      </Card>
+
+
 
       {/* Serviços e atendimento */}
       <Card className="border-border/60">
@@ -390,4 +414,195 @@ const PartnerProfilePage = () => {
   );
 };
 
+// =============================================
+// Subcomponentes
+// =============================================
+
+const COCKTAIL_STYLES: { value: CocktailStyle; label: string }[] = [
+  { value: 'classico', label: 'Clássico' },
+  { value: 'moderno', label: 'Moderno' },
+  { value: 'molecular', label: 'Molecular' },
+  { value: 'contemporaneo', label: 'Contemporâneo' },
+  { value: 'diversificado', label: 'Diversificado' },
+  { value: 'todos', label: 'Todos' },
+  { value: 'outros', label: 'Outros' },
+];
+
+function PersonalInfoFields({
+  value,
+  onChange,
+}: {
+  value?: PartnerAbout;
+  onChange: (v: PartnerAbout) => void;
+}) {
+  const v = value || {};
+  const set = (patch: Partial<PartnerAbout>) => onChange({ ...v, ...patch });
+
+  return (
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label>Idade</Label>
+          <Input
+            type="number"
+            min={0}
+            value={v.age ?? ''}
+            onChange={(e) => set({ age: e.target.value ? Number(e.target.value) : undefined })}
+            placeholder="Ex: 32"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>Sexo</Label>
+          <Select value={v.gender || ''} onValueChange={(val) => set({ gender: (val as PartnerAbout['gender']) || undefined })}>
+            <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="masculino">Masculino</SelectItem>
+              <SelectItem value="feminino">Feminino</SelectItem>
+              <SelectItem value="nao_declarar">Prefiro não declarar</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label>Profissão</Label>
+          <Input
+            value={v.profession || ''}
+            onChange={(e) => set({ profession: e.target.value || undefined })}
+            placeholder="Ex: Bartender, Sommelier"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>Uniforme</Label>
+          <Select value={v.uniform || ''} onValueChange={(val) => set({ uniform: (val as PartnerAbout['uniform']) || undefined })}>
+            <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="avental">Avental</SelectItem>
+              <SelectItem value="social">Roupa social</SelectItem>
+              <SelectItem value="freestyle">Freestyle</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label>Altura (cm)</Label>
+          <Input
+            type="number"
+            min={0}
+            value={v.height ?? ''}
+            onChange={(e) => set({ height: e.target.value ? Number(e.target.value) : undefined })}
+            placeholder="Ex: 175"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>Peso (kg)</Label>
+          <Input
+            type="number"
+            min={0}
+            value={v.weight ?? ''}
+            onChange={(e) => set({ weight: e.target.value ? Number(e.target.value) : undefined })}
+            placeholder="Ex: 72"
+          />
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Estilo de coquetelaria</Label>
+        <Select
+          value={v.cocktailStyle || ''}
+          onValueChange={(val) => set({ cocktailStyle: (val as CocktailStyle) || undefined })}
+        >
+          <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+          <SelectContent>
+            {COCKTAIL_STYLES.map((c) => (
+              <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {v.cocktailStyle === 'outros' && (
+          <Input
+            className="mt-2"
+            value={v.cocktailStyleOther || ''}
+            onChange={(e) => set({ cocktailStyleOther: e.target.value || undefined })}
+            placeholder="Descreva seu estilo"
+          />
+        )}
+      </div>
+    </>
+  );
+}
+
+function ProfileActions({ apiId, businessName }: { apiId?: number; businessName?: string }) {
+  const canPreview = !!apiId;
+  const publicUrl = apiId ? `${window.location.origin}/parceiros/${apiId}` : '';
+  const previewUrl = apiId ? `${publicUrl}?preview=1` : '';
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(publicUrl);
+      toast({ title: 'Link copiado!', description: 'Agora é só colar onde quiser.' });
+    } catch {
+      toast({ title: 'Não foi possível copiar', variant: 'destructive' });
+    }
+  };
+
+  const handleWhatsapp = () => {
+    const msg = `Confira meu perfil${businessName ? ` (${businessName})` : ''}: ${publicUrl}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+  };
+
+  const handleInstagram = async () => {
+    try {
+      await navigator.clipboard.writeText(publicUrl);
+    } catch {
+      /* ignore */
+    }
+    toast({ title: 'Link copiado!', description: 'Cole no seu Instagram (bio, story ou DM).' });
+    window.open('https://www.instagram.com/', '_blank');
+  };
+
+  const previewBtn = (
+    <Button
+      variant="outline"
+      size="sm"
+      disabled={!canPreview}
+      onClick={() => canPreview && window.open(previewUrl, '_blank')}
+    >
+      <Eye className="w-4 h-4 mr-2" />Visualizar perfil
+    </Button>
+  );
+
+  return (
+    <div className="flex items-center gap-2 shrink-0">
+      {canPreview ? (
+        previewBtn
+      ) : (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild><span>{previewBtn}</span></TooltipTrigger>
+            <TooltipContent>Salve seu cadastro primeiro</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
+
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" size="sm" disabled={!canPreview}>
+            <Share2 className="w-4 h-4 mr-2" />Compartilhar
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-52">
+          <DropdownMenuItem onClick={handleWhatsapp}>
+            <MessageCircle className="w-4 h-4 mr-2" />WhatsApp
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleInstagram}>
+            <Instagram className="w-4 h-4 mr-2" />Instagram
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleCopy}>
+            <LinkIcon className="w-4 h-4 mr-2" />Copiar link
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
+}
+
 export default PartnerProfilePage;
+

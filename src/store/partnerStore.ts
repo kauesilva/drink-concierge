@@ -31,6 +31,28 @@ export interface DrinkPackage {
   gallery?: string[];
 }
 
+export type PartnerGender = 'masculino' | 'feminino' | 'nao_declarar';
+export type PartnerUniform = 'avental' | 'social' | 'freestyle';
+export type CocktailStyle =
+  | 'classico'
+  | 'moderno'
+  | 'molecular'
+  | 'contemporaneo'
+  | 'diversificado'
+  | 'todos'
+  | 'outros';
+
+export interface PartnerAbout {
+  age?: number;
+  gender?: PartnerGender;
+  profession?: string;
+  height?: number; // cm
+  weight?: number; // kg
+  uniform?: PartnerUniform;
+  cocktailStyle?: CocktailStyle;
+  cocktailStyleOther?: string;
+}
+
 export interface PartnerProfile {
   apiId?: number;
   name: string;
@@ -55,7 +77,10 @@ export interface PartnerProfile {
   differentials: string[];
   socials: PartnerSocials;
   showContact: boolean;
+  // bloco "Sobre" (opcional, dados pessoais)
+  personalInfo?: PartnerAbout;
 }
+
 
 interface PartnerStore {
   isRegistered: boolean;
@@ -161,7 +186,16 @@ export const usePartnerStore = create<PartnerStore>()(
             tiktok: profile.socials?.tiktok,
             site: profile.socials?.site,
             telefone_publico: profile.showContact ? 1 : 0,
+            idade: profile.personalInfo?.age,
+            sexo: profile.personalInfo?.gender,
+            profissao: profile.personalInfo?.profession,
+            altura: profile.personalInfo?.height,
+            peso: profile.personalInfo?.weight,
+            uniforme: profile.personalInfo?.uniform,
+            estilo_coquetelaria: profile.personalInfo?.cocktailStyle,
+            estilo_coquetelaria_outro: profile.personalInfo?.cocktailStyleOther,
           });
+
         } catch (err) {
           console.error('Erro ao sincronizar perfil:', err);
           throw err;
@@ -315,6 +349,16 @@ export const usePartnerStore = create<PartnerStore>()(
                 site: (p as any).site || '',
               },
               showContact: !!(p as any).telefone_publico,
+              personalInfo: {
+                age: (p as any).idade ? Number((p as any).idade) : undefined,
+                gender: (p as any).sexo || undefined,
+                profession: (p as any).profissao || undefined,
+                height: (p as any).altura ? Number((p as any).altura) : undefined,
+                weight: (p as any).peso ? Number((p as any).peso) : undefined,
+                uniform: (p as any).uniforme || undefined,
+                cocktailStyle: (p as any).estilo_coquetelaria || undefined,
+                cocktailStyleOther: (p as any).estilo_coquetelaria_outro || undefined,
+              },
             },
           }));
           await get().syncPackages();
