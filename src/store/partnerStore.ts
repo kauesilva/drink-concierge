@@ -29,6 +29,13 @@ export interface DrinkPackage {
   eventTypes?: string[];
   coverImage?: string;
   gallery?: string[];
+  // Labor-only (mão de obra) fields
+  hourlyRate?: number;
+  minHours?: number;
+  includesSetup?: boolean;
+  setupHours?: number;
+  allowsOvertime?: boolean;
+  overtimeHourlyRate?: number;
 }
 
 export type PartnerGender = 'masculino' | 'feminino' | 'nao_declarar';
