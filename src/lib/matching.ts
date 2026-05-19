@@ -32,6 +32,8 @@ export function matchesCoverage(
 }
 
 export function matchesCapacity(pkg: Menu, people?: number): boolean {
+  // Pacotes de mão de obra são cobrados por hora — capacidade não se aplica
+  if (pkg.serviceCategory === 'mao-de-obra') return true;
   if (!people || people <= 0) return true;
   if (pkg.minPeople && people < pkg.minPeople) return false;
   if (pkg.maxPeople && people > pkg.maxPeople) return false;

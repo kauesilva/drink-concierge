@@ -14,6 +14,7 @@ interface PackageResultCardProps {
 
 const PackageResultCard = ({ menu, company, index = 0 }: PackageResultCardProps) => {
   const cover = menu.coverImage;
+  const isLabor = menu.serviceCategory === 'mao-de-obra';
 
   return (
     <motion.div
@@ -35,6 +36,11 @@ const PackageResultCard = ({ menu, company, index = 0 }: PackageResultCardProps)
           </div>
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/10 to-transparent" />
+        {isLabor && (
+          <Badge className="absolute top-3 left-3" variant="secondary">
+            Mão de obra
+          </Badge>
+        )}
         <div className="absolute bottom-3 left-3 right-3 flex items-center gap-2">
           <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-background bg-background flex-shrink-0">
             <img src={company.image} alt={company.name} className="w-full h-full object-cover" />
@@ -64,15 +70,36 @@ const PackageResultCard = ({ menu, company, index = 0 }: PackageResultCardProps)
           )}
         </div>
 
-        <div className="flex gap-4 text-sm text-muted-foreground">
-          <div className="flex items-center gap-1.5">
-            <Clock className="w-4 h-4 text-primary" />
-            <span>{menu.durationHours}h</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <Users className="w-4 h-4 text-primary" />
-            <span>Mín. {menu.minPeople}</span>
-          </div>
+        <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+          {isLabor ? (
+            <>
+              <div className="flex items-center gap-1.5">
+                <Clock className="w-4 h-4 text-primary" />
+                <span>Mín. {menu.minHours ?? 0}h</span>
+              </div>
+              {menu.includesSetup && (
+                <div className="flex items-center gap-1.5">
+                  <span>Inclui montagem {menu.setupHours ?? 1}h antes</span>
+                </div>
+              )}
+              {menu.allowsOvertime && (
+                <div className="flex items-center gap-1.5">
+                  <span>Hora extra: R$ {menu.overtimeHourlyRate ?? 0}</span>
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              <div className="flex items-center gap-1.5">
+                <Clock className="w-4 h-4 text-primary" />
+                <span>{menu.durationHours}h</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Users className="w-4 h-4 text-primary" />
+                <span>Mín. {menu.minPeople}</span>
+              </div>
+            </>
+          )}
         </div>
 
         {menu.match?.reasons && menu.match.reasons.length > 0 && (
@@ -89,8 +116,10 @@ const PackageResultCard = ({ menu, company, index = 0 }: PackageResultCardProps)
           <div>
             <p className="text-xs text-muted-foreground">A partir de</p>
             <p className="text-lg font-bold text-foreground">
-              R$ {menu.pricePerPerson}
-              <span className="text-sm font-normal text-muted-foreground">/pessoa</span>
+              R$ {isLabor ? menu.hourlyRate ?? 0 : menu.pricePerPerson}
+              <span className="text-sm font-normal text-muted-foreground">
+                {isLabor ? '/hora' : '/pessoa'}
+              </span>
             </p>
           </div>
           <Button asChild variant="gold" size="sm">

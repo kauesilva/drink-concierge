@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Switch } from '@/components/ui/switch';
 import {
   Dialog,
   DialogContent,
@@ -46,6 +47,12 @@ const emptyPkg = {
   eventTypes: [] as string[],
   coverImage: '',
   gallery: [] as string[],
+  hourlyRate: 0,
+  minHours: 5,
+  includesSetup: false,
+  setupHours: 1 as number | undefined,
+  allowsOvertime: false,
+  overtimeHourlyRate: 0 as number | undefined,
 };
 
 const PartnerPackagesPage = () => {
@@ -78,6 +85,12 @@ const PartnerPackagesPage = () => {
       eventTypes: pkg.eventTypes ? [...pkg.eventTypes] : [],
       coverImage: pkg.coverImage || '',
       gallery: pkg.gallery ? [...pkg.gallery] : [],
+      hourlyRate: pkg.hourlyRate ?? 0,
+      minHours: pkg.minHours ?? 5,
+      includesSetup: !!pkg.includesSetup,
+      setupHours: pkg.setupHours ?? 1,
+      allowsOvertime: !!pkg.allowsOvertime,
+      overtimeHourlyRate: pkg.overtimeHourlyRate ?? 0,
     });
     setDialogOpen(true);
   };
@@ -144,27 +157,77 @@ const PartnerPackagesPage = () => {
   };
 
   const handleSave = async () => {
-    if (!form.name || form.pricePerPerson <= 0) {
-      toast({ title: 'Preencha os campos obrigatórios', variant: 'destructive' });
+    if (!form.name) {
+      toast({ title: 'Preencha o nome do pacote', variant: 'destructive' });
       return;
     }
     if (!form.serviceCategory) {
       toast({ title: 'Selecione a categoria do pacote', variant: 'destructive' });
       return;
     }
-    if (form.maxPeople && form.maxPeople < form.minPeople) {
-      toast({ title: 'O máximo de pessoas deve ser maior ou igual ao mínimo', variant: 'destructive' });
-      return;
+    const isLabor = form.serviceCategory === 'mao-de-obra';
+    if (isLabor) {
+      if (!form.hourlyRate || form.hourlyRate <= 0) {
+        toast({ title: 'Informe o valor por hora', variant: 'destructive' });
+        return;
+      }
+      if (!form.minHours || form.minHours < 1) {
+        toast({ title: 'Informe o mínimo de horas', variant: 'destructive' });
+        return;
+      }
+      if (form.allowsOvertime && (!form.overtimeHourlyRate || form.overtimeHourlyRate <= 0)) {
+        toast({ title: 'Informe o valor da hora extra', variant: 'destructive' });
+        return;
+      }
+      // Limite de 1 pacote de mão de obra
+      const exists = packages.some(
+        (p) => p.serviceCategory === 'mao-de-obra' && p.id !== editingId,
+      );
+      if (exists) {
+        toast({
+          title: 'Você já possui um pacote de mão de obra',
+          description: 'Apenas 1 pacote de mão de obra é permitido por parceiro.',
+          variant: 'destructive',
+        });
+        return;
+      }
+    } else {
+      if (form.pricePerPerson <= 0) {
+        toast({ title: 'Informe o preço por pessoa', variant: 'destructive' });
+        return;
+      }
+      if (form.maxPeople && form.maxPeople < form.minPeople) {
+        toast({ title: 'O máximo de pessoas deve ser maior ou igual ao mínimo', variant: 'destructive' });
+        return;
+      }
     }
     if (!form.coverage || form.coverage.length === 0) {
       toast({ title: 'Adicione ao menos uma cidade de atendimento', variant: 'destructive' });
       return;
     }
+    // Normaliza o payload conforme o tipo do pacote
+    const payload = isLabor
+      ? {
+          ...form,
+          pricePerPerson: 0,
+          minPeople: 0,
+          maxPeople: undefined,
+          drinks: [],
+        }
+      : {
+          ...form,
+          hourlyRate: undefined,
+          minHours: undefined,
+          includesSetup: false,
+          setupHours: undefined,
+          allowsOvertime: false,
+          overtimeHourlyRate: undefined,
+        };
     if (editingId) {
-      updatePackage(editingId, form);
+      updatePackage(editingId, payload);
       toast({ title: 'Pacote atualizado!' });
     } else {
-      const ok = await addPackage(form);
+      const ok = await addPackage(payload);
       if (!ok) {
         toast({ title: 'Limite de 4 pacotes atingido', variant: 'destructive' });
         return;
@@ -248,18 +311,36 @@ const PartnerPackagesPage = () => {
                   )}
                   {pkg.description && <p className="text-muted-foreground">{pkg.description}</p>}
                   <div className="flex flex-wrap gap-3 text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <DollarSign className="w-3.5 h-3.5" />
-                      R$ {pkg.pricePerPerson}/pessoa
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5" />
-                      {pkg.durationHours}h
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Users className="w-3.5 h-3.5" />
-                      {pkg.maxPeople ? `${pkg.minPeople}–${pkg.maxPeople} pessoas` : `Mín. ${pkg.minPeople}`}
-                    </span>
+                    {pkg.serviceCategory === 'mao-de-obra' ? (
+                      <>
+                        <span className="flex items-center gap-1">
+                          <DollarSign className="w-3.5 h-3.5" />
+                          R$ {pkg.hourlyRate ?? 0}/hora
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3.5 h-3.5" />
+                          mín. {pkg.minHours ?? 0}h
+                        </span>
+                        {pkg.allowsOvertime && (
+                          <span className="text-xs">+ hora extra R$ {pkg.overtimeHourlyRate ?? 0}</span>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <span className="flex items-center gap-1">
+                          <DollarSign className="w-3.5 h-3.5" />
+                          R$ {pkg.pricePerPerson}/pessoa
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3.5 h-3.5" />
+                          {pkg.durationHours}h
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Users className="w-3.5 h-3.5" />
+                          {pkg.maxPeople ? `${pkg.minPeople}–${pkg.maxPeople} pessoas` : `Mín. ${pkg.minPeople}`}
+                        </span>
+                      </>
+                    )}
                   </div>
                   {pkg.coverage && pkg.coverage.length > 0 && (
                     <div className="flex items-start gap-1.5 text-xs text-muted-foreground">
@@ -385,66 +466,174 @@ const PartnerPackagesPage = () => {
                 onValueChange={(v) => setForm({ ...form, serviceCategory: v as ServiceCategory })}
                 className="grid gap-2"
               >
-                {serviceCategories.map((cat) => (
-                  <label
-                    key={cat.value}
-                    htmlFor={`cat-${cat.value}`}
-                    className="flex items-start gap-3 p-3 rounded-lg border border-border hover:bg-secondary/40 cursor-pointer transition-colors"
-                  >
-                    <RadioGroupItem value={cat.value} id={`cat-${cat.value}`} className="mt-0.5" />
-                    <div>
-                      <span className="font-medium text-foreground block">{cat.label}</span>
-                      <span className="text-xs text-muted-foreground">{cat.description}</span>
-                    </div>
-                  </label>
-                ))}
+                {serviceCategories.map((cat) => {
+                  const laborTaken =
+                    cat.value === 'mao-de-obra' &&
+                    packages.some(
+                      (p) => p.serviceCategory === 'mao-de-obra' && p.id !== editingId,
+                    );
+                  return (
+                    <label
+                      key={cat.value}
+                      htmlFor={`cat-${cat.value}`}
+                      className={`flex items-start gap-3 p-3 rounded-lg border border-border transition-colors ${
+                        laborTaken
+                          ? 'opacity-50 cursor-not-allowed'
+                          : 'hover:bg-secondary/40 cursor-pointer'
+                      }`}
+                    >
+                      <RadioGroupItem
+                        value={cat.value}
+                        id={`cat-${cat.value}`}
+                        className="mt-0.5"
+                        disabled={laborTaken}
+                      />
+                      <div>
+                        <span className="font-medium text-foreground block">{cat.label}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {cat.description}
+                          {laborTaken && ' — você já possui um pacote de mão de obra.'}
+                        </span>
+                      </div>
+                    </label>
+                  );
+                })}
               </RadioGroup>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <div className="space-y-2">
-                <Label>Preço/pessoa *</Label>
-                <Input
-                  type="number"
-                  min={0}
-                  value={form.pricePerPerson || ''}
-                  onChange={(e) => setForm({ ...form, pricePerPerson: Number(e.target.value) })}
-                  placeholder="90"
-                />
+
+            {form.serviceCategory === 'mao-de-obra' ? (
+              <div className="space-y-3 p-4 rounded-lg border border-primary/30 bg-primary/5">
+                <p className="text-xs text-muted-foreground">
+                  Pacote de mão de obra é cobrado por hora, não por pessoa.
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label>Valor por hora (R$) *</Label>
+                    <Input
+                      type="number"
+                      min={0}
+                      value={form.hourlyRate || ''}
+                      onChange={(e) => setForm({ ...form, hourlyRate: Number(e.target.value) })}
+                      placeholder="60"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Mínimo de horas *</Label>
+                    <Input
+                      type="number"
+                      min={1}
+                      value={form.minHours || ''}
+                      onChange={(e) => setForm({ ...form, minHours: Number(e.target.value) })}
+                      placeholder="5"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between gap-3 p-3 rounded-md border border-border">
+                  <div>
+                    <p className="text-sm font-medium">Inclui montagem prévia?</p>
+                    <p className="text-xs text-muted-foreground">
+                      Chegada antecipada para preparação do bar.
+                    </p>
+                  </div>
+                  <Switch
+                    checked={form.includesSetup}
+                    onCheckedChange={(v) => setForm({ ...form, includesSetup: v })}
+                  />
+                </div>
+                {form.includesSetup && (
+                  <div className="space-y-2">
+                    <Label>Horas de antecedência</Label>
+                    <Select
+                      value={String(form.setupHours ?? 1)}
+                      onValueChange={(v) => setForm({ ...form, setupHours: Number(v) })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1">1 hora antes</SelectItem>
+                        <SelectItem value="2">2 horas antes</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between gap-3 p-3 rounded-md border border-border">
+                  <div>
+                    <p className="text-sm font-medium">Permite hora extra?</p>
+                    <p className="text-xs text-muted-foreground">
+                      Cliente pode estender o evento mediante cobrança adicional.
+                    </p>
+                  </div>
+                  <Switch
+                    checked={form.allowsOvertime}
+                    onCheckedChange={(v) => setForm({ ...form, allowsOvertime: v })}
+                  />
+                </div>
+                {form.allowsOvertime && (
+                  <div className="space-y-2">
+                    <Label>Valor da hora extra (R$)</Label>
+                    <Input
+                      type="number"
+                      min={0}
+                      value={form.overtimeHourlyRate || ''}
+                      onChange={(e) =>
+                        setForm({ ...form, overtimeHourlyRate: Number(e.target.value) })
+                      }
+                      placeholder="80"
+                    />
+                  </div>
+                )}
               </div>
-              <div className="space-y-2">
-                <Label>Duração (h)</Label>
-                <Input
-                  type="number"
-                  min={1}
-                  value={form.durationHours}
-                  onChange={(e) => setForm({ ...form, durationHours: Number(e.target.value) })}
-                />
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="space-y-2">
+                  <Label>Preço/pessoa *</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={form.pricePerPerson || ''}
+                    onChange={(e) => setForm({ ...form, pricePerPerson: Number(e.target.value) })}
+                    placeholder="90"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Duração (h)</Label>
+                  <Input
+                    type="number"
+                    min={1}
+                    value={form.durationHours}
+                    onChange={(e) => setForm({ ...form, durationHours: Number(e.target.value) })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Mín. pessoas</Label>
+                  <Input
+                    type="number"
+                    min={1}
+                    value={form.minPeople}
+                    onChange={(e) => setForm({ ...form, minPeople: Number(e.target.value) })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Máx. pessoas</Label>
+                  <Input
+                    type="number"
+                    min={1}
+                    value={form.maxPeople ?? ''}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        maxPeople: e.target.value ? Number(e.target.value) : undefined,
+                      })
+                    }
+                    placeholder="Sem limite"
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label>Mín. pessoas</Label>
-                <Input
-                  type="number"
-                  min={1}
-                  value={form.minPeople}
-                  onChange={(e) => setForm({ ...form, minPeople: Number(e.target.value) })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Máx. pessoas</Label>
-                <Input
-                  type="number"
-                  min={1}
-                  value={form.maxPeople ?? ''}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      maxPeople: e.target.value ? Number(e.target.value) : undefined,
-                    })
-                  }
-                  placeholder="Sem limite"
-                />
-              </div>
-            </div>
+            )}
+
 
             {/* Tipos de evento atendidos */}
             <div className="space-y-2">
@@ -504,31 +693,33 @@ const PartnerPackagesPage = () => {
               )}
             </div>
 
-            {/* Drinks */}
-            <div className="space-y-2">
-              <Label>Drinks</Label>
-              <div className="flex gap-2">
-                <Input
-                  value={drinkInput}
-                  onChange={(e) => setDrinkInput(e.target.value)}
-                  placeholder="Ex: Caipirinha"
-                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addItem('drinks', drinkInput, setDrinkInput))}
-                />
-                <Button type="button" variant="outline" size="icon" onClick={() => addItem('drinks', drinkInput, setDrinkInput)}>
-                  <Plus className="w-4 h-4" />
-                </Button>
-              </div>
-              {form.drinks.length > 0 && (
-                <div className="flex flex-wrap gap-1.5">
-                  {form.drinks.map((item) => (
-                    <Badge key={item} variant="secondary" className="gap-1 pr-1">
-                      {item}
-                      <button onClick={() => removeItem('drinks', item)}><X className="w-3 h-3" /></button>
-                    </Badge>
-                  ))}
+            {/* Drinks (não aplicável para mão de obra) */}
+            {form.serviceCategory !== 'mao-de-obra' && (
+              <div className="space-y-2">
+                <Label>Drinks</Label>
+                <div className="flex gap-2">
+                  <Input
+                    value={drinkInput}
+                    onChange={(e) => setDrinkInput(e.target.value)}
+                    placeholder="Ex: Caipirinha"
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addItem('drinks', drinkInput, setDrinkInput))}
+                  />
+                  <Button type="button" variant="outline" size="icon" onClick={() => addItem('drinks', drinkInput, setDrinkInput)}>
+                    <Plus className="w-4 h-4" />
+                  </Button>
                 </div>
-              )}
-            </div>
+                {form.drinks.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {form.drinks.map((item) => (
+                      <Badge key={item} variant="secondary" className="gap-1 pr-1">
+                        {item}
+                        <button onClick={() => removeItem('drinks', item)}><X className="w-3 h-3" /></button>
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Coverage / Region */}
             <div className="space-y-2">

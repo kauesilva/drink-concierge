@@ -114,6 +114,12 @@ export interface ApiPacote {
   tipos_evento?: string[];
   foto_capa?: string | null;
   galeria?: string[];
+  valor_hora?: number | null;
+  minimo_horas?: number | null;
+  inclui_montagem?: number | null;
+  horas_montagem?: number | null;
+  permite_hora_extra?: number | null;
+  valor_hora_extra?: number | null;
   criado_em: string;
   atualizado_em: string;
 }
@@ -240,6 +246,12 @@ export async function apiAddPackage(data: {
   tipos_evento?: string[];
   foto_capa?: string;
   galeria?: string[];
+  valor_hora?: number;
+  minimo_horas?: number;
+  inclui_montagem?: number;
+  horas_montagem?: number;
+  permite_hora_extra?: number;
+  valor_hora_extra?: number;
 }): Promise<{ id: number; message: string }> {
   return request('add_package', {
     method: 'POST',
@@ -263,6 +275,12 @@ export async function apiUpdatePackage(data: {
   tipos_evento?: string[];
   foto_capa?: string;
   galeria?: string[];
+  valor_hora?: number;
+  minimo_horas?: number;
+  inclui_montagem?: number;
+  horas_montagem?: number;
+  permite_hora_extra?: number;
+  valor_hora_extra?: number;
 }): Promise<{ message: string }> {
   return request('update_package', {
     method: 'POST',

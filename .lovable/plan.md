@@ -1,76 +1,50 @@
-## Resumo
+## Objetivo
 
-Botão **"Solicitar orçamento"** dentro do perfil de um bartender vira um **formulário rápido** já vinculado àquele parceiro — dispara email direto para o bartender escolhido e grava o lead na plataforma (com `parceiro_id` preenchido).
+Tratar pacotes de "Mão de obra" como uma modalidade distinta — cobrada por hora, com regras próprias — e expor um terceiro filtro na tela de resultados.
 
-> O backend atual é **PHP + MySQL externo** (`api_v2.php`), não Lovable Cloud. Por isso entrego o frontend completo + um snippet PHP pronto para você/seu dev colar no backend.
+## Mudança 1 — Modelo de pacote
 
----
+No tipo `DrinkPackage` (partnerStore) e `Menu` (`src/types/index.ts`), adicionar campos opcionais específicos de mão de obra. Quando `serviceCategory === 'mao-de-obra'`, o pacote vira "labor-only" e passa a usar esses campos:
 
-## 1. Frontend
+- `hourlyRate: number` — valor por hora (R$)
+- `minHours: number` — mínimo de horas contratáveis (ex.: 5)
+- `includesSetup: boolean` — inclui montagem prévia
+- `setupHours?: number` — horas de antecedência (1 ou 2), visível se `includesSetup`
+- `allowsOvertime: boolean` — permite hora extra
+- `overtimeHourlyRate?: number` — valor da hora extra, visível se `allowsOvertime`
 
-### Novo componente `QuickQuoteDialog`
-- `src/components/partners/QuickQuoteDialog.tsx`
-- Modal (shadcn `Dialog`) acionado pelo botão "Solicitar orçamento" do perfil público.
-- Recebe via props: `parceiroId`, `parceiroNome`, `cidadeBase`, `estadoBase`.
-- Campos do formulário (mínimo necessário):
-  - Nome do cliente
-  - WhatsApp
-  - Email
-  - Tipo de evento (select com mesmas opções do `QuotePage`)
-  - Quantidade de pessoas
-  - Data do evento
-  - Cidade / Estado (pré-preenchidos com a base do parceiro, editáveis)
-  - Mensagem opcional
-- Validação com `zod` (mesmo padrão do projeto).
-- Cabeçalho do modal mostra para qual bartender o pedido vai (ex: *"Solicitar orçamento para João Bartender"*).
-- Ao enviar: chama `apiSendQuickQuote(...)`, mostra toast de sucesso e fecha. Em caso de erro, mantém os dados preenchidos.
+Campos `pricePerPerson`, `minPeople`, `maxPeople`, `drinks` deixam de ser obrigatórios/aplicáveis para esses pacotes.
 
-### Página pública do parceiro
-- `src/pages/PartnerPublicProfilePage.tsx`: trocar os dois `<Link to="/orcamento">Solicitar orçamento</Link>` (header e sidebar) pelo trigger do `QuickQuoteDialog`.
-- Botão de **WhatsApp** continua igual quando o parceiro tiver `showContact = true`.
+## Mudança 2 — Painel do parceiro (PartnerPackagesPage)
 
-### API client
-- `src/services/api.ts`: novo método `apiSendQuickQuote({ parceiro_id, nome_cliente, whatsapp, email, tipo_evento, quantidade_pessoas, data_evento, cidade, estado, observacoes? })` → `POST action=send_quick_quote`.
+- No formulário de pacote, quando o parceiro selecionar a categoria **Mão de obra**:
+  - Esconder os blocos "Preço/pessoa", "Mín./Máx. pessoas" e "Drinks inclusos"
+  - Mostrar bloco "Mão de obra": Valor/hora, Mínimo de horas, switch "Inclui montagem prévia" (+ select 1h/2h), switch "Permite hora extra" (+ Valor/hora extra)
+- Validação ao salvar pacote labor-only: exige `hourlyRate > 0` e `minHours >= 1`, ignora regras de pessoas
+- **Limite**: o parceiro só pode ter **1 pacote** de mão de obra. Botão "Novo Pacote" desabilita esta categoria no formulário se já existir um. Backend (`add_package`/`update_package`) também valida.
+- Card do pacote labor-only mostra "R$ X/hora · mín. Yh" no lugar de "R$ X/pessoa".
 
-### O fluxo `/orcamento` geral continua existindo
-- Quem chega pela home (sem ter escolhido um bartender) ainda usa o formulário completo atual.
-- Só o CTA dentro do perfil muda.
+## Mudança 3 — Tela de resultados (ResultsPage)
 
----
+Três abas: **Pacotes** | **Mão de obra** | **Empresas**
 
-## 2. Backend (PHP) — snippet entregue como referência
+- "Pacotes": apenas pacotes com `serviceCategory !== 'mao-de-obra'` (comportamento atual)
+- "Mão de obra": apenas pacotes labor-only, com card específico mostrando R$/hora, mínimo de horas, montagem prévia e hora extra
+- "Empresas": agrupa por empresa todos os pacotes compatíveis (igual hoje)
+- Ordenação na aba Mão de obra: por valor/hora ou maior nota
 
-Crio o arquivo `backend-snippets/send-quick-quote.php` dentro do projeto (não roda no Lovable, é só referência) com o endpoint pronto para colar em `api_v2.php`:
+Adicionar `viewMode = 'mao-de-obra'` ao estado e variante "labor" no `PackageResultCard` (ou criar `LaborPackageCard`).
 
-```php
-// case 'send_quick_quote':
-//   1. Lê e valida JSON (parceiro_id, nome_cliente, whatsapp, email,
-//      tipo_evento, quantidade_pessoas, data_evento, cidade, estado, observacoes)
-//   2. SELECT email, nome_empresa, ativo FROM parceiros WHERE id = ?
-//      - se !ativo → 403
-//   3. INSERT INTO leads (parceiro_id, tipo_evento, quantidade_pessoas,
-//      cidade, estado, data_evento, nome_cliente, whatsapp, email,
-//      observacoes, status='novo')
-//   4. mail($parceiroEmail, "Novo pedido de orçamento — $nome", $htmlBody, headers)
-//   5. retorna { id, message }
-```
+## Mudança 4 — Backend (snippet de referência)
 
-> Se `mail()` do servidor não for confiável, deixo no mesmo arquivo o stub PHPMailer + SMTP (você só preenche host/usuário/senha).
+Em `backend-snippets/` adicionar/atualizar exemplo PHP de `add_package`/`update_package` com:
 
----
+- Persistir os novos campos (`hourly_rate`, `min_hours`, `includes_setup`, `setup_hours`, `allows_overtime`, `overtime_hourly_rate`)
+- Bloquear criação de 2º pacote `categoria_servico = 'mao-de-obra'` para o mesmo parceiro (`SELECT COUNT(*) ... WHERE parceiro_id = ? AND categoria_servico = 'mao-de-obra'`)
+- Migration sugerida (ALTER TABLE pacotes ADD COLUMN ...) documentada no snippet
 
-## Arquivos
+Sem alterações no fluxo de leads/orçamento — `QuickQuoteDialog` continua igual; pacotes de mão de obra aparecem com preço por hora no perfil público.
 
-**Novos**
-- `src/components/partners/QuickQuoteDialog.tsx`
-- `backend-snippets/send-quick-quote.php` (referência para o backend PHP)
+## Pergunta antes de implementar
 
-**Alterados**
-- `src/pages/PartnerPublicProfilePage.tsx` — CTA vira trigger do dialog
-- `src/services/api.ts` — `apiSendQuickQuote`
-
----
-
-## Fora deste escopo (combinado adiar)
-
-- Painel Master Admin: lista de todos os parceiros, bloquear/liberar bartender, gerenciar usuários admin. Fica para depois.
+Quero confirmar: ao definir o pacote como categoria **Mão de obra**, ele é automaticamente "labor-only" (preço por hora). Faz sentido vincular assim, ou prefere um switch separado tipo "Cobrar por hora" independente da categoria? - faz sentido. 

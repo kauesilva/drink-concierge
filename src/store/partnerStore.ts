@@ -29,6 +29,13 @@ export interface DrinkPackage {
   eventTypes?: string[];
   coverImage?: string;
   gallery?: string[];
+  // Labor-only (mão de obra) fields
+  hourlyRate?: number;
+  minHours?: number;
+  includesSetup?: boolean;
+  setupHours?: number;
+  allowsOvertime?: boolean;
+  overtimeHourlyRate?: number;
 }
 
 export type PartnerGender = 'masculino' | 'feminino' | 'nao_declarar';
@@ -206,6 +213,13 @@ export const usePartnerStore = create<PartnerStore>()(
 
       addPackage: async (pkg) => {
         if (get().packages.length >= 4) return false;
+        // Limite: apenas 1 pacote de mão de obra por parceiro
+        if (
+          pkg.serviceCategory === 'mao-de-obra' &&
+          get().packages.some((p) => p.serviceCategory === 'mao-de-obra')
+        ) {
+          return false;
+        }
 
         const localId = crypto.randomUUID();
         const newPkg: DrinkPackage = { ...pkg, id: localId };
@@ -231,6 +245,12 @@ export const usePartnerStore = create<PartnerStore>()(
               tipos_evento: pkg.eventTypes,
               foto_capa: pkg.coverImage,
               galeria: pkg.gallery,
+              valor_hora: pkg.hourlyRate,
+              minimo_horas: pkg.minHours,
+              inclui_montagem: pkg.includesSetup ? 1 : 0,
+              horas_montagem: pkg.setupHours,
+              permite_hora_extra: pkg.allowsOvertime ? 1 : 0,
+              valor_hora_extra: pkg.overtimeHourlyRate,
             });
             set((s) => ({
               packages: s.packages.map((p) =>
@@ -269,6 +289,12 @@ export const usePartnerStore = create<PartnerStore>()(
             tipos_evento: updated.eventTypes,
             foto_capa: updated.coverImage,
             galeria: updated.gallery,
+            valor_hora: updated.hourlyRate,
+            minimo_horas: updated.minHours,
+            inclui_montagem: updated.includesSetup ? 1 : 0,
+            horas_montagem: updated.setupHours,
+            permite_hora_extra: updated.allowsOvertime ? 1 : 0,
+            valor_hora_extra: updated.overtimeHourlyRate,
           }).catch((err) => console.error('Erro ao atualizar pacote na API:', err));
         }
       },
@@ -307,6 +333,12 @@ export const usePartnerStore = create<PartnerStore>()(
             coverage: p.cobertura || [],
             eventTypes: p.tipos_evento || [],
             coverImage: (p as any).foto_capa || '',
+            hourlyRate: (p as any).valor_hora != null ? Number((p as any).valor_hora) : undefined,
+            minHours: (p as any).minimo_horas != null ? Number((p as any).minimo_horas) : undefined,
+            includesSetup: !!Number((p as any).inclui_montagem),
+            setupHours: (p as any).horas_montagem != null ? Number((p as any).horas_montagem) : undefined,
+            allowsOvertime: !!Number((p as any).permite_hora_extra),
+            overtimeHourlyRate: (p as any).valor_hora_extra != null ? Number((p as any).valor_hora_extra) : undefined,
             gallery: (p as any).galeria || [],
           }));
           set({ packages });
