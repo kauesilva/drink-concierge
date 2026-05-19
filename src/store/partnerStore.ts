@@ -213,6 +213,13 @@ export const usePartnerStore = create<PartnerStore>()(
 
       addPackage: async (pkg) => {
         if (get().packages.length >= 4) return false;
+        // Limite: apenas 1 pacote de mão de obra por parceiro
+        if (
+          pkg.serviceCategory === 'mao-de-obra' &&
+          get().packages.some((p) => p.serviceCategory === 'mao-de-obra')
+        ) {
+          return false;
+        }
 
         const localId = crypto.randomUUID();
         const newPkg: DrinkPackage = { ...pkg, id: localId };
@@ -238,6 +245,12 @@ export const usePartnerStore = create<PartnerStore>()(
               tipos_evento: pkg.eventTypes,
               foto_capa: pkg.coverImage,
               galeria: pkg.gallery,
+              valor_hora: pkg.hourlyRate,
+              minimo_horas: pkg.minHours,
+              inclui_montagem: pkg.includesSetup ? 1 : 0,
+              horas_montagem: pkg.setupHours,
+              permite_hora_extra: pkg.allowsOvertime ? 1 : 0,
+              valor_hora_extra: pkg.overtimeHourlyRate,
             });
             set((s) => ({
               packages: s.packages.map((p) =>
