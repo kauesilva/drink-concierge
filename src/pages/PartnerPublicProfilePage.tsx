@@ -130,6 +130,10 @@ const PartnerPublicProfilePage = () => {
             </motion.section>
           )}
 
+          <PersonalInfoBlock p={p} />
+
+
+
           {!!differentials.length && (
             <section>
               <h2 className="font-display text-xl font-semibold mb-3">Diferenciais</h2>
