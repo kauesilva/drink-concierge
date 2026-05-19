@@ -94,7 +94,14 @@ const QuickQuoteDialog = ({
     try {
       await apiSendQuickQuote({
         parceiro_id: parceiroId,
-        ...parsed.data,
+        nome_cliente: parsed.data.nome_cliente,
+        whatsapp: parsed.data.whatsapp,
+        email: parsed.data.email,
+        tipo_evento: parsed.data.tipo_evento,
+        quantidade_pessoas: parsed.data.quantidade_pessoas,
+        data_evento: parsed.data.data_evento,
+        cidade: parsed.data.cidade,
+        estado: parsed.data.estado,
         observacoes: parsed.data.observacoes || undefined,
       });
       toast({
