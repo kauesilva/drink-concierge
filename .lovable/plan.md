@@ -1,77 +1,76 @@
-## Objetivo
+## Resumo
 
-Adicionar à página `/parceiro/painel/perfil` três novos recursos: **Visualizar perfil** (preview), **Compartilhar** (WhatsApp / Instagram / copiar link) e uma nova seção **Sobre** com campos pessoais opcionais que aparecerão na vitrine pública quando preenchidos.
+Botão **"Solicitar orçamento"** dentro do perfil de um bartender vira um **formulário rápido** já vinculado àquele parceiro — dispara email direto para o bartender escolhido e grava o lead na plataforma (com `parceiro_id` preenchido).
 
----
-
-## 1. Botão "Visualizar perfil"
-
-- Botão no topo do `PartnerProfilePage` (ao lado do "Salvar"), ícone `Eye`.
-- Abre a rota pública `/parceiros/:id` em nova aba.
-- Para permitir visualização mesmo quando o perfil ainda não está publicado:
-  - Adicionar suporte a um parâmetro `?preview=1` na rota pública.
-  - Quando presente, `PartnerPublicProfilePage` busca os dados via `apiGetPartner` (perfil completo do próprio parceiro autenticado) em vez de `apiGetPublicPartner`, e exibe uma faixa no topo: "Modo pré-visualização — somente você vê esta página".
-  - Caso o parceiro ainda não tenha `apiId`, o botão fica desabilitado com tooltip "Salve seu cadastro primeiro".
-
-## 2. Botão "Compartilhar"
-
-- Botão secundário ao lado de "Visualizar perfil", ícone `Share2`.
-- Abre um `DropdownMenu` (shadcn) com 3 opções:
-  - **WhatsApp** → `https://wa.me/?text=<msg+url>` (encodeURIComponent)
-  - **Instagram** → abre `https://www.instagram.com/` em nova aba e copia o link automaticamente (Instagram web não tem deep link de compartilhar) + toast "Link copiado, cole na sua bio ou DM".
-  - **Copiar link** → `navigator.clipboard.writeText(url)` + toast de confirmação.
-- O link compartilhado é a URL pública: `${window.location.origin}/parceiros/<apiId>`.
-
-## 3. Nova seção "Sobre"
-
-Adicionar um `Card` "Sobre você" no formulário do perfil, **logo abaixo dos dados básicos**, com todos os campos opcionais:
-
-| Campo | Tipo de input |
-|---|---|
-| Idade | number |
-| Sexo | Select: Masculino, Feminino, Não declarar |
-| Profissão | text |
-| Altura (cm) | number |
-| Peso (kg) | number |
-| Uniforme | Select: Avental, Roupa social, Freestyle |
-| Estilo de coquetelaria | Select: Clássico, Moderno, Molecular, Contemporâneo, Diversificado, Todos, Outros (com campo de texto livre quando "Outros") |
-
-Comportamento:
-- Todos os campos opcionais; nenhuma validação obrigatória.
-- Exibição no perfil público: nova seção "Sobre" que só aparece se pelo menos 1 campo estiver preenchido; cada item renderizado apenas se houver valor.
+> O backend atual é **PHP + MySQL externo** (`api_v2.php`), não Lovable Cloud. Por isso entrego o frontend completo + um snippet PHP pronto para você/seu dev colar no backend.
 
 ---
 
-## Detalhes técnicos
+## 1. Frontend
 
-### Frontend
+### Novo componente `QuickQuoteDialog`
+- `src/components/partners/QuickQuoteDialog.tsx`
+- Modal (shadcn `Dialog`) acionado pelo botão "Solicitar orçamento" do perfil público.
+- Recebe via props: `parceiroId`, `parceiroNome`, `cidadeBase`, `estadoBase`.
+- Campos do formulário (mínimo necessário):
+  - Nome do cliente
+  - WhatsApp
+  - Email
+  - Tipo de evento (select com mesmas opções do `QuotePage`)
+  - Quantidade de pessoas
+  - Data do evento
+  - Cidade / Estado (pré-preenchidos com a base do parceiro, editáveis)
+  - Mensagem opcional
+- Validação com `zod` (mesmo padrão do projeto).
+- Cabeçalho do modal mostra para qual bartender o pedido vai (ex: *"Solicitar orçamento para João Bartender"*).
+- Ao enviar: chama `apiSendQuickQuote(...)`, mostra toast de sucesso e fecha. Em caso de erro, mantém os dados preenchidos.
 
-- `src/store/partnerStore.ts`: estender `PartnerProfile` com `about: { age?, gender?, profession?, height?, weight?, uniform?, cocktailStyle?, cocktailStyleOther? }` (renomear o `about` atual de string para `bio` — verificar usos e migrar; alternativa: usar `personalInfo` como chave nova para evitar conflito com o campo `sobre` já existente no DB).
-- `src/services/api.ts` (`apiUpdateProfile` e `ApiParceiro`): incluir os novos campos (`idade`, `sexo`, `profissao`, `altura`, `peso`, `uniforme`, `estilo_coquetelaria`, `estilo_coquetelaria_outro`) e propagá-los em `loadFromApi` / `syncProfile`.
-- `src/pages/partner/PartnerProfilePage.tsx`: adicionar header com botões Visualizar/Compartilhar + novo `Card` "Sobre você".
-- `src/pages/PartnerPublicProfilePage.tsx`:
-  - Ler `useSearchParams().get('preview')`.
-  - Em modo preview, buscar via `apiGetProfile(apiId)` (autenticado) e exibir banner.
-  - Adicionar renderização condicional do bloco "Sobre".
+### Página pública do parceiro
+- `src/pages/PartnerPublicProfilePage.tsx`: trocar os dois `<Link to="/orcamento">Solicitar orçamento</Link>` (header e sidebar) pelo trigger do `QuickQuoteDialog`.
+- Botão de **WhatsApp** continua igual quando o parceiro tiver `showContact = true`.
 
-### Backend (PHP / MySQL)
+### API client
+- `src/services/api.ts`: novo método `apiSendQuickQuote({ parceiro_id, nome_cliente, whatsapp, email, tipo_evento, quantidade_pessoas, data_evento, cidade, estado, observacoes? })` → `POST action=send_quick_quote`.
 
-- Migration na tabela `parceiros` adicionando colunas:
-  - `idade INT NULL`
-  - `sexo ENUM('masculino','feminino','nao_declarar') NULL`
-  - `profissao VARCHAR(120) NULL`
-  - `altura SMALLINT NULL` (cm)
-  - `peso SMALLINT NULL` (kg)
-  - `uniforme ENUM('avental','social','freestyle') NULL`
-  - `estilo_coquetelaria VARCHAR(40) NULL`
-  - `estilo_coquetelaria_outro VARCHAR(120) NULL`
-- Atualizar `api.php` nos endpoints `updateProfile`, `getProfile` e `getPublicPartner` para ler/gravar/retornar esses campos.
-
-> Observação: como o backend é PHP/MySQL externo (não Lovable Cloud), as alterações de DB precisam ser aplicadas manualmente pelo usuário/equipe que mantém `api.php`. Posso entregar o SQL + diff sugerido do PHP junto da implementação.
+### O fluxo `/orcamento` geral continua existindo
+- Quem chega pela home (sem ter escolhido um bartender) ainda usa o formulário completo atual.
+- Só o CTA dentro do perfil muda.
 
 ---
 
-## Fora de escopo
+## 2. Backend (PHP) — snippet entregue como referência
 
-- Autenticação por token no modo preview (assume-se que `apiGetProfile` já é chamado autenticado via `authStore`).
-- Alterações visuais profundas na página pública além da nova seção "Sobre" e do banner de preview.
+Crio o arquivo `backend-snippets/send-quick-quote.php` dentro do projeto (não roda no Lovable, é só referência) com o endpoint pronto para colar em `api_v2.php`:
+
+```php
+// case 'send_quick_quote':
+//   1. Lê e valida JSON (parceiro_id, nome_cliente, whatsapp, email,
+//      tipo_evento, quantidade_pessoas, data_evento, cidade, estado, observacoes)
+//   2. SELECT email, nome_empresa, ativo FROM parceiros WHERE id = ?
+//      - se !ativo → 403
+//   3. INSERT INTO leads (parceiro_id, tipo_evento, quantidade_pessoas,
+//      cidade, estado, data_evento, nome_cliente, whatsapp, email,
+//      observacoes, status='novo')
+//   4. mail($parceiroEmail, "Novo pedido de orçamento — $nome", $htmlBody, headers)
+//   5. retorna { id, message }
+```
+
+> Se `mail()` do servidor não for confiável, deixo no mesmo arquivo o stub PHPMailer + SMTP (você só preenche host/usuário/senha).
+
+---
+
+## Arquivos
+
+**Novos**
+- `src/components/partners/QuickQuoteDialog.tsx`
+- `backend-snippets/send-quick-quote.php` (referência para o backend PHP)
+
+**Alterados**
+- `src/pages/PartnerPublicProfilePage.tsx` — CTA vira trigger do dialog
+- `src/services/api.ts` — `apiSendQuickQuote`
+
+---
+
+## Fora deste escopo (combinado adiar)
+
+- Painel Master Admin: lista de todos os parceiros, bloquear/liberar bartender, gerenciar usuários admin. Fica para depois.
