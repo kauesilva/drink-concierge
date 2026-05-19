@@ -106,8 +106,8 @@ const PartnerPublicProfilePage = () => {
               </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 mt-6">
-              <Button asChild variant="gold" size="lg" className="flex-1">
-                <Link to="/orcamento">Solicitar orçamento</Link>
+              <Button variant="gold" size="lg" className="flex-1" onClick={() => setQuoteOpen(true)}>
+                Solicitar orçamento
               </Button>
               {showContact && whatsappLink && (
                 <Button asChild variant="outline" size="lg" className="flex-1">
