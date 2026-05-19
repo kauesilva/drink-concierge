@@ -46,6 +46,12 @@ const emptyPkg = {
   eventTypes: [] as string[],
   coverImage: '',
   gallery: [] as string[],
+  hourlyRate: 0,
+  minHours: 5,
+  includesSetup: false,
+  setupHours: 1 as number | undefined,
+  allowsOvertime: false,
+  overtimeHourlyRate: 0 as number | undefined,
 };
 
 const PartnerPackagesPage = () => {
