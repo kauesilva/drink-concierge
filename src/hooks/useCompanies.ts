@@ -36,6 +36,12 @@ export function mapPackageToMenu(p: ApiPacote, companyId: string): Menu {
     eventTypes: p.tipos_evento || [],
     coverImage: p.foto_capa || undefined,
     gallery: p.galeria || [],
+    hourlyRate: p.valor_hora != null ? Number(p.valor_hora) : undefined,
+    minHours: p.minimo_horas != null ? Number(p.minimo_horas) : undefined,
+    includesSetup: !!Number(p.inclui_montagem),
+    setupHours: p.horas_montagem != null ? Number(p.horas_montagem) : undefined,
+    allowsOvertime: !!Number(p.permite_hora_extra),
+    overtimeHourlyRate: p.valor_hora_extra != null ? Number(p.valor_hora_extra) : undefined,
   };
 }
 
