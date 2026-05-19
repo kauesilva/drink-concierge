@@ -209,11 +209,20 @@ const PartnerPublicProfilePage = () => {
             </div>
           )}
 
-          <Button asChild variant="gold" size="lg" className="w-full">
-            <Link to="/orcamento">Solicitar orçamento</Link>
+          <Button variant="gold" size="lg" className="w-full" onClick={() => setQuoteOpen(true)}>
+            Solicitar orçamento
           </Button>
         </aside>
       </div>
+
+      <QuickQuoteDialog
+        open={quoteOpen}
+        onOpenChange={setQuoteOpen}
+        parceiroId={Number(partnerId)}
+        parceiroNome={name}
+        cidadeBase={p.cidade_base || ''}
+        estadoBase={p.estado || ''}
+      />
     </Layout>
   );
 };
