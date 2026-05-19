@@ -246,6 +246,12 @@ export async function apiAddPackage(data: {
   tipos_evento?: string[];
   foto_capa?: string;
   galeria?: string[];
+  valor_hora?: number;
+  minimo_horas?: number;
+  inclui_montagem?: number;
+  horas_montagem?: number;
+  permite_hora_extra?: number;
+  valor_hora_extra?: number;
 }): Promise<{ id: number; message: string }> {
   return request('add_package', {
     method: 'POST',
@@ -269,6 +275,12 @@ export async function apiUpdatePackage(data: {
   tipos_evento?: string[];
   foto_capa?: string;
   galeria?: string[];
+  valor_hora?: number;
+  minimo_horas?: number;
+  inclui_montagem?: number;
+  horas_montagem?: number;
+  permite_hora_extra?: number;
+  valor_hora_extra?: number;
 }): Promise<{ message: string }> {
   return request('update_package', {
     method: 'POST',
