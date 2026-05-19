@@ -6,6 +6,7 @@ import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import VideoEmbed from '@/components/partners/VideoEmbed';
+import QuickQuoteDialog from '@/components/partners/QuickQuoteDialog';
 import { apiGetPublicPartner, apiGetProfile } from '@/services/api';
 import { serviceCategories } from '@/data/mockData';
 
