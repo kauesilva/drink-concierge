@@ -311,18 +311,36 @@ const PartnerPackagesPage = () => {
                   )}
                   {pkg.description && <p className="text-muted-foreground">{pkg.description}</p>}
                   <div className="flex flex-wrap gap-3 text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <DollarSign className="w-3.5 h-3.5" />
-                      R$ {pkg.pricePerPerson}/pessoa
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5" />
-                      {pkg.durationHours}h
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Users className="w-3.5 h-3.5" />
-                      {pkg.maxPeople ? `${pkg.minPeople}–${pkg.maxPeople} pessoas` : `Mín. ${pkg.minPeople}`}
-                    </span>
+                    {pkg.serviceCategory === 'mao-de-obra' ? (
+                      <>
+                        <span className="flex items-center gap-1">
+                          <DollarSign className="w-3.5 h-3.5" />
+                          R$ {pkg.hourlyRate ?? 0}/hora
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3.5 h-3.5" />
+                          mín. {pkg.minHours ?? 0}h
+                        </span>
+                        {pkg.allowsOvertime && (
+                          <span className="text-xs">+ hora extra R$ {pkg.overtimeHourlyRate ?? 0}</span>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <span className="flex items-center gap-1">
+                          <DollarSign className="w-3.5 h-3.5" />
+                          R$ {pkg.pricePerPerson}/pessoa
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3.5 h-3.5" />
+                          {pkg.durationHours}h
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Users className="w-3.5 h-3.5" />
+                          {pkg.maxPeople ? `${pkg.minPeople}–${pkg.maxPeople} pessoas` : `Mín. ${pkg.minPeople}`}
+                        </span>
+                      </>
+                    )}
                   </div>
                   {pkg.coverage && pkg.coverage.length > 0 && (
                     <div className="flex items-start gap-1.5 text-xs text-muted-foreground">
