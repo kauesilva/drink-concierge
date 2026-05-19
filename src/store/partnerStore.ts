@@ -31,6 +31,28 @@ export interface DrinkPackage {
   gallery?: string[];
 }
 
+export type PartnerGender = 'masculino' | 'feminino' | 'nao_declarar';
+export type PartnerUniform = 'avental' | 'social' | 'freestyle';
+export type CocktailStyle =
+  | 'classico'
+  | 'moderno'
+  | 'molecular'
+  | 'contemporaneo'
+  | 'diversificado'
+  | 'todos'
+  | 'outros';
+
+export interface PartnerAbout {
+  age?: number;
+  gender?: PartnerGender;
+  profession?: string;
+  height?: number; // cm
+  weight?: number; // kg
+  uniform?: PartnerUniform;
+  cocktailStyle?: CocktailStyle;
+  cocktailStyleOther?: string;
+}
+
 export interface PartnerProfile {
   apiId?: number;
   name: string;
@@ -55,7 +77,10 @@ export interface PartnerProfile {
   differentials: string[];
   socials: PartnerSocials;
   showContact: boolean;
+  // bloco "Sobre" (opcional, dados pessoais)
+  personalInfo?: PartnerAbout;
 }
+
 
 interface PartnerStore {
   isRegistered: boolean;
