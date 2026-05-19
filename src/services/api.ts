@@ -114,6 +114,12 @@ export interface ApiPacote {
   tipos_evento?: string[];
   foto_capa?: string | null;
   galeria?: string[];
+  valor_hora?: number | null;
+  minimo_horas?: number | null;
+  inclui_montagem?: number | null;
+  horas_montagem?: number | null;
+  permite_hora_extra?: number | null;
+  valor_hora_extra?: number | null;
   criado_em: string;
   atualizado_em: string;
 }
