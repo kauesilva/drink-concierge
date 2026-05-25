@@ -1,19 +1,11 @@
 import { useState, useCallback, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, CheckCircle, Star, Sparkles, Zap, Shield, Users, ChevronDown } from 'lucide-react';
+import { ArrowRight, CheckCircle, Star, Sparkles, Zap, Shield, Users } from 'lucide-react';
 import AnimatedCounter from '@/components/AnimatedCounter';
 import Layout from '@/components/layout/Layout';
 import RotatingHeadline from '@/components/RotatingHeadline';
-import heroDrinks from '@/assets/hero/drinks.jpg';
-import heroBartender from '@/assets/hero/bartender.jpg';
-import heroConsultor from '@/assets/hero/consultor.jpg';
-import heroCasamento from '@/assets/hero/casamento.jpg';
-import heroNaoAlcoolico from '@/assets/hero/nao-alcoolico.jpg';
 
-// Mesma ordem das palavras em RotatingHeadline:
-// ['bar de drinks', 'bartender', 'consultor de bar', 'bar de casamento', 'bar não alcoólico']
-const HERO_IMAGES = [heroDrinks, heroBartender, heroConsultor, heroCasamento, heroNaoAlcoolico];
 import { Button } from '@/components/ui/button';
 import { eventTypes, serviceCategories } from '@/data/mockData';
 import imgCasamento from '@/assets/events/casamento.jpg';
@@ -66,16 +58,7 @@ const staggerContainer = {
 };
 
 const Index = () => {
-  const [heroIndex, setHeroIndex] = useState(0);
 
-  // Pré-carrega a próxima imagem para evitar flash durante a transição
-  useEffect(() => {
-    const nextIdx = (heroIndex + 1) % HERO_IMAGES.length;
-    const img = new Image();
-    img.src = HERO_IMAGES[nextIdx];
-  }, [heroIndex]);
-
-  const handleHeroIndex = useCallback((i: number) => setHeroIndex(i), []);
 
   const steps = [
   {
@@ -147,83 +130,18 @@ const Index = () => {
 
   return (
     <Layout>
-      {/* Hero Section — Apple / Linear inspired */}
-      <section className="relative min-h-[100vh] flex items-center justify-center overflow-hidden">
-        {/* Banner de fundo dinâmico sincronizado com a palavra rotativa */}
-        <div className="absolute inset-0 bg-destructive-foreground" />
-        <AnimatePresence mode="sync">
-          <motion.div
-            key={heroIndex}
-            initial={{ opacity: 0, scale: 1.05 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ opacity: { duration: 0.7 }, scale: { duration: 1.2, ease: 'easeOut' } }}
-            className="absolute inset-0"
-          >
-            <img
-              src={HERO_IMAGES[heroIndex]}
-              alt=""
-              aria-hidden="true"
-              loading="lazy"
-              decoding="async"
-              className="w-full h-full object-cover"
-            />
-          </motion.div>
-        </AnimatePresence>
-        {/* Overlay cinematográfico — escurece só a base, libera a foto */}
-        <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-transparent to-background/80" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-primary/8 rounded-full blur-[120px] animate-glow-pulse" />
+      {/* Hero unificado — sem imagem de fundo, foco em tipografia e CTA */}
+      <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden bg-background">
+        {/* Camadas decorativas (gradientes dourados) */}
+        <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-primary/10 rounded-full blur-[140px] animate-glow-pulse" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px]" />
 
-        <div className="container relative z-10 flex flex-col items-center justify-center min-h-[100vh] py-24">
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="heading-display text-foreground text-center max-w-4xl drop-shadow-[0_2px_20px_rgba(0,0,0,0.5)]">
-            <RotatingHeadline onIndexChange={handleHeroIndex} />
-            <br />
-            <span className="text-primary">em poucos cliques</span>
-          </motion.h1>
-
-          {/* Indicador de progresso dos banners */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6, duration: 0.6 }}
-            className="absolute bottom-24 left-1/2 -translate-x-1/2 flex gap-2">
-            {HERO_IMAGES.map((_, i) => (
-              <span
-                key={i}
-                className={`h-0.5 transition-all duration-500 ${
-                  i === heroIndex ? 'w-8 bg-primary' : 'w-4 bg-foreground/30'
-                }`}
-              />
-            ))}
-          </motion.div>
-
-          {/* Scroll cue */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1, duration: 0.6 }}
-            className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-foreground/60">
-            <span className="text-xs uppercase tracking-[0.2em]">Role para ver mais</span>
-            <ChevronDown className="w-4 h-4 animate-bounce" />
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Dobra 2 — Proposta de valor + CTA */}
-      <section className="relative overflow-hidden py-20 md:py-28 bg-background">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-primary/5 rounded-full blur-[100px]" />
-
-        <div className="container relative z-10">
+        <div className="container relative z-10 py-20 md:py-28">
           <motion.div
             initial="initial"
-            whileInView="animate"
-            viewport={{ once: true, amount: 0.3 }}
+            animate="animate"
             variants={staggerContainer}
-            className="max-w-3xl mx-auto text-center">
+            className="max-w-4xl mx-auto text-center">
 
             <motion.div variants={fadeInUp} className="mb-8">
               <span className="inline-flex items-center gap-2 px-4 border border-primary/20 bg-primary/5 text-foreground py-[10px] font-sans text-sm md:text-base font-semibold rounded-full shadow-sm">
@@ -232,9 +150,17 @@ const Index = () => {
               </span>
             </motion.div>
 
+            <motion.h1
+              variants={fadeInUp}
+              className="heading-display text-foreground mb-8">
+              <RotatingHeadline />
+              <br />
+              <span className="text-primary">em poucos cliques</span>
+            </motion.h1>
+
             <motion.p
               variants={fadeInUp}
-              className="text-body text-xl md:text-2xl text-foreground/90 mb-12 leading-relaxed">
+              className="text-body text-xl md:text-2xl text-foreground/80 mb-12 leading-relaxed max-w-3xl mx-auto">
               Compare empresas de coquetelaria, veja cardápios e valores.
               <br className="hidden md:block" />
               Solicite contratação sem complicação para qualquer tipo de evento.
@@ -267,6 +193,7 @@ const Index = () => {
           </motion.div>
         </div>
       </section>
+
 
 
       {/* Stats band — imersivo com foto de fundo */}
