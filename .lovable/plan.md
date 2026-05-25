@@ -1,50 +1,41 @@
-## Objetivo
+## Dividir a primeira dobra da home em duas
 
-Tratar pacotes de "Mão de obra" como uma modalidade distinta — cobrada por hora, com regras próprias — e expor um terceiro filtro na tela de resultados.
+Hoje o hero acumula tudo numa tela só (badge + título rotativo + subtítulo + 2 CTAs + selos de confiança) sobre imagem rotativa. Fica pesado de ler e dilui a foto. Vamos separar em duas dobras com hierarquia clara.
 
-## Mudança 1 — Modelo de pacote
+### Dobra 1 — Hero cinematográfico (apenas imagem + slogan)
 
-No tipo `DrinkPackage` (partnerStore) e `Menu` (`src/types/index.ts`), adicionar campos opcionais específicos de mão de obra. Quando `serviceCategory === 'mao-de-obra'`, o pacote vira "labor-only" e passa a usar esses campos:
+Foco total no impacto visual. Quase nada compete com a foto.
 
-- `hourlyRate: number` — valor por hora (R$)
-- `minHours: number` — mínimo de horas contratáveis (ex.: 5)
-- `includesSetup: boolean` — inclui montagem prévia
-- `setupHours?: number` — horas de antecedência (1 ou 2), visível se `includesSetup`
-- `allowsOvertime: boolean` — permite hora extra
-- `overtimeHourlyRate?: number` — valor da hora extra, visível se `allowsOvertime`
+- **Banner rotativo full-bleed** (mantém as 5 imagens e o sync com `RotatingHeadline`).
+- **Overlay mais leve** que o atual: gradiente de baixo para cima `from-background/70 via-background/20 to-transparent` (escurece só a base onde fica o texto, libera o resto da foto).
+- **Conteúdo central, minimalista:**
+  - H1 com o `RotatingHeadline` + linha "em poucos cliques" em dourado (igual hoje).
+  - Nada mais acima ou abaixo — sem badge, sem subtítulo, sem CTAs nessa dobra.
+- **Indicador de scroll discreto** no rodapé da dobra (chevron animado + texto micro "role para ver mais") — sinaliza que tem continuação e melhora conversão.
+- **Bullets de progresso** dos 5 banners (linha de 5 traços finos no canto inferior, o ativo em dourado) — referência visual elegante tipo Apple/Linear.
+- Altura: `min-h-[100vh]` (mantém).
 
-Campos `pricePerPerson`, `minPeople`, `maxPeople`, `drinks` deixam de ser obrigatórios/aplicáveis para esses pacotes.
+### Dobra 2 — Proposta de valor + CTA (legibilidade plena)
 
-## Mudança 2 — Painel do parceiro (PartnerPackagesPage)
+Fundo limpo (sem foto), tipografia respira, CTA principal em destaque. É aqui que a conversão acontece.
 
-- No formulário de pacote, quando o parceiro selecionar a categoria **Mão de obra**:
-  - Esconder os blocos "Preço/pessoa", "Mín./Máx. pessoas" e "Drinks inclusos"
-  - Mostrar bloco "Mão de obra": Valor/hora, Mínimo de horas, switch "Inclui montagem prévia" (+ select 1h/2h), switch "Permite hora extra" (+ Valor/hora extra)
-- Validação ao salvar pacote labor-only: exige `hourlyRate > 0` e `minHours >= 1`, ignora regras de pessoas
-- **Limite**: o parceiro só pode ter **1 pacote** de mão de obra. Botão "Novo Pacote" desabilita esta categoria no formulário se já existir um. Backend (`add_package`/`update_package`) também valida.
-- Card do pacote labor-only mostra "R$ X/hora · mín. Yh" no lugar de "R$ X/pessoa".
+- **Fundo:** `bg-background` com um brilho dourado sutil no topo (`bg-primary/5` blur) para amarrar com a dobra anterior.
+- **Layout centralizado, max-w-3xl:**
+  1. Badge "Marketplace de drinks para eventos" (movida da dobra 1).
+  2. Subtítulo grande e respirado: "Compare empresas de coquetelaria, veja cardápios e valores. Solicite contratação sem complicação para qualquer tipo de evento."
+  3. Dois CTAs lado a lado: **"Receber orçamento grátis"** (gold, xl) + **"Como funciona"** (outline, xl).
+  4. Trust signals (100% gratuito · Sem compromisso · Empresas verificadas) em linha discreta abaixo.
+- **Animação de entrada:** stagger fadeInUp ao entrar no viewport (já temos o helper).
+- Padding generoso: `py-20 md:py-28`.
 
-## Mudança 3 — Tela de resultados (ResultsPage)
+### Por que essa divisão melhora conversão
 
-Três abas: **Pacotes** | **Mão de obra** | **Empresas**
+- **Dobra 1** vira hero emocional puro — a foto vende a fantasia do evento, o slogan ancora a mensagem.
+- **Dobra 2** vira pitch racional limpo — sem competir com imagem, o usuário lê com calma e o botão dourado vira o único ponto de tensão visual → clique.
+- O indicador de scroll evita que a dobra 1 pareça "estática demais" (risco quando se tira CTA do hero).
 
-- "Pacotes": apenas pacotes com `serviceCategory !== 'mao-de-obra'` (comportamento atual)
-- "Mão de obra": apenas pacotes labor-only, com card específico mostrando R$/hora, mínimo de horas, montagem prévia e hora extra
-- "Empresas": agrupa por empresa todos os pacotes compatíveis (igual hoje)
-- Ordenação na aba Mão de obra: por valor/hora ou maior nota
+### Arquivo afetado
 
-Adicionar `viewMode = 'mao-de-obra'` ao estado e variante "labor" no `PackageResultCard` (ou criar `LaborPackageCard`).
+- `src/pages/Index.tsx` — reestruturar a `<section>` do hero atual em duas sections consecutivas. Manter `HERO_IMAGES`, `RotatingHeadline`, `heroIndex` state, preload de próxima imagem. Mover badge/subtítulo/CTAs/trust signals para a nova section.
 
-## Mudança 4 — Backend (snippet de referência)
-
-Em `backend-snippets/` adicionar/atualizar exemplo PHP de `add_package`/`update_package` com:
-
-- Persistir os novos campos (`hourly_rate`, `min_hours`, `includes_setup`, `setup_hours`, `allows_overtime`, `overtime_hourly_rate`)
-- Bloquear criação de 2º pacote `categoria_servico = 'mao-de-obra'` para o mesmo parceiro (`SELECT COUNT(*) ... WHERE parceiro_id = ? AND categoria_servico = 'mao-de-obra'`)
-- Migration sugerida (ALTER TABLE pacotes ADD COLUMN ...) documentada no snippet
-
-Sem alterações no fluxo de leads/orçamento — `QuickQuoteDialog` continua igual; pacotes de mão de obra aparecem com preço por hora no perfil público.
-
-## Pergunta antes de implementar
-
-Quero confirmar: ao definir o pacote como categoria **Mão de obra**, ele é automaticamente "labor-only" (preço por hora). Faz sentido vincular assim, ou prefere um switch separado tipo "Cobrar por hora" independente da categoria? - faz sentido. 
+Sem mudanças em outros arquivos, sem mudanças de business logic.
