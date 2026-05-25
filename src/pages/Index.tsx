@@ -131,12 +131,13 @@ const Index = () => {
   return (
     <Layout>
       {/* Hero unificado — sem imagem de fundo, foco em tipografia e CTA */}
-      <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden bg-background">
+      <section className="relative flex items-start justify-center overflow-hidden bg-background">
         {/* Camadas decorativas (gradientes dourados) */}
         <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-primary/10 rounded-full blur-[140px] animate-glow-pulse" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px]" />
 
-        <div className="container relative z-10 py-20 md:py-28">
+        <div className="container relative z-10 pt-10 md:pt-14 pb-20 md:pb-28">
+
           <motion.div
             initial="initial"
             animate="animate"
