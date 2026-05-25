@@ -33,13 +33,13 @@ const Header = () => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/60 backdrop-blur-xl border-b border-border/40">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-primary border-b border-primary-foreground/10">
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center group-hover:scale-105 transition-transform">
-              <Wine className="w-4 h-4 text-primary-foreground" />
+            <div className="w-8 h-8 rounded-lg bg-primary-foreground flex items-center justify-center group-hover:scale-105 transition-transform">
+              <Wine className="w-4 h-4 text-primary" />
             </div>
             <span className="font-display text-lg font-bold text-foreground tracking-tight">
               Meu Bartender Pro
