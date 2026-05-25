@@ -136,34 +136,34 @@ const Header = () => {
               exit={{ opacity: 0, height: 0 }}
               className="md:hidden overflow-hidden"
             >
-              <nav className="flex flex-col gap-1 py-4 border-t border-border/40">
-                <Link to="/" onClick={() => setIsMenuOpen(false)} className="text-base font-medium text-foreground py-2.5 px-3 rounded-lg hover:bg-secondary transition-colors">
+              <nav className="flex flex-col gap-1 py-4 border-t border-foreground/10">
+                <Link to="/" onClick={() => setIsMenuOpen(false)} className="text-base font-medium text-foreground py-2.5 px-3 rounded-lg hover:bg-foreground/10 transition-colors">
                   Início
                 </Link>
-                <Link to="/orcamento" onClick={() => setIsMenuOpen(false)} className="text-base font-medium text-foreground py-2.5 px-3 rounded-lg hover:bg-secondary transition-colors">
+                <Link to="/orcamento" onClick={() => setIsMenuOpen(false)} className="text-base font-medium text-foreground py-2.5 px-3 rounded-lg hover:bg-foreground/10 transition-colors">
                   Pedir Orçamento
                 </Link>
-                <Link to="/parceiros" onClick={() => setIsMenuOpen(false)} className="text-base font-medium text-foreground py-2.5 px-3 rounded-lg hover:bg-secondary transition-colors">
+                <Link to="/parceiros" onClick={() => setIsMenuOpen(false)} className="text-base font-medium text-foreground py-2.5 px-3 rounded-lg hover:bg-foreground/10 transition-colors">
                   Encontre seu Bartender
                 </Link>
-                <a href="#como-funciona" onClick={handleComoFunciona} className="text-base font-medium text-foreground py-2.5 px-3 rounded-lg hover:bg-secondary transition-colors cursor-pointer">
+                <a href="#como-funciona" onClick={handleComoFunciona} className="text-base font-medium text-foreground py-2.5 px-3 rounded-lg hover:bg-foreground/10 transition-colors cursor-pointer">
                   Como Funciona
                 </a>
                 {isAuthenticated && user?.role === 'parceiro' && (
-                  <Link to="/parceiro/painel/perfil" onClick={() => setIsMenuOpen(false)} className="text-base font-medium text-foreground py-2.5 px-3 rounded-lg hover:bg-secondary transition-colors">
+                  <Link to="/parceiro/painel/perfil" onClick={() => setIsMenuOpen(false)} className="text-base font-medium text-foreground py-2.5 px-3 rounded-lg hover:bg-foreground/10 transition-colors">
                     Painel
                   </Link>
                 )}
                 {isAuthenticated ? (
-                  <Button variant="outline" size="lg" className="mt-3" onClick={() => { logout(); setIsMenuOpen(false); }}>
+                  <Button variant="outline" size="lg" className="mt-3 border-foreground/30 bg-transparent hover:bg-foreground hover:text-primary" onClick={() => { logout(); setIsMenuOpen(false); }}>
                     Sair
                   </Button>
                 ) : (
                   <>
-                    <Button asChild variant="outline" size="lg" className="mt-3">
+                    <Button asChild variant="outline" size="lg" className="mt-3 border-foreground/30 bg-transparent hover:bg-foreground hover:text-primary">
                       <Link to="/login" onClick={() => setIsMenuOpen(false)}>Entrar</Link>
                     </Button>
-                    <Button asChild variant="gold" size="lg" className="mt-2">
+                    <Button asChild variant="default" size="lg" className="mt-2">
                       <Link to="/cadastro" onClick={() => setIsMenuOpen(false)}>Cadastre-se</Link>
                     </Button>
                   </>
