@@ -1,41 +1,52 @@
-## Dividir a primeira dobra da home em duas
+## Unificar hero em uma única dobra (sem imagens de fundo)
 
-Hoje o hero acumula tudo numa tela só (badge + título rotativo + subtítulo + 2 CTAs + selos de confiança) sobre imagem rotativa. Fica pesado de ler e dilui a foto. Vamos separar em duas dobras com hierarquia clara.
+A divisão em duas dobras ficou frouxa e o banner rotativo polui a leitura. Vamos voltar a ter **uma única dobra hero**, direta e prática, sem imagem de fundo nem efeito de troca — mas visualmente forte por conta de tipografia, gradiente dourado e composição.
 
-### Dobra 1 — Hero cinematográfico (apenas imagem + slogan)
+### O que muda em `src/pages/Index.tsx`
 
-Foco total no impacto visual. Quase nada compete com a foto.
+**Remover:**
+- Imports de `heroDrinks`, `heroBartender`, `heroConsultor`, `heroCasamento`, `heroNaoAlcoolico` e o array `HERO_IMAGES`.
+- State `heroIndex`, `useEffect` de preload, callback `handleHeroIndex`.
+- `<AnimatePresence>` com a `motion.div` da imagem de fundo.
+- Camada `bg-destructive-foreground`.
+- Indicador de progresso dos 5 banners.
+- Scroll cue ("Role para ver mais" + `ChevronDown`).
+- Import de `ChevronDown` (não usado em mais nenhum lugar).
+- A section "Dobra 2 — Proposta de valor + CTA" inteira (linhas 216-269).
+- `RotatingHeadline` perde o prop `onIndexChange` (não usado).
 
-- **Banner rotativo full-bleed** (mantém as 5 imagens e o sync com `RotatingHeadline`).
-- **Overlay mais leve** que o atual: gradiente de baixo para cima `from-background/70 via-background/20 to-transparent` (escurece só a base onde fica o texto, libera o resto da foto).
-- **Conteúdo central, minimalista:**
-  - H1 com o `RotatingHeadline` + linha "em poucos cliques" em dourado (igual hoje).
-  - Nada mais acima ou abaixo — sem badge, sem subtítulo, sem CTAs nessa dobra.
-- **Indicador de scroll discreto** no rodapé da dobra (chevron animado + texto micro "role para ver mais") — sinaliza que tem continuação e melhora conversão.
-- **Bullets de progresso** dos 5 banners (linha de 5 traços finos no canto inferior, o ativo em dourado) — referência visual elegante tipo Apple/Linear.
-- Altura: `min-h-[100vh]` (mantém).
+**Nova hero unificada** (substitui as duas sections atuais):
 
-### Dobra 2 — Proposta de valor + CTA (legibilidade plena)
+```text
+<section> min-h-[92vh], bg-background, overflow-hidden, relative
+  ├─ Camadas decorativas (sem imagem):
+  │   • Radial gold no topo: bg-primary/10 blur-[140px]
+  │   • Radial sutil embaixo à direita: bg-primary/5 blur-[100px]
+  │   • Grid pattern muito leve (opcional: opacity-[0.03])
+  │
+  └─ container, max-w-4xl mx-auto text-center, py-20 md:py-28
+      1. Badge "Marketplace de drinks para eventos" (pill com bullet pulsante)
+      2. H1 — RotatingHeadline + "em poucos cliques" em dourado
+         (heading-display, drop-shadow leve)
+      3. Subtítulo (text-xl md:text-2xl, text-foreground/80):
+         "Compare empresas de coquetelaria, veja cardápios e valores.
+          Solicite contratação sem complicação para qualquer tipo de evento."
+      4. CTAs lado a lado:
+         • "Receber orçamento grátis" (gold, xl) → /orcamento
+         • "Como funciona" (outline, xl) → #como-funciona
+      5. Trust signals em linha: 100% gratuito · Sem compromisso · Empresas verificadas
+```
 
-Fundo limpo (sem foto), tipografia respira, CTA principal em destaque. É aqui que a conversão acontece.
+Animações: stagger `fadeInUp` (badge → h1 → subtítulo → CTAs → trust signals). Sem `AnimatePresence` de imagem.
 
-- **Fundo:** `bg-background` com um brilho dourado sutil no topo (`bg-primary/5` blur) para amarrar com a dobra anterior.
-- **Layout centralizado, max-w-3xl:**
-  1. Badge "Marketplace de drinks para eventos" (movida da dobra 1).
-  2. Subtítulo grande e respirado: "Compare empresas de coquetelaria, veja cardápios e valores. Solicite contratação sem complicação para qualquer tipo de evento."
-  3. Dois CTAs lado a lado: **"Receber orçamento grátis"** (gold, xl) + **"Como funciona"** (outline, xl).
-  4. Trust signals (100% gratuito · Sem compromisso · Empresas verificadas) em linha discreta abaixo.
-- **Animação de entrada:** stagger fadeInUp ao entrar no viewport (já temos o helper).
-- Padding generoso: `py-20 md:py-28`.
+### Por que funciona
 
-### Por que essa divisão melhora conversão
+- **Direto e prático:** o usuário vê headline + proposta + CTA na mesma tela, sem precisar rolar.
+- **Visualmente chamativo sem foto:** o `RotatingHeadline` já carrega o movimento; gradientes dourados em blur grande criam profundidade premium tipo Linear/Vercel.
+- **Foco total no CTA dourado** — sem foto competindo por atenção.
 
-- **Dobra 1** vira hero emocional puro — a foto vende a fantasia do evento, o slogan ancora a mensagem.
-- **Dobra 2** vira pitch racional limpo — sem competir com imagem, o usuário lê com calma e o botão dourado vira o único ponto de tensão visual → clique.
-- O indicador de scroll evita que a dobra 1 pareça "estática demais" (risco quando se tira CTA do hero).
+### Arquivos afetados
 
-### Arquivo afetado
+- `src/pages/Index.tsx` — substituir as duas sections do hero por uma só; limpar imports e state não usados.
 
-- `src/pages/Index.tsx` — reestruturar a `<section>` do hero atual em duas sections consecutivas. Manter `HERO_IMAGES`, `RotatingHeadline`, `heroIndex` state, preload de próxima imagem. Mover badge/subtítulo/CTAs/trust signals para a nova section.
-
-Sem mudanças em outros arquivos, sem mudanças de business logic.
+Sem mudanças em outros arquivos, sem mudanças de lógica. `RotatingHeadline.tsx` continua funcionando (o prop `onIndexChange` é opcional).
