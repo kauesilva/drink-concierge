@@ -1,42 +1,38 @@
-## Cabeçalho com fundo amarelo
+## Header em branco sobre amarelo
 
-Trocar o header (`src/components/layout/Header.tsx`) de fundo translúcido branco para **dourado sólido** (cor `primary`), ajustando textos e botões para manter contraste e legibilidade sobre o amarelo.
+Inverter o esquema do header para **tudo branco** sobre o fundo amarelo, com hover branco nos links e botões.
 
 ### Mudanças em `src/components/layout/Header.tsx`
 
-**Barra:**
-- `bg-background/60 backdrop-blur-xl border-b border-border/40` → `bg-primary border-b border-primary-foreground/10`
-- Remover blur (não faz sentido em fundo sólido).
-
 **Logo:**
-- Quadrado do ícone: hoje `bg-primary` com ícone `text-primary-foreground`. Invertido para `bg-primary-foreground` (preto) com `Wine` em `text-primary` (amarelo) — destaca sobre o amarelo.
-- Texto "Meu Bartender Pro": mantém `text-foreground` (preto), já contrasta bem.
+- Quadrado do ícone: `bg-primary-foreground` (preto) → `bg-white`. `Wine` permanece `text-primary` (amarelo) dentro do quadrado branco.
+- Texto: "Meu Bartender Pro" → **"Meu Bartender"**, cor trocada de `text-foreground` para `text-white`.
 
-**Links de navegação (desktop + mobile):**
-- Ativo: `text-foreground` (preto sólido).
-- Inativo: `text-muted-foreground` → `text-foreground/70`, hover `text-foreground`.
+**Links de navegação (desktop):**
+- Estado ativo: `text-foreground` → `text-white`.
+- Estado inativo: `text-foreground/70 hover:text-foreground` → `text-foreground/70 hover:text-white`.
+- Aplica a: Início, Orçamento, Encontre seu Bartender, Como funciona, Painel.
 
 **Saudação "Olá, {nome}":**
-- `text-muted-foreground` → `text-foreground/80`.
+- `text-foreground/80` → `text-white/90`.
 
-**Botões (desktop):**
-- "Entrar" / "Sair" (variant `outline`): trocar por `variant="outline"` com classe extra para borda preta sobre amarelo — `className="border-foreground/30 hover:bg-foreground hover:text-primary"`.
-- "Cadastre-se" (hoje `variant="gold"`): em fundo amarelo o botão dourado some. Trocar para `variant="default"` (preto sobre amarelo — alto contraste, vira o CTA principal).
-
-**Botões mobile (drawer):**
-- Mesmas trocas: outline com borda escura, e CTA principal `default` (preto).
-- Drawer abre como `motion.div` filho — herda fundo amarelo automaticamente. Borda divisória: `border-border/40` → `border-foreground/10`.
-- Links do menu mobile: `hover:bg-secondary` → `hover:bg-foreground/10` para um hover sutil sobre amarelo.
+**Botões desktop (Entrar / Sair / Cadastre-se):**
+- Hoje os outline têm `hover:bg-foreground hover:text-primary` (hover preto). Inverter para hover branco:
+  - "Entrar" e "Sair": `variant="outline"` + `className="border-white/40 bg-transparent text-white hover:bg-white hover:text-primary"`.
+  - "Cadastre-se": trocar `variant="default"` (preto) por outline branco com **fill no hover** — `className="border-white/60 bg-transparent text-white hover:bg-white hover:text-primary"` mantendo `variant="outline"`. Assim ambos priorizam o efeito branco.
 
 **Botão hambúrguer mobile:**
-- `text-foreground hover:bg-secondary` → `text-foreground hover:bg-foreground/10`.
+- `text-foreground hover:bg-foreground/10` → `text-white hover:bg-white/15`.
+
+**Menu mobile (drawer):**
+- Borda divisória: `border-foreground/10` → `border-white/15`.
+- Links: `text-foreground hover:bg-foreground/10` → `text-white hover:bg-white/15`.
+- Botões "Entrar/Sair/Cadastre-se" do drawer: mesmas trocas do desktop (outline branco com hover preenchendo de branco).
 
 ### Por que assim
-- Fundo `primary` (amarelo) + texto/CTA `foreground` (preto) = combinação já validada no design system (é a base do botão `gold`).
-- O CTA principal vira preto sólido (inversão do padrão atual), o que **destaca mais** sobre o amarelo do que outro dourado.
-- Nenhuma cor hardcoded — tudo via tokens (`primary`, `foreground`, `primary-foreground`).
+- Branco sobre amarelo cria contraste suave e premium (estilo marcas como Snapchat/Postmates).
+- Hover preenchendo de branco com texto amarelo reforça a identidade da marca em cada interação, sem usar preto.
+- Apenas tokens (`primary`, `primary-foreground`) e `white` (utilitário Tailwind padrão) — sem cores hardcoded fora do sistema.
 
 ### Arquivos afetados
 - `src/components/layout/Header.tsx` (único).
-
-Sem mudanças no `index.css`, tokens ou outras páginas. O hero da home (que tem blurs `bg-primary/10`) continua funcionando — o header sólido amarelo cria uma transição natural para o conteúdo abaixo.
