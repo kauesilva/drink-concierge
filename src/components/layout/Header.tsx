@@ -32,59 +32,48 @@ const Header = () => {
     }
   };
 
+  const navLinkClass = (active: boolean) =>
+    `text-sm font-medium transition-colors ${active ? 'text-white' : 'text-white/70 hover:text-white'}`;
+
+  const outlineWhite =
+    'border-white/50 bg-transparent text-white hover:bg-white hover:text-primary';
+
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-primary border-b border-primary-foreground/10">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-primary border-b border-white/10">
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-8 h-8 rounded-lg bg-primary-foreground flex items-center justify-center group-hover:scale-105 transition-transform">
+            <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center group-hover:scale-105 transition-transform">
               <Wine className="w-4 h-4 text-primary" />
             </div>
-            <span className="font-display text-lg font-bold text-foreground tracking-tight">
-              Meu Bartender Pro
+            <span className="font-display text-lg font-bold text-white tracking-tight">
+              Meu Bartender
             </span>
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
-            <Link
-              to="/"
-              className={`text-sm font-medium transition-colors ${
-                location.pathname === '/' ? 'text-foreground' : 'text-foreground/70 hover:text-foreground'
-              }`}
-            >
+            <Link to="/" className={navLinkClass(location.pathname === '/')}>
               Início
             </Link>
-            <Link
-              to="/orcamento"
-              className={`text-sm font-medium transition-colors ${
-                location.pathname === '/orcamento' ? 'text-foreground' : 'text-foreground/70 hover:text-foreground'
-              }`}
-            >
+            <Link to="/orcamento" className={navLinkClass(location.pathname === '/orcamento')}>
               Orçamento
             </Link>
-            <Link
-              to="/parceiros"
-              className={`text-sm font-medium transition-colors ${
-                location.pathname.startsWith('/parceiros') ? 'text-foreground' : 'text-foreground/70 hover:text-foreground'
-              }`}
-            >
+            <Link to="/parceiros" className={navLinkClass(location.pathname.startsWith('/parceiros'))}>
               Encontre seu Bartender
             </Link>
             <a
               href="#como-funciona"
               onClick={handleComoFunciona}
-              className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors cursor-pointer"
+              className="text-sm font-medium text-white/70 hover:text-white transition-colors cursor-pointer"
             >
               Como funciona
             </a>
             {isAuthenticated && user?.role === 'parceiro' && (
               <Link
                 to="/parceiro/painel/perfil"
-                className={`text-sm font-medium transition-colors ${
-                  location.pathname.startsWith('/parceiro') ? 'text-foreground' : 'text-foreground/70 hover:text-foreground'
-                }`}
+                className={navLinkClass(location.pathname.startsWith('/parceiro'))}
               >
                 Painel
               </Link>
@@ -95,22 +84,22 @@ const Header = () => {
           <div className="hidden md:flex items-center gap-3">
             {isAuthenticated ? (
               <>
-                <span className="text-sm text-foreground/80">
+                <span className="text-sm text-white/90">
                   Olá, {user?.nome?.split(' ')[0]}
                 </span>
-                <Button variant="outline" size="sm" className="border-foreground/30 bg-transparent hover:bg-foreground hover:text-primary" onClick={logout}>
+                <Button variant="outline" size="sm" className={outlineWhite} onClick={logout}>
                   Sair
                 </Button>
               </>
             ) : (
               <>
-                <Button asChild variant="outline" size="sm" className="border-foreground/30 bg-transparent hover:bg-foreground hover:text-primary">
+                <Button asChild variant="outline" size="sm" className={outlineWhite}>
                   <Link to="/login">
                     <LogIn className="w-4 h-4 mr-1.5" />
                     Entrar
                   </Link>
                 </Button>
-                <Button asChild variant="default" size="sm">
+                <Button asChild variant="outline" size="sm" className={outlineWhite}>
                   <Link to="/cadastro">Cadastre-se</Link>
                 </Button>
               </>
@@ -120,7 +109,7 @@ const Header = () => {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 text-foreground hover:bg-foreground/10 rounded-lg transition-colors"
+            className="md:hidden p-2 text-white hover:bg-white/15 rounded-lg transition-colors"
             aria-label="Menu"
           >
             {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -136,34 +125,34 @@ const Header = () => {
               exit={{ opacity: 0, height: 0 }}
               className="md:hidden overflow-hidden"
             >
-              <nav className="flex flex-col gap-1 py-4 border-t border-foreground/10">
-                <Link to="/" onClick={() => setIsMenuOpen(false)} className="text-base font-medium text-foreground py-2.5 px-3 rounded-lg hover:bg-foreground/10 transition-colors">
+              <nav className="flex flex-col gap-1 py-4 border-t border-white/15">
+                <Link to="/" onClick={() => setIsMenuOpen(false)} className="text-base font-medium text-white py-2.5 px-3 rounded-lg hover:bg-white/15 transition-colors">
                   Início
                 </Link>
-                <Link to="/orcamento" onClick={() => setIsMenuOpen(false)} className="text-base font-medium text-foreground py-2.5 px-3 rounded-lg hover:bg-foreground/10 transition-colors">
+                <Link to="/orcamento" onClick={() => setIsMenuOpen(false)} className="text-base font-medium text-white py-2.5 px-3 rounded-lg hover:bg-white/15 transition-colors">
                   Pedir Orçamento
                 </Link>
-                <Link to="/parceiros" onClick={() => setIsMenuOpen(false)} className="text-base font-medium text-foreground py-2.5 px-3 rounded-lg hover:bg-foreground/10 transition-colors">
+                <Link to="/parceiros" onClick={() => setIsMenuOpen(false)} className="text-base font-medium text-white py-2.5 px-3 rounded-lg hover:bg-white/15 transition-colors">
                   Encontre seu Bartender
                 </Link>
-                <a href="#como-funciona" onClick={handleComoFunciona} className="text-base font-medium text-foreground py-2.5 px-3 rounded-lg hover:bg-foreground/10 transition-colors cursor-pointer">
+                <a href="#como-funciona" onClick={handleComoFunciona} className="text-base font-medium text-white py-2.5 px-3 rounded-lg hover:bg-white/15 transition-colors cursor-pointer">
                   Como Funciona
                 </a>
                 {isAuthenticated && user?.role === 'parceiro' && (
-                  <Link to="/parceiro/painel/perfil" onClick={() => setIsMenuOpen(false)} className="text-base font-medium text-foreground py-2.5 px-3 rounded-lg hover:bg-foreground/10 transition-colors">
+                  <Link to="/parceiro/painel/perfil" onClick={() => setIsMenuOpen(false)} className="text-base font-medium text-white py-2.5 px-3 rounded-lg hover:bg-white/15 transition-colors">
                     Painel
                   </Link>
                 )}
                 {isAuthenticated ? (
-                  <Button variant="outline" size="lg" className="mt-3 border-foreground/30 bg-transparent hover:bg-foreground hover:text-primary" onClick={() => { logout(); setIsMenuOpen(false); }}>
+                  <Button variant="outline" size="lg" className={`mt-3 ${outlineWhite}`} onClick={() => { logout(); setIsMenuOpen(false); }}>
                     Sair
                   </Button>
                 ) : (
                   <>
-                    <Button asChild variant="outline" size="lg" className="mt-3 border-foreground/30 bg-transparent hover:bg-foreground hover:text-primary">
+                    <Button asChild variant="outline" size="lg" className={`mt-3 ${outlineWhite}`}>
                       <Link to="/login" onClick={() => setIsMenuOpen(false)}>Entrar</Link>
                     </Button>
-                    <Button asChild variant="default" size="lg" className="mt-2">
+                    <Button asChild variant="outline" size="lg" className={`mt-2 ${outlineWhite}`}>
                       <Link to="/cadastro" onClick={() => setIsMenuOpen(false)}>Cadastre-se</Link>
                     </Button>
                   </>
