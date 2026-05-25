@@ -51,7 +51,7 @@ const Header = () => {
             <Link
               to="/"
               className={`text-sm font-medium transition-colors ${
-                location.pathname === '/' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+                location.pathname === '/' ? 'text-foreground' : 'text-foreground/70 hover:text-foreground'
               }`}
             >
               Início
@@ -59,7 +59,7 @@ const Header = () => {
             <Link
               to="/orcamento"
               className={`text-sm font-medium transition-colors ${
-                location.pathname === '/orcamento' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+                location.pathname === '/orcamento' ? 'text-foreground' : 'text-foreground/70 hover:text-foreground'
               }`}
             >
               Orçamento
@@ -67,7 +67,7 @@ const Header = () => {
             <Link
               to="/parceiros"
               className={`text-sm font-medium transition-colors ${
-                location.pathname.startsWith('/parceiros') ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+                location.pathname.startsWith('/parceiros') ? 'text-foreground' : 'text-foreground/70 hover:text-foreground'
               }`}
             >
               Encontre seu Bartender
@@ -75,7 +75,7 @@ const Header = () => {
             <a
               href="#como-funciona"
               onClick={handleComoFunciona}
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+              className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors cursor-pointer"
             >
               Como funciona
             </a>
@@ -83,13 +83,49 @@ const Header = () => {
               <Link
                 to="/parceiro/painel/perfil"
                 className={`text-sm font-medium transition-colors ${
-                  location.pathname.startsWith('/parceiro') ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+                  location.pathname.startsWith('/parceiro') ? 'text-foreground' : 'text-foreground/70 hover:text-foreground'
                 }`}
               >
                 Painel
               </Link>
             )}
           </nav>
+
+          {/* CTA / Auth Buttons */}
+          <div className="hidden md:flex items-center gap-3">
+            {isAuthenticated ? (
+              <>
+                <span className="text-sm text-foreground/80">
+                  Olá, {user?.nome?.split(' ')[0]}
+                </span>
+                <Button variant="outline" size="sm" className="border-foreground/30 bg-transparent hover:bg-foreground hover:text-primary" onClick={logout}>
+                  Sair
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button asChild variant="outline" size="sm" className="border-foreground/30 bg-transparent hover:bg-foreground hover:text-primary">
+                  <Link to="/login">
+                    <LogIn className="w-4 h-4 mr-1.5" />
+                    Entrar
+                  </Link>
+                </Button>
+                <Button asChild variant="default" size="sm">
+                  <Link to="/cadastro">Cadastre-se</Link>
+                </Button>
+              </>
+            )}
+          </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="md:hidden p-2 text-foreground hover:bg-foreground/10 rounded-lg transition-colors"
+            aria-label="Menu"
+          >
+            {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+        </div>
 
           {/* CTA / Auth Buttons */}
           <div className="hidden md:flex items-center gap-3">
