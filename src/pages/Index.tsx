@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, CheckCircle, Star, Sparkles, Zap, Shield, Users } from 'lucide-react';
+import { ArrowRight, CheckCircle, Star, Sparkles, Zap, Shield, Users, ChevronDown } from 'lucide-react';
 import AnimatedCounter from '@/components/AnimatedCounter';
 import Layout from '@/components/layout/Layout';
 import RotatingHeadline from '@/components/RotatingHeadline';
