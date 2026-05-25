@@ -1,52 +1,42 @@
-## Unificar hero em uma única dobra (sem imagens de fundo)
+## Cabeçalho com fundo amarelo
 
-A divisão em duas dobras ficou frouxa e o banner rotativo polui a leitura. Vamos voltar a ter **uma única dobra hero**, direta e prática, sem imagem de fundo nem efeito de troca — mas visualmente forte por conta de tipografia, gradiente dourado e composição.
+Trocar o header (`src/components/layout/Header.tsx`) de fundo translúcido branco para **dourado sólido** (cor `primary`), ajustando textos e botões para manter contraste e legibilidade sobre o amarelo.
 
-### O que muda em `src/pages/Index.tsx`
+### Mudanças em `src/components/layout/Header.tsx`
 
-**Remover:**
-- Imports de `heroDrinks`, `heroBartender`, `heroConsultor`, `heroCasamento`, `heroNaoAlcoolico` e o array `HERO_IMAGES`.
-- State `heroIndex`, `useEffect` de preload, callback `handleHeroIndex`.
-- `<AnimatePresence>` com a `motion.div` da imagem de fundo.
-- Camada `bg-destructive-foreground`.
-- Indicador de progresso dos 5 banners.
-- Scroll cue ("Role para ver mais" + `ChevronDown`).
-- Import de `ChevronDown` (não usado em mais nenhum lugar).
-- A section "Dobra 2 — Proposta de valor + CTA" inteira (linhas 216-269).
-- `RotatingHeadline` perde o prop `onIndexChange` (não usado).
+**Barra:**
+- `bg-background/60 backdrop-blur-xl border-b border-border/40` → `bg-primary border-b border-primary-foreground/10`
+- Remover blur (não faz sentido em fundo sólido).
 
-**Nova hero unificada** (substitui as duas sections atuais):
+**Logo:**
+- Quadrado do ícone: hoje `bg-primary` com ícone `text-primary-foreground`. Invertido para `bg-primary-foreground` (preto) com `Wine` em `text-primary` (amarelo) — destaca sobre o amarelo.
+- Texto "Meu Bartender Pro": mantém `text-foreground` (preto), já contrasta bem.
 
-```text
-<section> min-h-[92vh], bg-background, overflow-hidden, relative
-  ├─ Camadas decorativas (sem imagem):
-  │   • Radial gold no topo: bg-primary/10 blur-[140px]
-  │   • Radial sutil embaixo à direita: bg-primary/5 blur-[100px]
-  │   • Grid pattern muito leve (opcional: opacity-[0.03])
-  │
-  └─ container, max-w-4xl mx-auto text-center, py-20 md:py-28
-      1. Badge "Marketplace de drinks para eventos" (pill com bullet pulsante)
-      2. H1 — RotatingHeadline + "em poucos cliques" em dourado
-         (heading-display, drop-shadow leve)
-      3. Subtítulo (text-xl md:text-2xl, text-foreground/80):
-         "Compare empresas de coquetelaria, veja cardápios e valores.
-          Solicite contratação sem complicação para qualquer tipo de evento."
-      4. CTAs lado a lado:
-         • "Receber orçamento grátis" (gold, xl) → /orcamento
-         • "Como funciona" (outline, xl) → #como-funciona
-      5. Trust signals em linha: 100% gratuito · Sem compromisso · Empresas verificadas
-```
+**Links de navegação (desktop + mobile):**
+- Ativo: `text-foreground` (preto sólido).
+- Inativo: `text-muted-foreground` → `text-foreground/70`, hover `text-foreground`.
 
-Animações: stagger `fadeInUp` (badge → h1 → subtítulo → CTAs → trust signals). Sem `AnimatePresence` de imagem.
+**Saudação "Olá, {nome}":**
+- `text-muted-foreground` → `text-foreground/80`.
 
-### Por que funciona
+**Botões (desktop):**
+- "Entrar" / "Sair" (variant `outline`): trocar por `variant="outline"` com classe extra para borda preta sobre amarelo — `className="border-foreground/30 hover:bg-foreground hover:text-primary"`.
+- "Cadastre-se" (hoje `variant="gold"`): em fundo amarelo o botão dourado some. Trocar para `variant="default"` (preto sobre amarelo — alto contraste, vira o CTA principal).
 
-- **Direto e prático:** o usuário vê headline + proposta + CTA na mesma tela, sem precisar rolar.
-- **Visualmente chamativo sem foto:** o `RotatingHeadline` já carrega o movimento; gradientes dourados em blur grande criam profundidade premium tipo Linear/Vercel.
-- **Foco total no CTA dourado** — sem foto competindo por atenção.
+**Botões mobile (drawer):**
+- Mesmas trocas: outline com borda escura, e CTA principal `default` (preto).
+- Drawer abre como `motion.div` filho — herda fundo amarelo automaticamente. Borda divisória: `border-border/40` → `border-foreground/10`.
+- Links do menu mobile: `hover:bg-secondary` → `hover:bg-foreground/10` para um hover sutil sobre amarelo.
+
+**Botão hambúrguer mobile:**
+- `text-foreground hover:bg-secondary` → `text-foreground hover:bg-foreground/10`.
+
+### Por que assim
+- Fundo `primary` (amarelo) + texto/CTA `foreground` (preto) = combinação já validada no design system (é a base do botão `gold`).
+- O CTA principal vira preto sólido (inversão do padrão atual), o que **destaca mais** sobre o amarelo do que outro dourado.
+- Nenhuma cor hardcoded — tudo via tokens (`primary`, `foreground`, `primary-foreground`).
 
 ### Arquivos afetados
+- `src/components/layout/Header.tsx` (único).
 
-- `src/pages/Index.tsx` — substituir as duas sections do hero por uma só; limpar imports e state não usados.
-
-Sem mudanças em outros arquivos, sem mudanças de lógica. `RotatingHeadline.tsx` continua funcionando (o prop `onIndexChange` é opcional).
+Sem mudanças no `index.css`, tokens ou outras páginas. O hero da home (que tem blurs `bg-primary/10`) continua funcionando — o header sólido amarelo cria uma transição natural para o conteúdo abaixo.
