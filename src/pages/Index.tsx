@@ -419,7 +419,7 @@ const Index = () => {
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-6 py-[15px] my-[15px]">
             {testimonials.map((testimonial, index) =>
             <motion.div
               key={testimonial.name}
