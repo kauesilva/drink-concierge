@@ -353,6 +353,20 @@ export async function apiSendQuickQuote(data: {
   });
 }
 
+export async function apiRegisterCoverageRequest(data: {
+  nome: string;
+  whatsapp: string;
+  email: string;
+  cidade: string;
+  estado: string;
+}): Promise<{ id: number; message: string }> {
+  return request('register_coverage_request', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+
 export async function apiGetPartnerLeads(parceiroId: number): Promise<ApiLead[]> {
   return request('get_partner_leads', {
     params: { parceiro_id: String(parceiroId) },
