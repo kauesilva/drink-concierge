@@ -178,6 +178,7 @@ export async function apiUpdateProfile(
     nome_empresa?: string;
     sobre?: string;
     foto_capa?: string;
+    foto_capa_posicao?: string;
     cidade_base?: string;
     estado?: string;
     whatsapp?: string;
