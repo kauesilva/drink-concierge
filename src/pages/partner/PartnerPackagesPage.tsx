@@ -192,8 +192,8 @@ const PartnerPackagesPage = () => {
         return;
       }
     } else {
-      if (form.pricePerPerson <= 0) {
-        toast({ title: 'Informe o preço por pessoa', variant: 'destructive' });
+      if (form.pricePerPerson < 0) {
+        toast({ title: 'Preço inválido', variant: 'destructive' });
         return;
       }
       if (form.maxPeople && form.maxPeople < form.minPeople) {
