@@ -69,6 +69,7 @@ export interface PartnerProfile {
   businessName: string;
   about: string;
   coverImage: string;
+  coverPosition: string;
   cityBase: string;
   state: string;
   areasServed: string[];
@@ -114,6 +115,7 @@ const defaultProfile: PartnerProfile = {
   businessName: '',
   about: '',
   coverImage: '',
+  coverPosition: '50% 50%',
   cityBase: '',
   state: '',
   areasServed: [],
@@ -175,6 +177,7 @@ export const usePartnerStore = create<PartnerStore>()(
             nome_empresa: profile.businessName,
             sobre: profile.about,
             foto_capa: profile.coverImage,
+            foto_capa_posicao: profile.coverPosition,
             cidade_base: profile.cityBase,
             estado: profile.state,
             whatsapp: profile.whatsapp,
@@ -362,6 +365,7 @@ export const usePartnerStore = create<PartnerStore>()(
               businessName: p.nome_empresa || p.nome,
               about: p.sobre || '',
               coverImage: p.foto_capa || '',
+              coverPosition: (p as any).foto_capa_posicao || '50% 50%',
               cityBase: p.cidade_base || '',
               state: p.estado || '',
               areasServed: p.areas_atendidas || [],

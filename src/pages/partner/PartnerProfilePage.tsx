@@ -17,6 +17,7 @@ import { toast } from '@/hooks/use-toast';
 import { apiUploadImage } from '@/services/api';
 import StateCitySelect from '@/components/shared/StateCitySelect';
 import GalleryUploader from '@/components/partners/GalleryUploader';
+import CoverPositionEditor from '@/components/partners/CoverPositionEditor';
 import VideoEmbed from '@/components/partners/VideoEmbed';
 import { serviceCategories } from '@/data/mockData';
 import { getPublishChecks, isPartnerPublishable } from '@/lib/partners';
@@ -32,6 +33,7 @@ const PartnerProfilePage = () => {
   const logoRef = useRef<HTMLInputElement>(null);
   const [uploadingCover, setUploadingCover] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [adjustingCover, setAdjustingCover] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -153,7 +155,12 @@ const PartnerProfilePage = () => {
           onClick={() => coverRef.current?.click()}
         >
           {form.coverImage ? (
-            <img src={form.coverImage} alt="Capa" className="w-full h-full object-cover" />
+            <img
+              src={form.coverImage}
+              alt="Capa"
+              className="w-full h-full object-cover"
+              style={{ objectPosition: form.coverPosition || '50% 50%' }}
+            />
           ) : (
             <div className="text-center text-muted-foreground">
               <Camera className="w-8 h-8 mx-auto mb-2" />
@@ -163,6 +170,17 @@ const PartnerProfilePage = () => {
           {uploadingCover && (
             <span className="absolute bottom-3 right-3 text-xs font-medium text-background bg-foreground/60 px-3 py-1 rounded">Enviando...</span>
           )}
+          {form.coverImage && !uploadingCover && (
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              className="absolute bottom-3 right-3 shadow-md"
+              onClick={(e) => { e.stopPropagation(); setAdjustingCover((v) => !v); }}
+            >
+              {adjustingCover ? 'Fechar ajuste' : 'Ajustar enquadramento'}
+            </Button>
+          )}
           <input
             ref={coverRef}
             type="file"
@@ -170,11 +188,20 @@ const PartnerProfilePage = () => {
             className="hidden"
             onChange={(e) => {
               const f = e.target.files?.[0];
-              if (f) uploadImage(f, setUploadingCover, (url) => setForm((p) => ({ ...p, coverImage: url })));
+              if (f) uploadImage(f, setUploadingCover, (url) => setForm((p) => ({ ...p, coverImage: url, coverPosition: '50% 50%' })));
               if (coverRef.current) coverRef.current.value = '';
             }}
           />
         </div>
+        {adjustingCover && form.coverImage && (
+          <div className="p-5 border-t border-border/60 bg-muted/30">
+            <CoverPositionEditor
+              imageUrl={form.coverImage}
+              value={form.coverPosition}
+              onChange={(v) => setForm((p) => ({ ...p, coverPosition: v }))}
+            />
+          </div>
+        )}
         <CardContent className="p-5 flex items-center gap-4">
           <div
             className="w-20 h-20 rounded-2xl bg-muted overflow-hidden border border-border flex items-center justify-center cursor-pointer shrink-0"
