@@ -599,49 +599,64 @@ const PartnerPackagesPage = () => {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <div className="space-y-2">
                   <Label>Preço/pessoa *</Label>
-                  <Input
-                    type="number"
-                    min={0}
-                    value={form.pricePerPerson || ''}
-                    onChange={(e) => setForm({ ...form, pricePerPerson: Number(e.target.value) })}
-                    placeholder="90"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Duração (h)</Label>
-                  <Input
-                    type="number"
-                    min={1}
-                    value={form.durationHours}
-                    onChange={(e) => setForm({ ...form, durationHours: Number(e.target.value) })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Mín. pessoas</Label>
-                  <Input
-                    type="number"
-                    min={1}
-                    value={form.minPeople}
-                    onChange={(e) => setForm({ ...form, minPeople: Number(e.target.value) })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Máx. pessoas</Label>
-                  <Input
-                    type="number"
-                    min={1}
-                    value={form.maxPeople ?? ''}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        maxPeople: e.target.value ? Number(e.target.value) : undefined,
-                      })
+              <div className="space-y-3">
+                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <Checkbox
+                    checked={form.pricePerPerson === 0}
+                    onCheckedChange={(v) =>
+                      setForm({ ...form, pricePerPerson: v ? 0 : 1 })
                     }
-                    placeholder="Sem limite"
                   />
+                  <span>Preço sob consulta ("A combinar")</span>
+                </label>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="space-y-2">
+                    <Label>Preço/pessoa{form.pricePerPerson === 0 ? '' : ' *'}</Label>
+                    <Input
+                      type="number"
+                      min={0}
+                      disabled={form.pricePerPerson === 0}
+                      value={form.pricePerPerson === 0 ? '' : form.pricePerPerson || ''}
+                      onChange={(e) => setForm({ ...form, pricePerPerson: Number(e.target.value) })}
+                      placeholder={form.pricePerPerson === 0 ? 'A combinar' : '90'}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Duração (h)</Label>
+                    <Input
+                      type="number"
+                      min={1}
+                      value={form.durationHours}
+                      onChange={(e) => setForm({ ...form, durationHours: Number(e.target.value) })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Mín. pessoas</Label>
+                    <Input
+                      type="number"
+                      min={1}
+                      value={form.minPeople}
+                      onChange={(e) => setForm({ ...form, minPeople: Number(e.target.value) })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Máx. pessoas</Label>
+                    <Input
+                      type="number"
+                      min={1}
+                      value={form.maxPeople ?? ''}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          maxPeople: e.target.value ? Number(e.target.value) : undefined,
+                        })
+                      }
+                      placeholder="Sem limite"
+                    />
+                  </div>
                 </div>
               </div>
-            )}
+
 
 
             {/* Tipos de evento atendidos */}
