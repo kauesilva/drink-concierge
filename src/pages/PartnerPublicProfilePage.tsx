@@ -20,6 +20,7 @@ const PartnerPublicProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [quoteOpen, setQuoteOpen] = useState(false);
+  const { data: menus, isLoading: loadingMenus } = useCompanyMenus(partnerId);
 
   useEffect(() => {
     if (!partnerId) return;
