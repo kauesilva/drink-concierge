@@ -311,7 +311,7 @@ const Index = () => {
             viewport={{ once: true }}
             className="max-w-2xl mb-16">
             
-            <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-3">
+            <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-3 py-[20px]">
               Como funciona
             </p>
             <h2 className="heading-section text-foreground mb-4">
