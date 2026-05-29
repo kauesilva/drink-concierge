@@ -463,7 +463,16 @@ const PartnerPackagesPage = () => {
               <Label>Categoria do pacote *</Label>
               <RadioGroup
                 value={form.serviceCategory || ''}
-                onValueChange={(v) => setForm({ ...form, serviceCategory: v as ServiceCategory })}
+                onValueChange={(v) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    serviceCategory: v as ServiceCategory,
+                    eventTypes:
+                      v === 'mao-de-obra'
+                        ? prev.eventTypes
+                        : prev.eventTypes.filter((t) => t !== 'freelancer-bar'),
+                  }))
+                }
                 className="grid gap-2"
               >
                 {serviceCategories.map((cat) => {
