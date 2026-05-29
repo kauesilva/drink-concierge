@@ -644,7 +644,80 @@ const QuotePage = () => {
           </div>
         </div>
       </div>
+
+      <Dialog open={coverageOpen} onOpenChange={setCoverageOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-display">Ops, ainda estamos ampliando nossa atuação</DialogTitle>
+            <DialogDescription>
+              Informe sua cidade que vamos buscar parceiros de confiança para o seu evento.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            <div>
+              <Label>Seu nome *</Label>
+              <Input
+                value={coverageForm.nome}
+                onChange={(e) => setCoverageForm((f) => ({ ...f, nome: e.target.value }))}
+                className="mt-2"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>WhatsApp *</Label>
+                <Input
+                  value={coverageForm.whatsapp}
+                  onChange={(e) => setCoverageForm((f) => ({ ...f, whatsapp: e.target.value }))}
+                  placeholder="(11) 99999-9999"
+                  className="mt-2"
+                />
+              </div>
+              <div>
+                <Label>Email *</Label>
+                <Input
+                  type="email"
+                  value={coverageForm.email}
+                  onChange={(e) => setCoverageForm((f) => ({ ...f, email: e.target.value }))}
+                  className="mt-2"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="col-span-2">
+                <Label>Cidade *</Label>
+                <Input
+                  value={coverageForm.cidade}
+                  onChange={(e) => setCoverageForm((f) => ({ ...f, cidade: e.target.value }))}
+                  className="mt-2"
+                />
+              </div>
+              <div>
+                <Label>UF *</Label>
+                <Input
+                  value={coverageForm.estado}
+                  onChange={(e) => setCoverageForm((f) => ({ ...f, estado: e.target.value.toUpperCase().slice(0, 2) }))}
+                  maxLength={2}
+                  className="mt-2"
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setCoverageOpen(false)} disabled={coverageSubmitting}>
+              Cancelar
+            </Button>
+            <Button variant="gold" onClick={handleCoverageSubmit} disabled={coverageSubmitting}>
+              {coverageSubmitting ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Enviando...</>
+              ) : (
+                'Enviar'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Layout>
+
   );
 };
 
