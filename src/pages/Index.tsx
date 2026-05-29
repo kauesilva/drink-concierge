@@ -207,7 +207,7 @@ const Index = () => {
             viewport={{ once: true }}
             className="text-center mb-8">
 
-            <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-3">
+            <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-3 py-[20px]">
               Modalidades
             </p>
             <h2 className="heading-section text-foreground mb-4">
@@ -311,7 +311,7 @@ const Index = () => {
             viewport={{ once: true }}
             className="max-w-2xl mb-16">
             
-            <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-3">
+            <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-3 py-[20px]">
               Como funciona
             </p>
             <h2 className="heading-section text-foreground mb-4">
@@ -363,7 +363,7 @@ const Index = () => {
             viewport={{ once: true }}
             className="text-center mb-16">
             
-            <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-3">
+            <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-3 py-[20px]">
               Eventos
             </p>
             <h2 className="heading-section text-foreground">
@@ -408,7 +408,7 @@ const Index = () => {
             viewport={{ once: true }}
             className="text-center mb-16">
             
-            <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-3">
+            <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-3 py-[20px]">
               Depoimentos
             </p>
             <h2 className="heading-section mb-4">
