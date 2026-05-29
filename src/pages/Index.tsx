@@ -322,7 +322,7 @@ const Index = () => {
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-6 md:gap-8">
+          <div className="grid md:grid-cols-3 gap-6 md:gap-8 py-[15px] my-[15px]">
             {steps.map((step, index) =>
             <motion.div
               key={step.title}
