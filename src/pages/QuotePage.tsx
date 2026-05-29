@@ -109,13 +109,13 @@ const QuotePage = () => {
         }
         break;
       case 4:
-        if (!briefing.city) newErrors.city = 'Informe a cidade';
-        if (!briefing.state) newErrors.state = 'Selecione o estado';
+        if (briefing.state !== 'SP') newErrors.state = 'No momento atendemos apenas São Paulo';
+        if (!briefing.city) newErrors.city = 'Selecione a cidade';
         if (!briefing.neighborhood) newErrors.neighborhood = 'Informe o bairro';
         break;
       case 5:
-        if (!date) {
-          newErrors.eventDate = 'Selecione a data do evento';
+        if (!date && !briefing.eventDateFlex) {
+          newErrors.eventDate = 'Selecione a data ou um período aproximado';
         }
         break;
       case 6:
@@ -144,6 +144,49 @@ const QuotePage = () => {
       }
     }
   };
+
+  const handleStateSelect = (uf: string) => {
+    if (uf === 'OUTRAS') {
+      setCoverageForm((f) => ({ ...f, nome: briefing.clientName || '', email: briefing.email || '', whatsapp: briefing.whatsapp || '' }));
+      setCoverageOpen(true);
+      return;
+    }
+    setBriefing({ state: uf, city: '' });
+    setErrors((e) => ({ ...e, state: '', city: '' }));
+  };
+
+  const handleCoverageSubmit = async () => {
+    const f = coverageForm;
+    if (!f.nome.trim() || !f.whatsapp.trim() || !f.email.trim() || !f.cidade.trim() || !f.estado.trim()) {
+      toast({ title: 'Preencha todos os campos', variant: 'destructive' });
+      return;
+    }
+    setCoverageSubmitting(true);
+    try {
+      await apiRegisterCoverageRequest({
+        nome: f.nome.trim(),
+        whatsapp: f.whatsapp.trim(),
+        email: f.email.trim(),
+        cidade: f.cidade.trim(),
+        estado: f.estado.trim().toUpperCase().slice(0, 2),
+      });
+      toast({
+        title: 'Recebemos seu pedido!',
+        description: 'Vamos buscar parceiros de confiança na sua região e entrar em contato.',
+      });
+      setCoverageOpen(false);
+      setCoverageForm({ nome: '', whatsapp: '', email: '', cidade: '', estado: '' });
+    } catch (err: any) {
+      toast({
+        title: 'Não foi possível enviar',
+        description: err?.message || 'Tente novamente em instantes.',
+        variant: 'destructive',
+      });
+    } finally {
+      setCoverageSubmitting(false);
+    }
+  };
+
 
   const handleBack = () => {
     if (currentStep > 1) {
