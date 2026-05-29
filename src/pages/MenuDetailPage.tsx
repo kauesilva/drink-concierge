@@ -260,22 +260,24 @@ const MenuDetailPage = () => {
                 <div className="mb-6">
                   <p className="text-sm text-muted-foreground mb-1">Valor por pessoa</p>
                   <p className="text-3xl font-semibold text-foreground">
-                    R$ {menu.pricePerPerson}
+                    {menu.pricePerPerson > 0 ? `R$ ${menu.pricePerPerson}` : 'A combinar'}
                   </p>
                 </div>
 
-                <div className="space-y-3 pb-6 border-b border-border/50 mb-6">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Pessoas no seu evento</span>
-                    <span className="font-medium text-foreground">{people}</span>
+                {menu.pricePerPerson > 0 && (
+                  <div className="space-y-3 pb-6 border-b border-border/50 mb-6">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Pessoas no seu evento</span>
+                      <span className="font-medium text-foreground">{people}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Valor estimado</span>
+                      <span className="font-semibold text-foreground">
+                        R$ {estimatedTotal.toLocaleString('pt-BR')}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Valor estimado</span>
-                    <span className="font-semibold text-foreground">
-                      R$ {estimatedTotal.toLocaleString('pt-BR')}
-                    </span>
-                  </div>
-                </div>
+                )}
 
                 {!meetsMinimum && (
                   <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 mb-6">
