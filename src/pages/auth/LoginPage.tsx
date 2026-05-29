@@ -102,6 +102,12 @@ const LoginPage = () => {
                 <Button type="submit" variant="gold" className="w-full" disabled={loading}>
                   {loading ? 'Entrando...' : 'Entrar'}
                 </Button>
+
+                <div className="text-center text-sm">
+                  <Link to="/esqueci-senha" className="text-muted-foreground hover:text-primary transition-colors">
+                    Esqueci minha senha
+                  </Link>
+                </div>
               </form>
 
               <div className="mt-6 text-center text-sm text-muted-foreground">

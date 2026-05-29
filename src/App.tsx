@@ -14,6 +14,8 @@ import ConfirmationPage from "./pages/ConfirmationPage";
 import NotFound from "./pages/NotFound";
 import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
+import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/auth/ResetPasswordPage";
 import PartnerRegisterPage from "./pages/partner/PartnerRegisterPage";
 import PartnerDashboardPage from "./pages/partner/PartnerDashboardPage";
 import PartnerProfilePage from "./pages/partner/PartnerProfilePage";
@@ -36,6 +38,8 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/cadastro" element={<RegisterPage />} />
+          <Route path="/esqueci-senha" element={<ForgotPasswordPage />} />
+          <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
           <Route path="/orcamento" element={<QuotePage />} />
           <Route path="/parceiros" element={<PartnersDirectoryPage />} />
           <Route path="/parceiros/:partnerId" element={<PartnerPublicProfilePage />} />
