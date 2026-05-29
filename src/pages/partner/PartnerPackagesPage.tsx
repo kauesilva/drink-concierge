@@ -596,9 +596,6 @@ const PartnerPackagesPage = () => {
                 )}
               </div>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <div className="space-y-2">
-                  <Label>Preço/pessoa *</Label>
               <div className="space-y-3">
                 <label className="flex items-center gap-2 text-sm cursor-pointer">
                   <Checkbox
@@ -656,6 +653,9 @@ const PartnerPackagesPage = () => {
                   </div>
                 </div>
               </div>
+            )}
+
+
 
 
 
