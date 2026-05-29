@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, Loader2 } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,13 +30,46 @@ const EVENT_IMAGES: Record<string, string> = {
 };
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import StateCitySelect from '@/components/shared/StateCitySelect';
+import { citiesByState } from '@/data/brazilLocations';
+import { apiRegisterCoverageRequest } from '@/services/api';
+import { toast } from '@/hooks/use-toast';
 
 const steps = ['Tipo de Serviço', 'Tipo de Evento', 'Pessoas', 'Local', 'Data', 'Contato'];
+
+const FLEX_LABELS: Record<string, string> = {
+  '30d': 'Nos próximos 30 dias',
+  '3m': 'Nos próximos 3 meses',
+  '12m': 'Em até 12 meses',
+};
+
+// São Paulo cities: "São Paulo" first, then the rest alphabetically.
+const SP_CITIES = (() => {
+  const list = [...(citiesByState['SP'] || [])];
+  const capital = 'São Paulo';
+  const rest = list
+    .filter((c) => c !== capital)
+    .sort((a, b) => a.localeCompare(b, 'pt-BR'));
+  return [capital, ...rest];
+})();
 
 const QuotePage = () => {
   const navigate = useNavigate();
@@ -45,6 +78,16 @@ const QuotePage = () => {
   const [date, setDate] = useState<Date | undefined>(
     briefing.eventDate ? new Date(briefing.eventDate) : undefined
   );
+  const [coverageOpen, setCoverageOpen] = useState(false);
+  const [coverageForm, setCoverageForm] = useState({
+    nome: '',
+    whatsapp: '',
+    email: '',
+    cidade: '',
+    estado: '',
+  });
+  const [coverageSubmitting, setCoverageSubmitting] = useState(false);
+
 
   const validateStep = (): boolean => {
     const newErrors: Record<string, string> = {};
