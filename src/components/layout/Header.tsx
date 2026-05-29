@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Wine, LogIn } from 'lucide-react';
+import { Menu, X, LogIn } from 'lucide-react';
+import logo from '@/assets/logo-meu-bartender.png';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/store/authStore';
