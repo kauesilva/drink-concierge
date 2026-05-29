@@ -654,7 +654,8 @@ const PartnerPackagesPage = () => {
                 {eventTypes
                   .filter((ev) => ev.value !== 'freelancer-bar' || form.serviceCategory === 'mao-de-obra')
                   .map((ev) => {
-                  return (
+                    const checked = form.eventTypes.includes(ev.value);
+                    return (
                     <label
                       key={ev.value}
                       className="flex items-center gap-2 text-sm cursor-pointer p-2 rounded-md border border-border hover:bg-secondary/40"
