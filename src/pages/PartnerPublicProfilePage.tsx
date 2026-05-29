@@ -137,7 +137,20 @@ const PartnerPublicProfilePage = () => {
 
           <PersonalInfoBlock p={p} />
 
-
+          <section>
+            <h2 className="font-display text-xl font-semibold mb-3">Pacotes disponíveis</h2>
+            {loadingMenus ? (
+              <div className="text-sm text-muted-foreground">Carregando pacotes...</div>
+            ) : menus && menus.length > 0 ? (
+              <div className="grid sm:grid-cols-2 gap-4">
+                {menus.map((menu, idx) => (
+                  <MenuCard key={menu.id} menu={menu} companyId={String(partnerId)} index={idx} />
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">Este parceiro ainda não publicou pacotes.</p>
+            )}
+          </section>
 
           {!!differentials.length && (
             <section>
