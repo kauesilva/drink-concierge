@@ -365,6 +365,7 @@ export const usePartnerStore = create<PartnerStore>()(
               businessName: p.nome_empresa || p.nome,
               about: p.sobre || '',
               coverImage: p.foto_capa || '',
+              coverPosition: (p as any).foto_capa_posicao || '50% 50%',
               cityBase: p.cidade_base || '',
               state: p.estado || '',
               areasServed: p.areas_atendidas || [],
