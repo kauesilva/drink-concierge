@@ -33,6 +33,7 @@ const PartnerProfilePage = () => {
   const logoRef = useRef<HTMLInputElement>(null);
   const [uploadingCover, setUploadingCover] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [adjustingCover, setAdjustingCover] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
