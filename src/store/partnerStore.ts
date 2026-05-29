@@ -115,6 +115,7 @@ const defaultProfile: PartnerProfile = {
   businessName: '',
   about: '',
   coverImage: '',
+  coverPosition: '50% 50%',
   cityBase: '',
   state: '',
   areasServed: [],
