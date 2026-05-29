@@ -34,10 +34,10 @@ const Header = () => {
   };
 
   const navLinkClass = (active: boolean) =>
-    `text-sm font-medium transition-colors ${active ? 'text-white' : 'text-white/70 hover:text-white'}`;
+    `font-medium transition-colors ${active ? 'text-white' : 'text-white/70 hover:text-white'} text-base`;
 
   const outlineWhite =
-    'border-white/50 bg-transparent text-white hover:bg-white hover:text-primary';
+    'border-white/50 bg-transparent hover:bg-white hover:text-primary text-gray-950';
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-primary border-b border-white/10">
@@ -66,7 +66,7 @@ const Header = () => {
             <a
               href="#como-funciona"
               onClick={handleComoFunciona}
-              className="text-sm font-medium text-white/70 hover:text-white transition-colors cursor-pointer"
+              className="font-medium text-white/70 hover:text-white transition-colors cursor-pointer text-base"
             >
               Como funciona
             </a>
