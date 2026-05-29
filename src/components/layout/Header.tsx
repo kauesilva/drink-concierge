@@ -48,7 +48,7 @@ const Header = () => {
             <img
               src={logo}
               alt="Meu Bartender"
-              className="h-8 w-auto group-hover:scale-105 transition-transform"
+              className="h-auto w-[160px] md:w-[180px] group-hover:scale-105 transition-transform"
             />
           </Link>
 
