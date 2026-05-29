@@ -17,6 +17,7 @@ import { toast } from '@/hooks/use-toast';
 import { apiUploadImage } from '@/services/api';
 import StateCitySelect from '@/components/shared/StateCitySelect';
 import GalleryUploader from '@/components/partners/GalleryUploader';
+import CoverPositionEditor from '@/components/partners/CoverPositionEditor';
 import VideoEmbed from '@/components/partners/VideoEmbed';
 import { serviceCategories } from '@/data/mockData';
 import { getPublishChecks, isPartnerPublishable } from '@/lib/partners';
