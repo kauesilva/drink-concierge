@@ -69,6 +69,7 @@ export interface PartnerProfile {
   businessName: string;
   about: string;
   coverImage: string;
+  coverPosition: string;
   cityBase: string;
   state: string;
   areasServed: string[];
