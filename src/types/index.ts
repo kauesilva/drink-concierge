@@ -81,6 +81,7 @@ export interface QuoteBriefing {
   neighborhood: string;
   address?: string;
   eventDate: string;
+  eventDateFlex?: '30d' | '3m' | '12m' | null;
   clientName: string;
   whatsapp: string;
   email: string;
