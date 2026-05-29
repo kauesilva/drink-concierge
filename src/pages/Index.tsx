@@ -408,7 +408,7 @@ const Index = () => {
             viewport={{ once: true }}
             className="text-center mb-16">
             
-            <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-3">
+            <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-3 py-[20px]">
               Depoimentos
             </p>
             <h2 className="heading-section mb-4">
