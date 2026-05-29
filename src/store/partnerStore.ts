@@ -177,6 +177,7 @@ export const usePartnerStore = create<PartnerStore>()(
             nome_empresa: profile.businessName,
             sobre: profile.about,
             foto_capa: profile.coverImage,
+            foto_capa_posicao: profile.coverPosition,
             cidade_base: profile.cityBase,
             estado: profile.state,
             whatsapp: profile.whatsapp,
