@@ -9,6 +9,8 @@ import VideoEmbed from '@/components/partners/VideoEmbed';
 import QuickQuoteDialog from '@/components/partners/QuickQuoteDialog';
 import { apiGetPublicPartner, apiGetProfile } from '@/services/api';
 import { serviceCategories } from '@/data/mockData';
+import { useCompanyMenus } from '@/hooks/useCompanies';
+import MenuCard from '@/components/menus/MenuCard';
 
 const PartnerPublicProfilePage = () => {
   const { partnerId } = useParams();
