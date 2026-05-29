@@ -329,7 +329,7 @@ const PartnerPackagesPage = () => {
                       <>
                         <span className="flex items-center gap-1">
                           <DollarSign className="w-3.5 h-3.5" />
-                          R$ {pkg.pricePerPerson}/pessoa
+                          {pkg.pricePerPerson > 0 ? `R$ ${pkg.pricePerPerson}/pessoa` : 'A combinar'}
                         </span>
                         <span className="flex items-center gap-1">
                           <Clock className="w-3.5 h-3.5" />
