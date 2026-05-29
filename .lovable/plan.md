@@ -1,16 +1,19 @@
-## Objetivo
+## Problema
 
-Na vitrine "Encontre seu bartender" (`/parceiros`), ao abrir o perfil público de uma empresa/bartender (`/parceiros/:partnerId`), exibir todos os pacotes disponíveis daquele parceiro, com possibilidade de clicar para ver os detalhes.
+Na página pública do parceiro (`/parceiros/:partnerId`), a seção "Pacotes disponíveis" usa o componente `MenuCard`, que **não renderiza** o campo `coverImage` (foto de capa do pacote) — mesmo quando o parceiro cadastrou uma no painel logado. Os dados chegam corretamente da API (`apiGetCompanyPackages` → `mapPackageToMenu` preenche `coverImage`), mas o card simplesmente ignora.
 
-## Mudanças
+## Solução
 
-### `src/pages/PartnerPublicProfilePage.tsx`
-- Buscar os pacotes do parceiro usando o hook `useCompanyMenus(partnerId)` (já existente, consome `apiGetCompanyPackages`).
-- Adicionar uma nova seção "Pacotes disponíveis" na coluna principal (logo após "Sobre" / antes de "Diferenciais"), renderizando os pacotes em grade com o componente `MenuCard` já usado em `CompanyDetailPage`.
-- Cada card mantém o CTA "Detalhes" que leva para `/empresas/:companyId/cardapios/:menuId` (rota já existente em `App.tsx`), permitindo ao visitante ver o pacote completo.
-- Estados: skeleton/loading discreto enquanto carrega; se não houver pacotes, mostrar mensagem suave ("Este parceiro ainda não publicou pacotes.") em vez de esconder a seção, para reforçar que é uma área de pacotes.
-- Sem alterações de backend nem de regras de negócio — apenas UI/consumo de API já disponível.
+Adicionar um topo visual com a imagem de capa no `src/components/menus/MenuCard.tsx`, exibido somente quando `menu.coverImage` existir. Quando não houver capa, o card mantém o layout atual (sem espaço vazio), preservando compatibilidade com os outros lugares que usam `MenuCard` (ex.: `CompanyDetailPage`).
 
-### Sem mudanças
-- Rotas, autenticação, schema, e o fluxo de "Solicitar orçamento" permanecem iguais.
-- `CompanyDetailPage` continua existindo e funcionando como hoje (a navegação a partir do MenuCard reusa essa rota para detalhe do pacote).
+### Mudanças
+
+**`src/components/menus/MenuCard.tsx`**
+- Inserir, no topo do card, um bloco `<div>` com `aspect-video` (ou altura fixa ~h-40), `rounded-t-2xl`, `overflow-hidden`, exibindo `<img src={menu.coverImage}>` com `object-cover` e hover sutil de zoom.
+- Renderizar esse bloco apenas se `menu.coverImage` estiver definido.
+- Ajustar o padding do conteúdo interno (envolver o restante em um wrapper com `p-6`) para que a imagem ocupe a borda do card sem padding extra.
+- Sem alterações em props, tipos, API ou lógica de negócio.
+
+### Não muda
+- `PartnerPublicProfilePage`, hooks, serviços de API e schema continuam iguais.
+- Demais usos de `MenuCard` continuam funcionando; pacotes sem capa renderizam exatamente como hoje.
