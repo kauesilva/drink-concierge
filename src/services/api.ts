@@ -60,10 +60,21 @@ async function request<T>(
     ...fetchOptions,
   });
 
-  const data = await res.json();
+  const raw = await res.text();
+  let data: any = {};
+  if (raw) {
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      if (!res.ok) {
+        throw new Error(`Erro na API (${res.status}). O servidor retornou uma resposta inválida.`);
+      }
+      throw new Error('Resposta inválida do servidor.');
+    }
+  }
 
   if (!res.ok) {
-    throw new Error(data.error || `Erro na API: ${res.status}`);
+    throw new Error(data?.error || `Erro na API: ${res.status}`);
   }
 
   return data as T;
