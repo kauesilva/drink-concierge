@@ -485,7 +485,7 @@ const QuotePage = () => {
                   </div>
 
                   <div>
-                    <Label>Data do evento *</Label>
+                    <Label>Data do evento</Label>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
@@ -503,7 +503,10 @@ const QuotePage = () => {
                         <Calendar
                           mode="single"
                           selected={date}
-                          onSelect={setDate}
+                          onSelect={(d) => {
+                            setDate(d);
+                            if (d) setBriefing({ eventDateFlex: null });
+                          }}
                           disabled={(date) => date < new Date()}
                           initialFocus
                           locale={ptBR}
@@ -511,10 +514,37 @@ const QuotePage = () => {
                         />
                       </PopoverContent>
                     </Popover>
+
+                    <div className="mt-4">
+                      <p className="text-sm text-muted-foreground mb-2">Ou escolha um período aproximado:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {(['30d', '3m', '12m'] as const).map((key) => (
+                          <button
+                            key={key}
+                            type="button"
+                            onClick={() => {
+                              setBriefing({ eventDateFlex: key, eventDate: '' });
+                              setDate(undefined);
+                              setErrors((e) => ({ ...e, eventDate: '' }));
+                            }}
+                            className={cn(
+                              'px-4 py-2 rounded-full text-sm font-medium transition-all border',
+                              briefing.eventDateFlex === key
+                                ? 'bg-primary text-primary-foreground border-primary shadow-gold'
+                                : 'bg-secondary text-secondary-foreground border-transparent hover:bg-secondary/80'
+                            )}
+                          >
+                            {FLEX_LABELS[key]}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
                     {errors.eventDate && (
-                      <p className="text-sm text-destructive mt-1">{errors.eventDate}</p>
+                      <p className="text-sm text-destructive mt-2">{errors.eventDate}</p>
                     )}
                   </div>
+
                 </motion.div>
               )}
 
