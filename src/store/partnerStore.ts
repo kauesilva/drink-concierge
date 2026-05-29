@@ -397,6 +397,7 @@ export const usePartnerStore = create<PartnerStore>()(
                 cocktailStyle: (p as any).estilo_coquetelaria || undefined,
                 cocktailStyleOther: (p as any).estilo_coquetelaria_outro || undefined,
               },
+              ativo: typeof p.ativo === 'number' ? p.ativo : Number(p.ativo) || 0,
             },
           }));
           await get().syncPackages();
