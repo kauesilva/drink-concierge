@@ -1,19 +1,27 @@
-## Problema
+## Mudanças
 
-Na página pública do parceiro (`/parceiros/:partnerId`), a seção "Pacotes disponíveis" usa o componente `MenuCard`, que **não renderiza** o campo `coverImage` (foto de capa do pacote) — mesmo quando o parceiro cadastrou uma no painel logado. Os dados chegam corretamente da API (`apiGetCompanyPackages` → `mapPackageToMenu` preenche `coverImage`), mas o card simplesmente ignora.
+### 1) "Freelancer em Bar" só em pacotes de mão de obra
 
-## Solução
+**`src/pages/partner/PartnerPackagesPage.tsx`** (loop de `eventTypes`, linha ~645)
+- Filtrar a lista renderizada: se `form.serviceCategory !== 'mao-de-obra'`, ocultar a opção `freelancer-bar`.
+- Ao trocar a categoria para algo diferente de `mao-de-obra`, remover automaticamente `'freelancer-bar'` de `form.eventTypes` (limpeza no `onValueChange` do select de categoria, ~linha 466), para não persistir um valor inválido em pacotes de serviço completo / consultoria.
 
-Adicionar um topo visual com a imagem de capa no `src/components/menus/MenuCard.tsx`, exibido somente quando `menu.coverImage` existir. Quando não houver capa, o card mantém o layout atual (sem espaço vazio), preservando compatibilidade com os outros lugares que usam `MenuCard` (ex.: `CompanyDetailPage`).
+### 2) Opção "A combinar" no preço por pessoa
 
-### Mudanças
+Convenção: armazenar `pricePerPerson = 0` como "A combinar" (sem mudança de schema). Um checkbox no formulário controla o modo.
 
-**`src/components/menus/MenuCard.tsx`**
-- Inserir, no topo do card, um bloco `<div>` com `aspect-video` (ou altura fixa ~h-40), `rounded-t-2xl`, `overflow-hidden`, exibindo `<img src={menu.coverImage}>` com `object-cover` e hover sutil de zoom.
-- Renderizar esse bloco apenas se `menu.coverImage` estiver definido.
-- Ajustar o padding do conteúdo interno (envolver o restante em um wrapper com `p-6`) para que a imagem ocupe a borda do card sem padding extra.
-- Sem alterações em props, tipos, API ou lógica de negócio.
+**`src/pages/partner/PartnerPackagesPage.tsx`**
+- Adicionar estado local `priceOnRequest: boolean` derivado/sincronizado com `form.pricePerPerson === 0` ao abrir/editar.
+- No bloco de preços (não-mão-de-obra, linhas ~590-600), adicionar checkbox "Preço a combinar". Quando marcado: ocultar/desabilitar o input "Preço/pessoa" e setar `pricePerPerson = 0`.
+- Ajustar a validação (~linha 195): se `priceOnRequest`, pular a checagem `pricePerPerson <= 0`.
+- No card de listagem do parceiro (~linha 332), exibir "A combinar" quando `pricePerPerson` for 0/nulo, em vez de "R$ 0/pessoa".
+
+**Exibição pública** (mesma convenção)
+- `src/components/menus/MenuCard.tsx`: mostrar "A combinar" no rodapé do card quando `menu.pricePerPerson` for 0.
+- `src/components/menus/PackageResultCard.tsx`: idem no bloco "A partir de".
+- `src/pages/MenuDetailPage.tsx` e `src/pages/CompanyDetailPage.tsx`: substituir a renderização de `R$ X/pessoa` por "A combinar" quando o valor for 0. (Verificar os pontos exatos antes de editar.)
 
 ### Não muda
-- `PartnerPublicProfilePage`, hooks, serviços de API e schema continuam iguais.
-- Demais usos de `MenuCard` continuam funcionando; pacotes sem capa renderizam exatamente como hoje.
+- Schema do banco, API PHP e tipos (`Menu.pricePerPerson` continua `number`).
+- Lógica de pacotes de mão de obra (`hourlyRate` etc.) permanece igual.
+- Briefing/matching: pacotes "A combinar" continuam aparecendo nos resultados normalmente; só o rótulo de preço muda.
