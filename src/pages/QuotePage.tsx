@@ -396,14 +396,47 @@ const QuotePage = () => {
                   </div>
 
                   <div className="grid gap-4">
-                    <StateCitySelect
-                      state={briefing.state || ''}
-                      city={briefing.city || ''}
-                      onStateChange={(uf) => setBriefing({ state: uf })}
-                      onCityChange={(c) => setBriefing({ city: c })}
-                      required
-                      errors={{ state: errors.state, city: errors.city }}
-                    />
+                    <div className="grid grid-cols-3 gap-3">
+                      <div>
+                        <Label>Estado *</Label>
+                        <Select
+                          value={briefing.state || ''}
+                          onValueChange={handleStateSelect}
+                        >
+                          <SelectTrigger className="mt-2">
+                            <SelectValue placeholder="UF" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="SP">SP — São Paulo</SelectItem>
+                            <SelectItem value="OUTRAS">Outras cidades</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        {errors.state && (
+                          <p className="text-sm text-destructive mt-1">{errors.state}</p>
+                        )}
+                      </div>
+                      <div className="col-span-2">
+                        <Label>Cidade *</Label>
+                        <Select
+                          value={briefing.city || ''}
+                          onValueChange={(c) => setBriefing({ city: c })}
+                          disabled={briefing.state !== 'SP'}
+                        >
+                          <SelectTrigger className="mt-2">
+                            <SelectValue placeholder={briefing.state === 'SP' ? 'Selecione a cidade' : 'Selecione o estado primeiro'} />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-72">
+                            {SP_CITIES.map((c) => (
+                              <SelectItem key={c} value={c}>{c}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {errors.city && (
+                          <p className="text-sm text-destructive mt-1">{errors.city}</p>
+                        )}
+                      </div>
+                    </div>
+
 
                     <div>
                       <Label htmlFor="neighborhood">Bairro *</Label>
