@@ -400,7 +400,7 @@ const Index = () => {
       </section>
 
       {/* Testimonials — Dark section, Linear style */}
-      <section className="py-24 md:py-32 bg-foreground text-background">
+      <section className="py-24 bg-foreground text-background md:py-0">
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
