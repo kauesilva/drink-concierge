@@ -197,50 +197,6 @@ const Index = () => {
 
 
 
-      {/* Stats band — imersivo com foto de fundo */}
-      <section className="relative overflow-hidden border-y border-primary/15">
-        {/* Imagem de fundo */}
-        <img
-          src={statsBartender}
-          alt=""
-          aria-hidden="true"
-          loading="lazy"
-          decoding="async"
-          className="absolute inset-0 w-full h-full object-cover object-center md:[background-attachment:fixed]"
-        />
-        {/* Overlay escuro — mantém a foto visível com contraste para o texto */}
-        <div className="absolute inset-0 bg-black/60" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.1)_0%,transparent_60%)]" />
-
-        <div className="container relative z-10 py-10 md:py-14">
-
-          <div className="grid grid-cols-3 gap-4 md:gap-8 md:divide-x md:divide-white/10">
-            {stats.map((stat, i) =>
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 24, scale: 0.96 }}
-                whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.12, duration: 0.6, ease: 'easeOut' }}
-                className="text-center px-2 md:px-4"
-              >
-                <p className="font-display text-4xl md:text-6xl font-bold text-white mb-3 tracking-tight">
-                  <AnimatedCounter
-                    value={parseInt(stat.value)}
-                    suffix={stat.value.replace(/^\d+/, '')}
-                    duration={2}
-                  />
-                </p>
-                <div className="h-px w-8 bg-primary mx-auto mb-3" />
-                <p className="text-xs md:text-sm text-white/75 uppercase tracking-wider">
-                  {stat.label}
-                </p>
-              </motion.div>
-            )}
-          </div>
-        </div>
-      </section>
-
       {/* Service Categories */}
       <section className="py-24 md:py-[50px]">
         <div className="container">
@@ -298,6 +254,51 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* Stats band — imersivo com foto de fundo */}
+      <section className="relative overflow-hidden border-y border-primary/15">
+        {/* Imagem de fundo */}
+        <img
+          src={statsBartender}
+          alt=""
+          aria-hidden="true"
+          loading="lazy"
+          decoding="async"
+          className="absolute inset-0 w-full h-full object-cover object-center md:[background-attachment:fixed]"
+        />
+        {/* Overlay escuro — mantém a foto visível com contraste para o texto */}
+        <div className="absolute inset-0 bg-black/60" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.1)_0%,transparent_60%)]" />
+
+        <div className="container relative z-10 py-10 md:py-14">
+
+          <div className="grid grid-cols-3 gap-4 md:gap-8 md:divide-x md:divide-white/10">
+            {stats.map((stat, i) =>
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 24, scale: 0.96 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.12, duration: 0.6, ease: 'easeOut' }}
+                className="text-center px-2 md:px-4"
+              >
+                <p className="font-display text-4xl md:text-6xl font-bold text-white mb-3 tracking-tight">
+                  <AnimatedCounter
+                    value={parseInt(stat.value)}
+                    suffix={stat.value.replace(/^\d+/, '')}
+                    duration={2}
+                  />
+                </p>
+                <div className="h-px w-8 bg-primary mx-auto mb-3" />
+                <p className="text-xs md:text-sm text-white/75 uppercase tracking-wider">
+                  {stat.label}
+                </p>
+              </motion.div>
+            )}
+          </div>
+        </div>
+      </section>
+
 
       {/* How it Works — Stripe inspired */}
       <section id="como-funciona" className="py-24 md:py-0">
