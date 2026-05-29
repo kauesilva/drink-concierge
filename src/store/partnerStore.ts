@@ -87,6 +87,8 @@ export interface PartnerProfile {
   showContact: boolean;
   // bloco "Sobre" (opcional, dados pessoais)
   personalInfo?: PartnerAbout;
+  // status de aprovação: 0 = pendente, 1 = ativo, 2 = rejeitado
+  ativo?: number;
 }
 
 
@@ -395,6 +397,7 @@ export const usePartnerStore = create<PartnerStore>()(
                 cocktailStyle: (p as any).estilo_coquetelaria || undefined,
                 cocktailStyleOther: (p as any).estilo_coquetelaria_outro || undefined,
               },
+              ativo: typeof p.ativo === 'number' ? p.ativo : Number(p.ativo) || 0,
             },
           }));
           await get().syncPackages();

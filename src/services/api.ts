@@ -419,6 +419,36 @@ export async function apiListLeads(token: string): Promise<ApiLead[]> {
   return request('admin_list_leads', { token: token || getAdminToken() });
 }
 
+export interface ApiCoverageRequest {
+  id: number;
+  nome: string;
+  whatsapp: string;
+  email: string;
+  cidade: string;
+  estado: string;
+  criado_em: string;
+}
+
+export async function apiAdminListPartners(token?: string): Promise<ApiParceiro[]> {
+  return request('admin_list_partners', { token: token || getAdminToken() });
+}
+
+export async function apiAdminSetPartnerStatus(
+  data: { parceiro_id: number; ativo: 0 | 1 | 2 },
+  token?: string,
+): Promise<{ message: string }> {
+  return request('admin_set_partner_status', {
+    method: 'POST',
+    body: JSON.stringify(data),
+    token: token || getAdminToken(),
+  });
+}
+
+export async function apiAdminListCoverageRequests(token?: string): Promise<ApiCoverageRequest[]> {
+  return request('admin_list_coverage_requests', { token: token || getAdminToken() });
+}
+
+
 // =============================================
 // LISTAGEM PÚBLICA
 // =============================================
