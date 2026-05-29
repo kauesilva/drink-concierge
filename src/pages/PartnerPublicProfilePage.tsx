@@ -12,6 +12,16 @@ import { serviceCategories } from '@/data/mockData';
 import { useCompanyMenus } from '@/hooks/useCompanies';
 import MenuCard from '@/components/menus/MenuCard';
 
+function safeUrl(url?: string | null): string | undefined {
+  if (!url) return undefined;
+  try {
+    const u = new URL(url, window.location.origin);
+    return ['https:', 'http:'].includes(u.protocol) ? u.toString() : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 const PartnerPublicProfilePage = () => {
   const { partnerId } = useParams();
   const [searchParams] = useSearchParams();
