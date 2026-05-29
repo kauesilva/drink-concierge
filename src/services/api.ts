@@ -371,6 +371,24 @@ export async function apiAdminLogin(email: string, senha: string): Promise<{ tok
   });
 }
 
+// =============================================
+// RESET DE SENHA
+// =============================================
+
+export async function apiRequestPasswordReset(email: string): Promise<{ ok: true }> {
+  return request('auth_request_reset', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  });
+}
+
+export async function apiResetPassword(token: string, senha: string): Promise<{ ok: true }> {
+  return request('auth_reset_password', {
+    method: 'POST',
+    body: JSON.stringify({ token, senha }),
+  });
+}
+
 export async function apiListLeads(token: string): Promise<ApiLead[]> {
   return request('admin_list_leads', { token: token || getAdminToken() });
 }
