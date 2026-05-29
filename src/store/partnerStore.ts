@@ -87,6 +87,8 @@ export interface PartnerProfile {
   showContact: boolean;
   // bloco "Sobre" (opcional, dados pessoais)
   personalInfo?: PartnerAbout;
+  // status de aprovação: 0 = pendente, 1 = ativo, 2 = rejeitado
+  ativo?: number;
 }
 
 
