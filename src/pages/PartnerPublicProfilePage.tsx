@@ -9,6 +9,8 @@ import VideoEmbed from '@/components/partners/VideoEmbed';
 import QuickQuoteDialog from '@/components/partners/QuickQuoteDialog';
 import { apiGetPublicPartner, apiGetProfile } from '@/services/api';
 import { serviceCategories } from '@/data/mockData';
+import { useCompanyMenus } from '@/hooks/useCompanies';
+import MenuCard from '@/components/menus/MenuCard';
 
 const PartnerPublicProfilePage = () => {
   const { partnerId } = useParams();
@@ -18,6 +20,7 @@ const PartnerPublicProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [quoteOpen, setQuoteOpen] = useState(false);
+  const { data: menus, isLoading: loadingMenus } = useCompanyMenus(partnerId);
 
   useEffect(() => {
     if (!partnerId) return;
@@ -134,7 +137,20 @@ const PartnerPublicProfilePage = () => {
 
           <PersonalInfoBlock p={p} />
 
-
+          <section>
+            <h2 className="font-display text-xl font-semibold mb-3">Pacotes disponíveis</h2>
+            {loadingMenus ? (
+              <div className="text-sm text-muted-foreground">Carregando pacotes...</div>
+            ) : menus && menus.length > 0 ? (
+              <div className="grid sm:grid-cols-2 gap-4">
+                {menus.map((menu, idx) => (
+                  <MenuCard key={menu.id} menu={menu} companyId={String(partnerId)} index={idx} />
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">Este parceiro ainda não publicou pacotes.</p>
+            )}
+          </section>
 
           {!!differentials.length && (
             <section>
