@@ -1,38 +1,37 @@
-## Header em branco sobre amarelo
+## Objetivo
 
-Inverter o esquema do header para **tudo branco** sobre o fundo amarelo, com hover branco nos links e botões.
+Ao abrir o site, o usuário deve ver o Hero completo + pelo menos 60% da seção "Modalidades" sem rolar (viewport ~638px de altura).
 
-### Mudanças em `src/components/layout/Header.tsx`
+## Diagnóstico
 
-**Logo:**
-- Quadrado do ícone: `bg-primary-foreground` (preto) → `bg-white`. `Wine` permanece `text-primary` (amarelo) dentro do quadrado branco.
-- Texto: "Meu Bartender Pro" → **"Meu Bartender"**, cor trocada de `text-foreground` para `text-white`.
+Hoje o Hero (`src/pages/Index.tsx`) usa paddings e tipografia generosos que ocupam praticamente toda a viewport:
+- `pt-10 md:pt-14 pb-20 md:pb-28` (até ~112px topo + 112px base)
+- `mb-8` no badge, `mb-8` no h1, `mb-12` no parágrafo, `mb-10` nos CTAs
+- `text-xl md:text-2xl` no parágrafo
+- A seção Modalidades começa com `py-24 md:py-[50px]` e título com `mb-16`
 
-**Links de navegação (desktop):**
-- Estado ativo: `text-foreground` → `text-white`.
-- Estado inativo: `text-foreground/70 hover:text-foreground` → `text-foreground/70 hover:text-white`.
-- Aplica a: Início, Orçamento, Encontre seu Bartender, Como funciona, Painel.
+Soma vertical do hero ~600–700px, empurrando Modalidades totalmente para baixo da dobra.
 
-**Saudação "Olá, {nome}":**
-- `text-foreground/80` → `text-white/90`.
+## Mudanças (somente `src/pages/Index.tsx`)
 
-**Botões desktop (Entrar / Sair / Cadastre-se):**
-- Hoje os outline têm `hover:bg-foreground hover:text-primary` (hover preto). Inverter para hover branco:
-  - "Entrar" e "Sair": `variant="outline"` + `className="border-white/40 bg-transparent text-white hover:bg-white hover:text-primary"`.
-  - "Cadastre-se": trocar `variant="default"` (preto) por outline branco com **fill no hover** — `className="border-white/60 bg-transparent text-white hover:bg-white hover:text-primary"` mantendo `variant="outline"`. Assim ambos priorizam o efeito branco.
+### Hero — reduzir altura vertical
+- Container: `pt-10 md:pt-14 pb-20 md:pb-28` → `pt-6 md:pt-8 pb-10 md:pb-12`
+- Badge wrapper: `mb-8` → `mb-5`
+- H1: `mb-8` → `mb-5`
+- Parágrafo: `text-xl md:text-2xl ... mb-12` → `text-base md:text-lg ... mb-7`
+- Wrapper dos CTAs: `mb-10` → `mb-6`
+- Trust indicators: manter, mas com `gap-y-2`
 
-**Botão hambúrguer mobile:**
-- `text-foreground hover:bg-foreground/10` → `text-white hover:bg-white/15`.
+### Seção Modalidades — encurtar topo
+- `py-24 md:py-[50px]` → `py-10 md:py-12`
+- Bloco do título: `mb-16` → `mb-8`
+- Subtítulo: `text-lg` → `text-base`
 
-**Menu mobile (drawer):**
-- Borda divisória: `border-foreground/10` → `border-white/15`.
-- Links: `text-foreground hover:bg-foreground/10` → `text-white hover:bg-white/15`.
-- Botões "Entrar/Sair/Cadastre-se" do drawer: mesmas trocas do desktop (outline branco com hover preenchendo de branco).
+### Observações
+- Sem mudanças em cores, fontes ou tokens do design system.
+- Sem alterar Header, Footer ou outras seções.
+- Mantém hierarquia tipográfica (heading-display e heading-section permanecem); o ganho vem de paddings e margens, não de reduzir o H1.
 
-### Por que assim
-- Branco sobre amarelo cria contraste suave e premium (estilo marcas como Snapchat/Postmates).
-- Hover preenchendo de branco com texto amarelo reforça a identidade da marca em cada interação, sem usar preto.
-- Apenas tokens (`primary`, `primary-foreground`) e `white` (utilitário Tailwind padrão) — sem cores hardcoded fora do sistema.
+## Resultado esperado
 
-### Arquivos afetados
-- `src/components/layout/Header.tsx` (único).
+Em viewport ~1006×638 (estado atual do usuário), o Hero passa a caber em ~430–470px, deixando ~170–210px visíveis da seção Modalidades — cobrindo título, subtítulo e o topo dos cards (≥60% da dobra perceptível antes do scroll).

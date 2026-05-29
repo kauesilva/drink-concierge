@@ -136,7 +136,7 @@ const Index = () => {
         <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-primary/10 rounded-full blur-[140px] animate-glow-pulse" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px]" />
 
-        <div className="container relative z-10 pt-10 md:pt-14 pb-20 md:pb-28">
+        <div className="container relative z-10 pt-6 md:pt-8 pb-10 md:pb-12">
 
           <motion.div
             initial="initial"
@@ -144,7 +144,7 @@ const Index = () => {
             variants={staggerContainer}
             className="max-w-4xl mx-auto text-center">
 
-            <motion.div variants={fadeInUp} className="mb-8">
+            <motion.div variants={fadeInUp} className="mb-5">
               <span className="inline-flex items-center gap-2 px-4 border border-primary/20 bg-primary/5 text-foreground py-[10px] font-sans text-sm md:text-base font-semibold rounded-full shadow-sm">
                 <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                 Marketplace de drinks para eventos
@@ -153,7 +153,7 @@ const Index = () => {
 
             <motion.h1
               variants={fadeInUp}
-              className="heading-display text-foreground mb-8">
+              className="heading-display text-foreground mb-5">
               <RotatingHeadline />
               <br />
               <span className="text-primary">em poucos cliques</span>
@@ -161,13 +161,13 @@ const Index = () => {
 
             <motion.p
               variants={fadeInUp}
-              className="text-body text-xl md:text-2xl text-foreground/80 mb-12 leading-relaxed max-w-3xl mx-auto">
+              className="text-body text-base md:text-lg text-foreground/80 mb-7 leading-relaxed max-w-3xl mx-auto">
               Compare empresas de coquetelaria, veja cardápios e valores.
               <br className="hidden md:block" />
               Solicite contratação sem complicação para qualquer tipo de evento.
             </motion.p>
 
-            <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 justify-center mb-10">
+            <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
               <Button asChild variant="gold" size="xl">
                 <Link to="/orcamento">
                   Receber orçamento grátis
@@ -183,7 +183,8 @@ const Index = () => {
 
             <motion.div
               variants={fadeInUp}
-              className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
+              className="flex flex-wrap items-center justify-center gap-x-8 gap-y-2">
+
               {['100% gratuito', 'Sem compromisso', 'Empresas verificadas'].map((text) =>
                 <div key={text} className="flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-primary" />
@@ -198,13 +199,13 @@ const Index = () => {
 
 
       {/* Service Categories */}
-      <section className="py-24 md:py-[50px]">
+      <section className="py-10 md:py-12">
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-16">
+            className="text-center mb-8">
 
             <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-3">
               Modalidades
@@ -212,9 +213,10 @@ const Index = () => {
             <h2 className="heading-section text-foreground mb-4">
               Escolha o tipo de serviço
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-base text-muted-foreground max-w-2xl mx-auto">
               Da contratação só do bartender ao serviço completo com bar e estrutura.
             </p>
+
           </motion.div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
