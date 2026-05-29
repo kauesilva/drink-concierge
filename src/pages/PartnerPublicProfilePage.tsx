@@ -12,6 +12,16 @@ import { serviceCategories } from '@/data/mockData';
 import { useCompanyMenus } from '@/hooks/useCompanies';
 import MenuCard from '@/components/menus/MenuCard';
 
+function safeUrl(url?: string | null): string | undefined {
+  if (!url) return undefined;
+  try {
+    const u = new URL(url, window.location.origin);
+    return ['https:', 'http:'].includes(u.protocol) ? u.toString() : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 const PartnerPublicProfilePage = () => {
   const { partnerId } = useParams();
   const [searchParams] = useSearchParams();
@@ -209,17 +219,17 @@ const PartnerPublicProfilePage = () => {
                 {showContact && p.email && (
                   <li className="flex items-center gap-2"><Mail className="w-4 h-4 text-muted-foreground" />{p.email}</li>
                 )}
-                {p.instagram && (
-                  <li><a className="flex items-center gap-2 hover:text-primary" href={p.instagram} target="_blank" rel="noreferrer"><Instagram className="w-4 h-4" />Instagram</a></li>
+                {p.instagram && safeUrl(p.instagram) && (
+                  <li><a className="flex items-center gap-2 hover:text-primary" href={safeUrl(p.instagram)} target="_blank" rel="noreferrer"><Instagram className="w-4 h-4" />Instagram</a></li>
                 )}
-                {p.facebook && (
-                  <li><a className="flex items-center gap-2 hover:text-primary" href={p.facebook} target="_blank" rel="noreferrer"><Facebook className="w-4 h-4" />Facebook</a></li>
+                {p.facebook && safeUrl(p.facebook) && (
+                  <li><a className="flex items-center gap-2 hover:text-primary" href={safeUrl(p.facebook)} target="_blank" rel="noreferrer"><Facebook className="w-4 h-4" />Facebook</a></li>
                 )}
-                {p.tiktok && (
-                  <li><a className="flex items-center gap-2 hover:text-primary" href={p.tiktok} target="_blank" rel="noreferrer"><Globe className="w-4 h-4" />TikTok</a></li>
+                {p.tiktok && safeUrl(p.tiktok) && (
+                  <li><a className="flex items-center gap-2 hover:text-primary" href={safeUrl(p.tiktok)} target="_blank" rel="noreferrer"><Globe className="w-4 h-4" />TikTok</a></li>
                 )}
-                {p.site && (
-                  <li><a className="flex items-center gap-2 hover:text-primary" href={p.site} target="_blank" rel="noreferrer"><Globe className="w-4 h-4" />Site</a></li>
+                {p.site && safeUrl(p.site) && (
+                  <li><a className="flex items-center gap-2 hover:text-primary" href={safeUrl(p.site)} target="_blank" rel="noreferrer"><Globe className="w-4 h-4" />Site</a></li>
                 )}
               </ul>
             </div>
