@@ -85,7 +85,12 @@ const PartnerPublicProfilePage = () => {
 
         <div className="h-56 md:h-80 bg-muted overflow-hidden">
           {cover ? (
-            <img src={cover} alt={name} className="w-full h-full object-cover" />
+            <img
+              src={cover}
+              alt={name}
+              className="w-full h-full object-cover"
+              style={{ objectPosition: (p as any).foto_capa_posicao || '50% 50%' }}
+            />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-secondary to-muted" />
           )}
