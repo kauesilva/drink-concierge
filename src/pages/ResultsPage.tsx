@@ -63,11 +63,17 @@ const ResultsPage = () => {
                   <MapPin className="w-4 h-4 text-primary" />
                   <span className="text-foreground">{briefing.city}, {briefing.state}</span>
                 </div>
-                {briefing.eventDate && (
+                {(briefing.eventDate || briefing.eventDateFlex) && (
                   <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary rounded-full">
                     <Calendar className="w-4 h-4 text-primary" />
                     <span className="text-foreground">
-                      {format(new Date(briefing.eventDate), "dd/MM/yyyy", { locale: ptBR })}
+                      {briefing.eventDate
+                        ? format(new Date(briefing.eventDate), "dd/MM/yyyy", { locale: ptBR })
+                        : briefing.eventDateFlex === '30d'
+                          ? 'Próximos 30 dias'
+                          : briefing.eventDateFlex === '3m'
+                            ? 'Próximos 3 meses'
+                            : 'Em até 12 meses'}
                     </span>
                   </div>
                 )}

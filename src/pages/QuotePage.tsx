@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, Loader2 } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,13 +30,46 @@ const EVENT_IMAGES: Record<string, string> = {
 };
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import StateCitySelect from '@/components/shared/StateCitySelect';
+import { citiesByState } from '@/data/brazilLocations';
+import { apiRegisterCoverageRequest } from '@/services/api';
+import { toast } from '@/hooks/use-toast';
 
 const steps = ['Tipo de Serviço', 'Tipo de Evento', 'Pessoas', 'Local', 'Data', 'Contato'];
+
+const FLEX_LABELS: Record<string, string> = {
+  '30d': 'Nos próximos 30 dias',
+  '3m': 'Nos próximos 3 meses',
+  '12m': 'Em até 12 meses',
+};
+
+// São Paulo cities: "São Paulo" first, then the rest alphabetically.
+const SP_CITIES = (() => {
+  const list = [...(citiesByState['SP'] || [])];
+  const capital = 'São Paulo';
+  const rest = list
+    .filter((c) => c !== capital)
+    .sort((a, b) => a.localeCompare(b, 'pt-BR'));
+  return [capital, ...rest];
+})();
 
 const QuotePage = () => {
   const navigate = useNavigate();
@@ -45,6 +78,16 @@ const QuotePage = () => {
   const [date, setDate] = useState<Date | undefined>(
     briefing.eventDate ? new Date(briefing.eventDate) : undefined
   );
+  const [coverageOpen, setCoverageOpen] = useState(false);
+  const [coverageForm, setCoverageForm] = useState({
+    nome: '',
+    whatsapp: '',
+    email: '',
+    cidade: '',
+    estado: '',
+  });
+  const [coverageSubmitting, setCoverageSubmitting] = useState(false);
+
 
   const validateStep = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -66,13 +109,13 @@ const QuotePage = () => {
         }
         break;
       case 4:
-        if (!briefing.city) newErrors.city = 'Informe a cidade';
-        if (!briefing.state) newErrors.state = 'Selecione o estado';
+        if (briefing.state !== 'SP') newErrors.state = 'No momento atendemos apenas São Paulo';
+        if (!briefing.city) newErrors.city = 'Selecione a cidade';
         if (!briefing.neighborhood) newErrors.neighborhood = 'Informe o bairro';
         break;
       case 5:
-        if (!date) {
-          newErrors.eventDate = 'Selecione a data do evento';
+        if (!date && !briefing.eventDateFlex) {
+          newErrors.eventDate = 'Selecione a data ou um período aproximado';
         }
         break;
       case 6:
@@ -101,6 +144,49 @@ const QuotePage = () => {
       }
     }
   };
+
+  const handleStateSelect = (uf: string) => {
+    if (uf === 'OUTRAS') {
+      setCoverageForm((f) => ({ ...f, nome: briefing.clientName || '', email: briefing.email || '', whatsapp: briefing.whatsapp || '' }));
+      setCoverageOpen(true);
+      return;
+    }
+    setBriefing({ state: uf, city: '' });
+    setErrors((e) => ({ ...e, state: '', city: '' }));
+  };
+
+  const handleCoverageSubmit = async () => {
+    const f = coverageForm;
+    if (!f.nome.trim() || !f.whatsapp.trim() || !f.email.trim() || !f.cidade.trim() || !f.estado.trim()) {
+      toast({ title: 'Preencha todos os campos', variant: 'destructive' });
+      return;
+    }
+    setCoverageSubmitting(true);
+    try {
+      await apiRegisterCoverageRequest({
+        nome: f.nome.trim(),
+        whatsapp: f.whatsapp.trim(),
+        email: f.email.trim(),
+        cidade: f.cidade.trim(),
+        estado: f.estado.trim().toUpperCase().slice(0, 2),
+      });
+      toast({
+        title: 'Recebemos seu pedido!',
+        description: 'Vamos buscar parceiros de confiança na sua região e entrar em contato.',
+      });
+      setCoverageOpen(false);
+      setCoverageForm({ nome: '', whatsapp: '', email: '', cidade: '', estado: '' });
+    } catch (err: any) {
+      toast({
+        title: 'Não foi possível enviar',
+        description: err?.message || 'Tente novamente em instantes.',
+        variant: 'destructive',
+      });
+    } finally {
+      setCoverageSubmitting(false);
+    }
+  };
+
 
   const handleBack = () => {
     if (currentStep > 1) {
@@ -310,14 +396,47 @@ const QuotePage = () => {
                   </div>
 
                   <div className="grid gap-4">
-                    <StateCitySelect
-                      state={briefing.state || ''}
-                      city={briefing.city || ''}
-                      onStateChange={(uf) => setBriefing({ state: uf })}
-                      onCityChange={(c) => setBriefing({ city: c })}
-                      required
-                      errors={{ state: errors.state, city: errors.city }}
-                    />
+                    <div className="grid grid-cols-3 gap-3">
+                      <div>
+                        <Label>Estado *</Label>
+                        <Select
+                          value={briefing.state || ''}
+                          onValueChange={handleStateSelect}
+                        >
+                          <SelectTrigger className="mt-2">
+                            <SelectValue placeholder="UF" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="SP">SP — São Paulo</SelectItem>
+                            <SelectItem value="OUTRAS">Outras cidades</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        {errors.state && (
+                          <p className="text-sm text-destructive mt-1">{errors.state}</p>
+                        )}
+                      </div>
+                      <div className="col-span-2">
+                        <Label>Cidade *</Label>
+                        <Select
+                          value={briefing.city || ''}
+                          onValueChange={(c) => setBriefing({ city: c })}
+                          disabled={briefing.state !== 'SP'}
+                        >
+                          <SelectTrigger className="mt-2">
+                            <SelectValue placeholder={briefing.state === 'SP' ? 'Selecione a cidade' : 'Selecione o estado primeiro'} />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-72">
+                            {SP_CITIES.map((c) => (
+                              <SelectItem key={c} value={c}>{c}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {errors.city && (
+                          <p className="text-sm text-destructive mt-1">{errors.city}</p>
+                        )}
+                      </div>
+                    </div>
+
 
                     <div>
                       <Label htmlFor="neighborhood">Bairro *</Label>
@@ -366,7 +485,7 @@ const QuotePage = () => {
                   </div>
 
                   <div>
-                    <Label>Data do evento *</Label>
+                    <Label>Data do evento</Label>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
@@ -384,7 +503,10 @@ const QuotePage = () => {
                         <Calendar
                           mode="single"
                           selected={date}
-                          onSelect={setDate}
+                          onSelect={(d) => {
+                            setDate(d);
+                            if (d) setBriefing({ eventDateFlex: null });
+                          }}
                           disabled={(date) => date < new Date()}
                           initialFocus
                           locale={ptBR}
@@ -392,10 +514,37 @@ const QuotePage = () => {
                         />
                       </PopoverContent>
                     </Popover>
+
+                    <div className="mt-4">
+                      <p className="text-sm text-muted-foreground mb-2">Ou escolha um período aproximado:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {(['30d', '3m', '12m'] as const).map((key) => (
+                          <button
+                            key={key}
+                            type="button"
+                            onClick={() => {
+                              setBriefing({ eventDateFlex: key, eventDate: '' });
+                              setDate(undefined);
+                              setErrors((e) => ({ ...e, eventDate: '' }));
+                            }}
+                            className={cn(
+                              'px-4 py-2 rounded-full text-sm font-medium transition-all border',
+                              briefing.eventDateFlex === key
+                                ? 'bg-primary text-primary-foreground border-primary shadow-gold'
+                                : 'bg-secondary text-secondary-foreground border-transparent hover:bg-secondary/80'
+                            )}
+                          >
+                            {FLEX_LABELS[key]}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
                     {errors.eventDate && (
-                      <p className="text-sm text-destructive mt-1">{errors.eventDate}</p>
+                      <p className="text-sm text-destructive mt-2">{errors.eventDate}</p>
                     )}
                   </div>
+
                 </motion.div>
               )}
 
@@ -495,7 +644,80 @@ const QuotePage = () => {
           </div>
         </div>
       </div>
+
+      <Dialog open={coverageOpen} onOpenChange={setCoverageOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-display">Ops, ainda estamos ampliando nossa atuação</DialogTitle>
+            <DialogDescription>
+              Informe sua cidade que vamos buscar parceiros de confiança para o seu evento.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            <div>
+              <Label>Seu nome *</Label>
+              <Input
+                value={coverageForm.nome}
+                onChange={(e) => setCoverageForm((f) => ({ ...f, nome: e.target.value }))}
+                className="mt-2"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>WhatsApp *</Label>
+                <Input
+                  value={coverageForm.whatsapp}
+                  onChange={(e) => setCoverageForm((f) => ({ ...f, whatsapp: e.target.value }))}
+                  placeholder="(11) 99999-9999"
+                  className="mt-2"
+                />
+              </div>
+              <div>
+                <Label>Email *</Label>
+                <Input
+                  type="email"
+                  value={coverageForm.email}
+                  onChange={(e) => setCoverageForm((f) => ({ ...f, email: e.target.value }))}
+                  className="mt-2"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="col-span-2">
+                <Label>Cidade *</Label>
+                <Input
+                  value={coverageForm.cidade}
+                  onChange={(e) => setCoverageForm((f) => ({ ...f, cidade: e.target.value }))}
+                  className="mt-2"
+                />
+              </div>
+              <div>
+                <Label>UF *</Label>
+                <Input
+                  value={coverageForm.estado}
+                  onChange={(e) => setCoverageForm((f) => ({ ...f, estado: e.target.value.toUpperCase().slice(0, 2) }))}
+                  maxLength={2}
+                  className="mt-2"
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setCoverageOpen(false)} disabled={coverageSubmitting}>
+              Cancelar
+            </Button>
+            <Button variant="gold" onClick={handleCoverageSubmit} disabled={coverageSubmitting}>
+              {coverageSubmitting ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Enviando...</>
+              ) : (
+                'Enviar'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Layout>
+
   );
 };
 
