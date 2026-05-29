@@ -71,8 +71,14 @@ const MenuCard = ({ menu, companyId, index = 0 }: MenuCardProps) => {
 
         <div className="mt-6 pt-4 border-t border-border flex items-center justify-between">
           <p className="text-2xl font-bold text-foreground">
-            R$ {menu.pricePerPerson}
-            <span className="text-sm font-normal text-muted-foreground">/pessoa</span>
+            {menu.pricePerPerson > 0 ? (
+              <>
+                R$ {menu.pricePerPerson}
+                <span className="text-sm font-normal text-muted-foreground">/pessoa</span>
+              </>
+            ) : (
+              <span className="text-base font-semibold">A combinar</span>
+            )}
           </p>
           <Button asChild variant="gold-outline" size="sm">
             <Link to={`/empresas/${companyId}/cardapios/${menu.id}`}>
