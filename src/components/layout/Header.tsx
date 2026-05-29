@@ -66,7 +66,7 @@ const Header = () => {
             <a
               href="#como-funciona"
               onClick={handleComoFunciona}
-              className="text-sm font-medium text-white/70 hover:text-white transition-colors cursor-pointer"
+              className="font-medium text-white/70 hover:text-white transition-colors cursor-pointer text-base"
             >
               Como funciona
             </a>
