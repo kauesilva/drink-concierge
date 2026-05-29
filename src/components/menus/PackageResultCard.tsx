@@ -116,10 +116,16 @@ const PackageResultCard = ({ menu, company, index = 0 }: PackageResultCardProps)
           <div>
             <p className="text-xs text-muted-foreground">A partir de</p>
             <p className="text-lg font-bold text-foreground">
-              R$ {isLabor ? menu.hourlyRate ?? 0 : menu.pricePerPerson}
-              <span className="text-sm font-normal text-muted-foreground">
-                {isLabor ? '/hora' : '/pessoa'}
-              </span>
+              {!isLabor && menu.pricePerPerson <= 0 ? (
+                <span className="text-base">A combinar</span>
+              ) : (
+                <>
+                  R$ {isLabor ? menu.hourlyRate ?? 0 : menu.pricePerPerson}
+                  <span className="text-sm font-normal text-muted-foreground">
+                    {isLabor ? '/hora' : '/pessoa'}
+                  </span>
+                </>
+              )}
             </p>
           </div>
           <Button asChild variant="gold" size="sm">
