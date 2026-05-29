@@ -651,8 +651,9 @@ const PartnerPackagesPage = () => {
                 Marque os tipos compatíveis. Se nenhum for marcado, o pacote será considerado para qualquer tipo de evento.
               </p>
               <div className="grid grid-cols-2 gap-2">
-                {eventTypes.map((ev) => {
-                  const checked = form.eventTypes.includes(ev.value);
+                {eventTypes
+                  .filter((ev) => ev.value !== 'freelancer-bar' || form.serviceCategory === 'mao-de-obra')
+                  .map((ev) => {
                   return (
                     <label
                       key={ev.value}
