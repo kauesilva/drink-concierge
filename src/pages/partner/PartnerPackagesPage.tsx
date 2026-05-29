@@ -192,8 +192,8 @@ const PartnerPackagesPage = () => {
         return;
       }
     } else {
-      if (form.pricePerPerson <= 0) {
-        toast({ title: 'Informe o preço por pessoa', variant: 'destructive' });
+      if (form.pricePerPerson < 0) {
+        toast({ title: 'Preço inválido', variant: 'destructive' });
         return;
       }
       if (form.maxPeople && form.maxPeople < form.minPeople) {
@@ -329,7 +329,7 @@ const PartnerPackagesPage = () => {
                       <>
                         <span className="flex items-center gap-1">
                           <DollarSign className="w-3.5 h-3.5" />
-                          R$ {pkg.pricePerPerson}/pessoa
+                          {pkg.pricePerPerson > 0 ? `R$ ${pkg.pricePerPerson}/pessoa` : 'A combinar'}
                         </span>
                         <span className="flex items-center gap-1">
                           <Clock className="w-3.5 h-3.5" />
@@ -463,7 +463,16 @@ const PartnerPackagesPage = () => {
               <Label>Categoria do pacote *</Label>
               <RadioGroup
                 value={form.serviceCategory || ''}
-                onValueChange={(v) => setForm({ ...form, serviceCategory: v as ServiceCategory })}
+                onValueChange={(v) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    serviceCategory: v as ServiceCategory,
+                    eventTypes:
+                      v === 'mao-de-obra'
+                        ? prev.eventTypes
+                        : prev.eventTypes.filter((t) => t !== 'freelancer-bar'),
+                  }))
+                }
                 className="grid gap-2"
               >
                 {serviceCategories.map((cat) => {
@@ -587,52 +596,67 @@ const PartnerPackagesPage = () => {
                 )}
               </div>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <div className="space-y-2">
-                  <Label>Preço/pessoa *</Label>
-                  <Input
-                    type="number"
-                    min={0}
-                    value={form.pricePerPerson || ''}
-                    onChange={(e) => setForm({ ...form, pricePerPerson: Number(e.target.value) })}
-                    placeholder="90"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Duração (h)</Label>
-                  <Input
-                    type="number"
-                    min={1}
-                    value={form.durationHours}
-                    onChange={(e) => setForm({ ...form, durationHours: Number(e.target.value) })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Mín. pessoas</Label>
-                  <Input
-                    type="number"
-                    min={1}
-                    value={form.minPeople}
-                    onChange={(e) => setForm({ ...form, minPeople: Number(e.target.value) })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Máx. pessoas</Label>
-                  <Input
-                    type="number"
-                    min={1}
-                    value={form.maxPeople ?? ''}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        maxPeople: e.target.value ? Number(e.target.value) : undefined,
-                      })
+              <div className="space-y-3">
+                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <Checkbox
+                    checked={form.pricePerPerson === 0}
+                    onCheckedChange={(v) =>
+                      setForm({ ...form, pricePerPerson: v ? 0 : 1 })
                     }
-                    placeholder="Sem limite"
                   />
+                  <span>Preço sob consulta ("A combinar")</span>
+                </label>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="space-y-2">
+                    <Label>Preço/pessoa{form.pricePerPerson === 0 ? '' : ' *'}</Label>
+                    <Input
+                      type="number"
+                      min={0}
+                      disabled={form.pricePerPerson === 0}
+                      value={form.pricePerPerson === 0 ? '' : form.pricePerPerson || ''}
+                      onChange={(e) => setForm({ ...form, pricePerPerson: Number(e.target.value) })}
+                      placeholder={form.pricePerPerson === 0 ? 'A combinar' : '90'}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Duração (h)</Label>
+                    <Input
+                      type="number"
+                      min={1}
+                      value={form.durationHours}
+                      onChange={(e) => setForm({ ...form, durationHours: Number(e.target.value) })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Mín. pessoas</Label>
+                    <Input
+                      type="number"
+                      min={1}
+                      value={form.minPeople}
+                      onChange={(e) => setForm({ ...form, minPeople: Number(e.target.value) })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Máx. pessoas</Label>
+                    <Input
+                      type="number"
+                      min={1}
+                      value={form.maxPeople ?? ''}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          maxPeople: e.target.value ? Number(e.target.value) : undefined,
+                        })
+                      }
+                      placeholder="Sem limite"
+                    />
+                  </div>
                 </div>
               </div>
             )}
+
+
+
 
 
             {/* Tipos de evento atendidos */}
@@ -642,9 +666,11 @@ const PartnerPackagesPage = () => {
                 Marque os tipos compatíveis. Se nenhum for marcado, o pacote será considerado para qualquer tipo de evento.
               </p>
               <div className="grid grid-cols-2 gap-2">
-                {eventTypes.map((ev) => {
-                  const checked = form.eventTypes.includes(ev.value);
-                  return (
+                {eventTypes
+                  .filter((ev) => ev.value !== 'freelancer-bar' || form.serviceCategory === 'mao-de-obra')
+                  .map((ev) => {
+                    const checked = form.eventTypes.includes(ev.value);
+                    return (
                     <label
                       key={ev.value}
                       className="flex items-center gap-2 text-sm cursor-pointer p-2 rounded-md border border-border hover:bg-secondary/40"
