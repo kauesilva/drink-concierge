@@ -109,6 +109,11 @@ const PackageResultCard = ({ menu, company, index = 0 }: PackageResultCardProps)
                 {r}
               </Badge>
             ))}
+            {menu.match?.warnings?.map((w) => (
+              <Badge key={w} variant="outline" className="text-xs font-normal border-amber-500/40 text-amber-700">
+                {w}
+              </Badge>
+            ))}
           </div>
         )}
 
