@@ -42,8 +42,11 @@ export function matchesCapacity(pkg: Menu, people?: number): boolean {
 
 export interface PackageMatch {
   matches: boolean;
+  /** Coverage + capacity ok, mas categoria diferente da pedida. */
+  nearMatch: boolean;
   score: number;
   reasons: string[];
+  warnings: string[];
 }
 
 export function scorePackage(
@@ -51,17 +54,22 @@ export function scorePackage(
   briefing: Partial<QuoteBriefing>,
 ): PackageMatch {
   const reasons: string[] = [];
+  const warnings: string[] = [];
   let score = 0;
 
   const okCat = matchesCategory(pkg, briefing.serviceCategory);
   const okCov = matchesCoverage(pkg, briefing.state, briefing.city);
   const okCap = matchesCapacity(pkg, briefing.people);
 
-  const matches = okCat && okCov && okCap;
+  // Hard filter: cobertura e capacidade. Categoria vira score + aviso (mais resultados).
+  const matches = okCov && okCap;
+  const nearMatch = matches && !okCat;
 
   if (okCat && pkg.serviceCategory) {
     score += 30;
     reasons.push('categoria compatível');
+  } else if (!okCat && pkg.serviceCategory) {
+    warnings.push('categoria diferente da solicitada');
   }
   if (okCov && pkg.coverage && pkg.coverage.length > 0) {
     score += 25;
@@ -82,5 +90,5 @@ export function scorePackage(
     }
   }
 
-  return { matches, score, reasons };
+  return { matches, nearMatch, score, reasons, warnings };
 }
