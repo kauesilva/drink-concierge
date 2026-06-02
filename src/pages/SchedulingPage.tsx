@@ -48,6 +48,14 @@ const SchedulingPage = () => {
   const isNegotiation = negotiationRequested && selectedMenus.length >= 2;
 
   const handleSubmit = async () => {
+    if (!briefing.eventDate) {
+      toast({
+        title: 'Data do evento obrigatória',
+        description: 'Selecione a data do evento para continuar.',
+        variant: 'destructive',
+      });
+      return;
+    }
     setIsSubmitting(true);
     try {
       const packagesSummary = selectedMenus
