@@ -458,7 +458,7 @@ const Index = () => {
       </section>
 
       {/* FAQ — Notion minimal style */}
-      <section id="faq" className="py-24 md:py-32">
+      <section id="faq" className="py-24 md:py-[30px]">
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
