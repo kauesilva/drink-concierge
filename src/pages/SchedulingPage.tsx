@@ -5,6 +5,7 @@ import { ArrowLeft, Calendar, MapPin, User, Phone, Mail, MessageSquare, Loader2 
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useCompanyDetail, useCompanyMenus } from '@/hooks/useCompanies';
 import { useQuoteStore } from '@/store/quoteStore';
