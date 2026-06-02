@@ -18,7 +18,7 @@ const TRAVEL_FEE = 150;
 
 const SchedulingPage = () => {
   const navigate = useNavigate();
-  const { briefing, selectedCompanyId, selectedMenuIds, negotiationRequested, setNegotiationRequested } = useQuoteStore();
+  const { briefing, selectedCompanyId, selectedMenuIds, negotiationRequested, setNegotiationRequested, setBriefing } = useQuoteStore();
   const [observations, setObservations] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
