@@ -458,7 +458,7 @@ const Index = () => {
       </section>
 
       {/* FAQ — Notion minimal style */}
-      <section id="faq" className="py-24 md:py-[30px]">
+      <section id="faq" className="py-24 md:py-[10px]">
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -503,7 +503,7 @@ const Index = () => {
       </section>
 
       {/* Final CTA — bold and clean */}
-      <section className="py-24 md:py-[30px] border-t border-border">
+      <section className="py-24 md:py-[10px] border-t border-border">
         <div className="container text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
