@@ -159,17 +159,27 @@ const SchedulingPage = () => {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="card-premium p-6 mb-6">
             <h3 className="font-display text-lg font-semibold mb-4">Dados do evento</h3>
             <div className="space-y-3">
-              {briefing.eventDate && (
-                <div className="flex items-center gap-3">
-                  <Calendar className="w-5 h-5 text-primary" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Data</p>
-                    <p className="font-medium text-foreground">
+              <div className="flex items-start gap-3">
+                <Calendar className="w-5 h-5 text-primary mt-1" />
+                <div className="flex-1">
+                  <Label htmlFor="eventDate" className="text-sm text-muted-foreground font-normal">
+                    Data do evento {!briefing.eventDate && <span className="text-destructive">*</span>}
+                  </Label>
+                  <Input
+                    id="eventDate"
+                    type="date"
+                    value={briefing.eventDate || ''}
+                    min={new Date().toISOString().split('T')[0]}
+                    onChange={(e) => setBriefing({ eventDate: e.target.value })}
+                    className="mt-1"
+                  />
+                  {briefing.eventDate && (
+                    <p className="text-xs text-muted-foreground mt-1">
                       {format(new Date(briefing.eventDate), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
                     </p>
-                  </div>
+                  )}
                 </div>
-              )}
+              </div>
               <div className="flex items-center gap-3">
                 <MapPin className="w-5 h-5 text-primary" />
                 <div>
